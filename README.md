@@ -19,6 +19,7 @@ under `plugins/maxio/`. Every treatment branch starts from the control's commit,
 | `d2-rules-skill` | `dd40bd45` | D2 Rules skill + plan rows | The control plus a skill holding C4's 513 flow rules in 18 flows, and a "provider rules" row in the plan |
 | `d3-hooks` | `becd8c17` | D3 Hooks | The control plus a generic hook script pushing C4's rules after edits, after failed commands and at Stop |
 | `c5-observed-notes` | `5192eeb6` | C5 Observed notes | C4 plus 41 rules from scripted probes of the Maxio sandbox (7 disagree with the docs), and one pointer line |
+| `business-rules-planner` | `f36f394e` | Business rules for the planner | The control plus `business-rules/`: C4's 1,237 rules as Markdown only, and one *How to ground* step telling the planner to consult them while it writes the plan |
 
 Every branch passes `check-branch.py` on a clone holding only its commit: `claude plugin validate --strict` on Claude
 Code 2.1.319, installs and is enabled in an empty `CLAUDE_CONFIG_DIR`, and (except C1) only adds and keeps the SDK
