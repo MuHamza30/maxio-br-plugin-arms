@@ -1,0 +1,3 @@
+# Every file is stored and checked out byte for byte, so a run on a machine with core.autocrlf=true gets the
+# generator's bytes. (sdk/dotnet carries its own .gitattributes from the generator.)
+* -text
