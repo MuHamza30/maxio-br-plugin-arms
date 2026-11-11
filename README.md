@@ -17,9 +17,11 @@ the treatment; the skills are unchanged and there is no pointer line:
   and a route pattern), `errors.json` (191 entries, one per documented status and message, with the rules that name
   it).
 
+The branch's second commit is this rebuild: the same records and script, with no double period after a Maxio outcome that ends in one. The first commit is superseded.
+
 ## How it was built
 
-From plugin-experiments at `a2d46947f` (branch `research/br-plugin-screen-build`):
+From plugin-experiments at `6e21c1046` (branch `research/br-plugin-screen-build`):
 
 ```
 python -I test-suite/scripts/br-plugin/build-d3-hooks.py --rules test-suite/content/br-plugin/maxio/c4/rules.json
@@ -36,16 +38,19 @@ The record is `test-suite/content/br-plugin/maxio/d3-hooks.json`. C4's extractio
 |---|---|
 | Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
 | Rules | `c4/rules.json`, sha256 `54cbdadd23c0cf6c57e1a686f6cb73c6325b4dd62e07db5e2bd68c6b56569214` |
-| Script | `d3/provider-rules.mjs`, sha256 `27f33b5d52c35fbba9c415603ea47ebe1d4c34e276bb930f119f58248f46e95e` |
-| Plugin | `plugins/maxio`: tree sha256 `fdfc7a70cbe677c3fd61dcb40696d92414f1f0edf581518581d7dfa3b143e17c`, 1,571 files |
+| Script | `d3/provider-rules.mjs`, sha256 `62e16cb3c179f95a8881e49272f27fa9e8da3d08abb0315aa3c03cb7501f69e9` |
+| Plugin | `plugins/maxio`: tree sha256 `2866cec2ccfd456b66ef4a59826a1423fd936cb986d6dc9387e3dd09b0c092c9`, 1,571 files |
 | SDK | `sdk/dotnet` without its docs: the SDK pin, `e8cebb1c…3673` |
 
 ## Checks
 
 `test-suite/scripts/br-plugin/check-branch.py` on a clone holding only this branch's commit: only adds, same SDK,
 `claude plugin validate --strict` passes on Claude Code 2.1.319, installs and is enabled in an empty
-`CLAUDE_CONFIG_DIR`. Each hook mode was run against made-up input; whether the hooks fire in a real session on
-2.1.319, and beside the arm's own `app-repo-guard` PreToolUse hook, is checked separately (see the screen's notes).
+`CLAUDE_CONFIG_DIR`. Each hook mode was run against made-up input, and `d3/probe_hooks.py` ran one real headless session on 2.1.319
+(Haiku 5.5, allowed only to write files and run node, $0.0065) with the plugin installed from the first commit
+(`fabc8a1b`; the rebuild changes only punctuation in rule lines): the post-edit, command-failed and stop hooks all
+fired, and the agent answered the stop check. Whether they run beside the arm's own `app-repo-guard` PreToolUse hook is
+checked in the arm's dry run.
 
 ## Approval
 

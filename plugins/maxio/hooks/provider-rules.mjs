@@ -47,7 +47,7 @@ function outcome(r) {
   if (po.effect) parts.push(po.effect);
   return parts.length ? parts.join(" ") : "outcome not stated";
 }
-const ruleLine = (r) => `- ${r.loudness}, ${r.on}/${r.does}: ${String(r.condition).replace(/\.$/, "")} -> ${outcome(r)}. Do: ${r.app_must} (${r.id})`;
+const ruleLine = (r) => `- ${r.loudness}, ${r.on}/${r.does}: ${String(r.condition).replace(/\.$/, "")} -> ${outcome(r).replace(/\.$/, "")}. Do: ${r.app_must} (${r.id})`;
 const byLoud = (a, b) => (a.loudness === "loud" ? 0 : 1) - (b.loudness === "loud" ? 0 : 1) || a.id.localeCompare(b.id);
 
 function rulesFor(rules, opId) {
