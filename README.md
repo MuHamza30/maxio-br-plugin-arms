@@ -60,7 +60,7 @@ The record is `test-suite/content/br-plugin/maxio/c5-observed-notes.json`. C4's 
 |---|---|
 | Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
 | Rules | `c4/rules.json` (`54cbdadd…9214`, 1,237) and `c5/rules.json` (sha256 `961158ebeeabee4e414fc8bb3b6dc94d59da464b3234d3445192e0abaebd29e7`, 41) |
-| Observations | `c5/observations.jsonl`, sha256 `2d49356b737341e8f354b8f4539172c672020b30c083a600a95368cf2fa756b6`, 553 calls |
+| Observations | `c5/observations.jsonl`, sha256 `cf6c70a3366978b8be7e25dba415626d5fa6d7540b4fccc0c2ae1818a1cb05b3`, 553 calls |
 | Plugin | `plugins/maxio`: tree sha256 `f12954610b3d1acd3a16273e11ed581dfd52a815357263daff49aa6441dbfaae`, 1,612 files |
 | SDK | `sdk/dotnet` without its docs: the SDK pin, `e8cebb1c…3673` |
 
