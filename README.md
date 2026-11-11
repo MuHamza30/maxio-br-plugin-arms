@@ -21,9 +21,11 @@ d2-rules-skill` is exactly the treatment:
 
 No `knowledge/` folder and no pointer line: the skill and the plan row are D2's whole delivery.
 
+The branch's second commit is this rebuild: the same records and script, with no double period after a Maxio outcome that ends in one. The first commit is superseded.
+
 ## How it was built
 
-From plugin-experiments at `a502b6b45` (branch `research/br-plugin-screen-build`):
+From plugin-experiments at `6e21c1046` (branch `research/br-plugin-screen-build`):
 
 ```
 python -I test-suite/scripts/br-plugin/build-d2-rules-skill.py --rules test-suite/content/br-plugin/maxio/c4/rules.json
@@ -40,7 +42,7 @@ The record is `test-suite/content/br-plugin/maxio/d2-rules-skill.json`. C4's ext
 |---|---|
 | Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
 | Rules | `c4/rules.json`, sha256 `54cbdadd23c0cf6c57e1a686f6cb73c6325b4dd62e07db5e2bd68c6b56569214` |
-| Plugin | `plugins/maxio`: tree sha256 `7b5ae6260821c4fb0d0abac0b6f631c98f031e578b36a842e0dd3ce70c723891`, 1,585 files |
+| Plugin | `plugins/maxio`: tree sha256 `a3b7f32664975d1c63ad995b3cd5497dfb1cdcbae10b12cbe6e80a4bb677a098`, 1,585 files |
 | SDK | `sdk/dotnet` without its docs: the SDK pin, `e8cebb1c…3673` |
 
 ## Checks
