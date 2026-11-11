@@ -34,9 +34,11 @@ A fresh extraction, never Saeed's knowledge, the graded rules, the sandbox probe
 The docs teach what they state, including where the sandbox disagrees; only C5 corrects them. No person has reviewed
 the extraction yet; whoever signs it off must not compare it with the graded rules.
 
+The branch's second commit is this rebuild: the same records and script, with no double period after a Maxio outcome that ends in one. The first commit is superseded.
+
 ## How it was built
 
-From plugin-experiments at `a502b6b45` (branch `research/br-plugin-screen-build`):
+From plugin-experiments at `6e21c1046` (branch `research/br-plugin-screen-build`):
 
 ```
 python -I test-suite/scripts/br-plugin/build-rule-catalogue.py --name c4-rule-catalogue \
@@ -53,7 +55,7 @@ The record is `test-suite/content/br-plugin/maxio/c4-rule-catalogue.json`.
 |---|---|
 | Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
 | Rules | `c4/rules.json`, 1,237 records, sha256 `54cbdadd23c0cf6c57e1a686f6cb73c6325b4dd62e07db5e2bd68c6b56569214` |
-| Plugin | `plugins/maxio`: tree sha256 `7f89a8edc940c13406e316d490b0eb08e2262d1d657d83006cf582c94f433f9f`, 1,612 files |
+| Plugin | `plugins/maxio`: tree sha256 `1e0b0fed01cf5520dc5746938a52eb471873e41a53812d1aec9e5baa594ade12`, 1,612 files |
 | SDK | `sdk/dotnet` without its docs: the SDK pin, `e8cebb1c…3673` |
 
 ## Checks
