@@ -41,6 +41,12 @@ public sealed class ReferralCodes
     /// <para>
     /// For more information, see <see href="https://docs.maxio.com/hc/en-us/articles/24286981223693-Understanding-Referrals">Understanding Referrals</see> in the product documentation.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The referral code is not valid or not applicable within the site → Maxio answers 404 with "Referral code is invalid.". Treat 404 as an invalid code and do not pass it as ref when creating the subscription.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ReferralValidationResponse> ValidateReferralCode(ValidateReferralCodeRequest request,
         RequestOptions? requestOptions = null,

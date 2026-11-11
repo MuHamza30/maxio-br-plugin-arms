@@ -48,6 +48,16 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You may specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Any segment in a bulk create or bulk update request fails validation → Maxio answers 422. Treat a bulk segment request as all-or-nothing and resubmit the whole batch after fixing it.</description></item>
+    ///   <item><description>Several segments in a bulk request are invalid → Maxio answers 422 with "Pricing scheme: cannot be blank". Expect further failures after fixing the reported segment; validate the whole batch before sending.</description></item>
+    ///   <item><description>A segment_property_N_value does not match the type of that property in the related event-based billing metric → the outcome is not stated. Send each segment property value with the type the metric defines for that property.</description></item>
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    ///   <item><description>A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListSegmentsResponse> BulkCreateSegments(BulkCreateSegmentsRequest request,
         RequestOptions? requestOptions = null,
@@ -84,6 +94,15 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You may specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Any segment in a bulk create or bulk update request fails validation → Maxio answers 422. Treat a bulk segment request as all-or-nothing and resubmit the whole batch after fixing it.</description></item>
+    ///   <item><description>Several segments in a bulk request are invalid → Maxio answers 422 with "Pricing scheme: cannot be blank". Expect further failures after fixing the reported segment; validate the whole batch before sending.</description></item>
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    ///   <item><description>A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListSegmentsResponse> BulkUpdateSegments(BulkUpdateSegmentsRequest request,
         RequestOptions? requestOptions = null,
@@ -117,6 +136,16 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You may specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>More segment property values are sent than the related metric has segmenting properties → the outcome is not stated. Send no more segment_property_N_value fields than the metric's segmenting properties.</description></item>
+    ///   <item><description>A segment_property_N_value does not match the type of that property in the related event-based billing metric → the outcome is not stated. Send each segment property value with the type the metric defines for that property.</description></item>
+    ///   <item><description>The component's metric is not segmented → the outcome is not stated. Create or update segments only for components whose metric has segmenting properties.</description></item>
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    ///   <item><description>A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SegmentResponse> CreateSegment(CreateSegmentOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -150,6 +179,12 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You may specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    /// </list>
     /// </remarks>
     public Task DeleteSegment(DeleteSegmentRequest request,
         RequestOptions? requestOptions = null,
@@ -187,6 +222,17 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You may specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    ///   <item><description>A filter[segment_property_N_value] is sent as an empty string → the outcome is not stated. Omit a segment property filter instead of sending it empty.</description></item>
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>Segments for a price point are listed → Segments are returned in order of creation. Rely on creation order when paging through segments.</description></item>
+    ///   <item><description>per_page is above 200 when listing segments → per_page is changed to 200; without per_page, 30 records are returned. Page segments with per_page of at most 200.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListSegmentsResponse> ListSegmentsForPricePoint(ListSegmentsForPricePointRequest request,
         RequestOptions? requestOptions = null,
@@ -224,6 +270,14 @@ public sealed class EventsBasedBillingSegments
     /// <para>
     /// You can specify component and/or price point by using either the numeric ID or the <c>handle:gold</c> syntax.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The component's metric is not segmented → the outcome is not stated. Create or update segments only for components whose metric has segmenting properties.</description></item>
+    ///   <item><description>component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.</description></item>
+    ///   <item><description>A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SegmentResponse> UpdateSegment(UpdateSegmentOperationRequest request,
         RequestOptions? requestOptions = null,

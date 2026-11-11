@@ -134,6 +134,24 @@ public sealed class Events
     ///   <item><description>“Successful payment for allocation changes to Product on Subscription”</description></item>
     ///   <item><description>“Failed payment for allocation changes to Product on Subscription”</description></item>
     /// </list>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The filter parameter names a legacy event key (payment_failure_recreated, payment_success_recreated, renewal_failure_recreated, renewal_success_recreated, zferral_revenue_post_failure, zferral_revenue_post_success) → the outcome is not stated. Do not filter events by the legacy keys.</description></item>
+    ///   <item><description>per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.</description></item>
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.</description></item>
+    ///   <item><description>start_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp at or after midnight (12:00:00 AM) in the site's time zone on that date match. Express start_date in the site's time zone, or use start_datetime with an explicit offset.</description></item>
+    ///   <item><description>end_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp up to and including 11:59:59 PM in the site's time zone on that date match. Express end_date in the site's time zone, or use end_datetime with an explicit offset.</description></item>
+    ///   <item><description>start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.</description></item>
+    ///   <item><description>date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    ///   <item><description>start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.</description></item>
+    /// </list>
     /// </example>
     /// </remarks>
     public Task<IReadOnlyList<EventResponse>> ListEvents(ListEventsRequest request,
@@ -208,6 +226,18 @@ public sealed class Events
     ///   <item><description>“Failed payment for allocation changes to Product on Subscription”</description></item>
     ///   <item><description>“Plan changed on Subscription from previous plan to new plan”</description></item>
     /// </list>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.</description></item>
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<EventResponse>> ListSubscriptionEvents(ListSubscriptionEventsRequest request,
         RequestOptions? requestOptions = null,
@@ -260,6 +290,18 @@ public sealed class Events
     ///   <item><description>“Successful payment for allocation changes to Product on Subscription”</description></item>
     ///   <item><description>“Failed payment for allocation changes to Product on Subscription”</description></item>
     ///   <item><description>“Plan changed on Subscription from previous plan to new plan”</description></item>
+    /// </list>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.</description></item>
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.</description></item>
+    ///   <item><description>The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
     /// </list>
     /// </remarks>
     public Task<CountResponse> ReadEventsCount(ReadEventsCountRequest request,

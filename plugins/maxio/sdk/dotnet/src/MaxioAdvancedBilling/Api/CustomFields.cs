@@ -48,6 +48,17 @@ public sealed class CustomFields
     /// <para>
     /// &gt;Note: Each site is limited to 100 unique metafields per resource. This means you can have 100 metafields for Subscriptions and another 100 for Customers.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A metadata (custom field) value is larger than 2 KB / 2048 characters → the outcome is not stated. Keep custom field values within 2048 characters (2 KB).</description></item>
+    ///   <item><description>Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.</description></item>
+    ///   <item><description>A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.</description></item>
+    ///   <item><description>Metadata is created or updated on a subscription or customer with a metafield name that does not exist yet → The metafield is created on the site as a text field with the given value. Create metafields first (or change input_type afterwards with Update Metafield) when they should not be text fields.</description></item>
+    ///   <item><description>Create Metadata names a metafield that already has a value on the subscription or customer → The existing value is updated rather than rejected. Treat Create Metadata as an upsert and do not use it to detect existing values.</description></item>
+    ///   <item><description>A custom field value is added or changed on a subscription or customer (including at signup) → A custom_field_value_change webhook is fired. Expect custom_field_value_change webhooks for your own metadata writes and avoid loops.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<Metadata>> CreateMetadata(CreateMetadataOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -97,6 +108,18 @@ public sealed class CustomFields
     /// <para>
     /// See <see href="https://docs.maxio.com/hc/en-us/articles/24266140850573-Custom-Fields-Reference">Custom Fields Reference</see> and <see href="https://maxio.zendesk.com/hc/en-us/articles/24251701302925-Subscription-Summary-Custom-Fields-Tab">Custom Fields Tab</see> for information on using Custom Fields in the Advanced Billing UI.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.</description></item>
+    ///   <item><description>A metafield already exists and its resource type (subscriptions or customers) would need to change → the outcome is not stated. Choose the resource type correctly when creating a metafield; create a new metafield on the other resource instead of moving it.</description></item>
+    ///   <item><description>A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.</description></item>
+    ///   <item><description>enum values are sent for a metafield whose input_type is not radio or dropdown → enum applies only to radio and dropdown metafields. Send enum only with input_type radio or dropdown.</description></item>
+    ///   <item><description>The enum list of a new metafield contains empty strings → Empty strings are not submitted as enum values. Do not rely on empty strings being stored as dropdown or radio options.</description></item>
+    ///   <item><description>A metafield is created without input_type → The metafield defaults to a text field. Send input_type explicitly when the metafield should be radio, dropdown or balance_tracker.</description></item>
+    ///   <item><description>A metafield's scope flags (csv, invoices, statements, portal, public_show, public_edit) are set to 1 → The metafield and its metadata are shown or exported in those places: CSV export, invoices, statements, the portal/Public Signup Pages, and viewable or editable in Embeddable Components. Set each scope flag deliberately, since it controls where custom field data is shown to customers.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<Metafield>> CreateMetafields(CreateMetafieldsOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -154,6 +177,12 @@ public sealed class CustomFields
     /// <exception cref="ApiException{TError}"> of <see cref="DeleteMetafieldError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Deletes a metafield from your Site. Removes the metafield and associated metadata from all Subscriptions or Customers resources on the Site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A metafield is deleted → The metafield and its metadata are removed from every subscription or customer on the site. Delete a metafield only when its values are no longer needed on any record.</description></item>
+    /// </list>
     /// </remarks>
     public Task DeleteMetafield(DeleteMetafieldRequest request,
         RequestOptions? requestOptions = null,
@@ -181,6 +210,13 @@ public sealed class CustomFields
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists metadata and metafields for a specific customer or subscription.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaginatedMetadata> ListMetadata(ListMetadataRequest request,
         RequestOptions? requestOptions = null,
@@ -211,6 +247,18 @@ public sealed class CustomFields
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists metadata for a specified array of subscriptions or customers.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>start_date or end_date is used to filter metadata → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Interpret start_date and end_date as whole days in the site's time zone.</description></item>
+    ///   <item><description>start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a time zone offset in start_datetime and end_datetime when you mean UTC or another zone.</description></item>
+    ///   <item><description>Both a date and a datetime bound are sent (start_date with start_datetime, or end_date with end_datetime) → The datetime parameter is used instead of the date parameter. Send either the date or the datetime form of each bound, not both.</description></item>
+    ///   <item><description>List Metafields or List Metadata for Resource Type is called without direction → Results are sorted by id ascending; direction=desc sorts descending. Pass direction explicitly when the order matters.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaginatedMetadata> ListMetadataForResourceType(ListMetadataForResourceTypeRequest request,
         RequestOptions? requestOptions = null,
@@ -249,6 +297,14 @@ public sealed class CustomFields
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists the metafields and their associated details for a Site and resource type. You can filter the request to a specific metafield.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>List Metafields or List Metadata for Resource Type is called without direction → Results are sorted by id ascending; direction=desc sorts descending. Pass direction explicitly when the order matters.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListMetafieldsResponse> ListMetafields(ListMetafieldsRequest request,
         RequestOptions? requestOptions = null,
@@ -287,6 +343,16 @@ public sealed class CustomFields
     /// <para>
     /// Each site is limited to 100 unique metafields per resource. This means you can have 100 metafields for the Subscription resource and another 100 for the Customer resource.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A metadata (custom field) value is larger than 2 KB / 2048 characters → the outcome is not stated. Keep custom field values within 2048 characters (2 KB).</description></item>
+    ///   <item><description>Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.</description></item>
+    ///   <item><description>A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.</description></item>
+    ///   <item><description>Metadata is created or updated on a subscription or customer with a metafield name that does not exist yet → The metafield is created on the site as a text field with the given value. Create metafields first (or change input_type afterwards with Update Metafield) when they should not be text fields.</description></item>
+    ///   <item><description>A custom field value is added or changed on a subscription or customer (including at signup) → A custom_field_value_change webhook is fired. Expect custom_field_value_change webhooks for your own metadata writes and avoid loops.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<Metadata>> UpdateMetadata(UpdateMetadataOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -346,6 +412,21 @@ public sealed class CustomFields
     /// - Add or update scope settings for a metafield.
     ///   &gt;Note: Scope changes overwrite existing settings. You must specify the complete scope, including the changes you want to make.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.</description></item>
+    ///   <item><description>A metafield already exists and its resource type (subscriptions or customers) would need to change → the outcome is not stated. Choose the resource type correctly when creating a metafield; create a new metafield on the other resource instead of moving it.</description></item>
+    ///   <item><description>A metafield is given a name already used by another metafield of the same resource type → Maxio answers 422 with "Metafield name must be unique for the Attachment Type". Keep metafield names unique within subscriptions and within customers.</description></item>
+    ///   <item><description>enum values are sent for a metafield whose input_type is not radio or dropdown → enum applies only to radio and dropdown metafields. Send enum only with input_type radio or dropdown.</description></item>
+    ///   <item><description>A metafield's scope flags (csv, invoices, statements, portal, public_show, public_edit) are set to 1 → The metafield and its metadata are shown or exported in those places: CSV export, invoices, statements, the portal/Public Signup Pages, and viewable or editable in Embeddable Components. Set each scope flag deliberately, since it controls where custom field data is shown to customers.</description></item>
+    ///   <item><description>A metafield's scope is updated with only some of the scope attributes → The partial scope overwrites the existing scope settings; attributes left out are not kept. Send the complete scope object, including unchanged attributes, whenever you update scope.</description></item>
+    ///   <item><description>Update Metafield names a current_name that does not exist for the resource type → A new metafield is added instead of an error being returned. Check the current_name spelling, since a typo creates a new metafield.</description></item>
+    ///   <item><description>Update Metafield is used only to change a metafield's metadata (enum) while keeping its name → the outcome is not stated. Send the current metafield name in both current_name and name.</description></item>
+    ///   <item><description>A metafield's input type is changed from text to dropdown or radio → Existing values on subscriptions or customers are not adjusted to the new input type. Update each subscription or customer that used the metafield so its value matches the new metafield and metadata.</description></item>
+    ///   <item><description>The metadata values (enum) of a dropdown or radio metafield are updated → The sent list overwrites the existing values; values left out are removed. Send the full list of values: all existing ones plus additions, or all except those to remove.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<Metafield>> UpdateMetafield(UpdateMetafieldRequest request,
         RequestOptions? requestOptions = null,

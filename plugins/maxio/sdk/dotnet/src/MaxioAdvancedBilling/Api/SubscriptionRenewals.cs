@@ -40,6 +40,12 @@ public sealed class SubscriptionRenewals
     /// <exception cref="ApiException{TError}"> of <see cref="CancelScheduledRenewalConfigurationError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Cancels a scheduled renewal configuration.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A scheduled renewal configuration is canceled → Its status becomes canceled. Create a new configuration if the renewal is needed again after canceling.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationResponse> CancelScheduledRenewalConfiguration(CancelScheduledRenewalConfigurationRequest request,
         RequestOptions? requestOptions = null,
@@ -67,6 +73,14 @@ public sealed class SubscriptionRenewals
     /// <exception cref="ApiException{TError}"> of <see cref="CreateScheduledRenewalConfigurationError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Creates a scheduled renewal configuration for a subscription. The scheduled renewal is based on the subscription’s current product and component setup.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>contract_id or create_new_contract is sent on a site without Contracts enabled → the outcome is not stated. Send contract fields only when Contracts are enabled for the site.</description></item>
+    ///   <item><description>A scheduled renewal configuration is created → It is built from the subscription's current product and component setup. Adjust the configuration's items afterwards if the renewal should differ from the current setup.</description></item>
+    ///   <item><description>create_new_contract is true on a site with Contracts enabled → A new contract is created for the scheduled renewal. Use contract_id instead to reuse an existing contract and avoid creating extra ones.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationResponse> CreateScheduledRenewalConfiguration(CreateScheduledRenewalConfigurationRequest request,
         RequestOptions? requestOptions = null,
@@ -97,6 +111,16 @@ public sealed class SubscriptionRenewals
     /// <para>
     /// If your site has list vs sales pricing enabled, accepts renewal_configuration_item.custom_price.list_price_point_id, validates and persists it; omitted value follows existing/default behavior; with list vs sales pricing disabled, parameter is ignored (no validation/behavioral impact). This functionality is supported in the API, but is not currently supported in SDKs.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id names a price point that does not exist → Maxio answers 422 with "list_price_point_id not found". Send an existing list price point id.</description></item>
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id names a custom (subscription-specific) price point → Maxio answers 422 with "list_price_point_id must reference a non-custom product price point". Point list_price_point_id at a catalog (non-custom) price point.</description></item>
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id belongs to a different product or component than the item → Maxio answers 422 with "list_price_point_id must belong to the same product". Use a list price point of the same product or component as the item.</description></item>
+    ///   <item><description>A component item's custom_price for an on/off component has more than one price bracket starting at 1 → the outcome is not stated. Send a single price bracket starting at 1 for on/off components.</description></item>
+    ///   <item><description>renewal_configuration_item.custom_price.list_price_point_id is sent on a site with list vs sales pricing disabled → The parameter is ignored, with no validation or behavioral impact. Rely on list_price_point_id only when list vs sales pricing is enabled.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationItemResponse> CreateScheduledRenewalConfigurationItem(CreateScheduledRenewalConfigurationItemRequest request,
         RequestOptions? requestOptions = null,
@@ -268,6 +292,12 @@ public sealed class SubscriptionRenewals
     /// <exception cref="ApiException{TError}"> of <see cref="UnpublishScheduledRenewalConfigurationError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Restores a scheduled renewal configuration to an editable state.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A scheduled renewal configuration is unpublished → It returns to an editable state (status draft). Unpublish a scheduled renewal before editing it, then schedule it again.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationResponse> UnpublishScheduledRenewalConfiguration(UnpublishScheduledRenewalConfigurationRequest request,
         RequestOptions? requestOptions = null,
@@ -295,6 +325,13 @@ public sealed class SubscriptionRenewals
     /// <exception cref="ApiException{TError}"> of <see cref="UpdateScheduledRenewalConfigurationError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Updates an existing configuration.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>contract_id or create_new_contract is sent on a site without Contracts enabled → the outcome is not stated. Send contract fields only when Contracts are enabled for the site.</description></item>
+    ///   <item><description>create_new_contract is true on a site with Contracts enabled → A new contract is created for the scheduled renewal. Use contract_id instead to reuse an existing contract and avoid creating extra ones.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationResponse> UpdateScheduledRenewalConfiguration(UpdateScheduledRenewalConfigurationRequest request,
         RequestOptions? requestOptions = null,
@@ -325,6 +362,16 @@ public sealed class SubscriptionRenewals
     /// <para>
     /// If you site has list vs sales pricing enabled, accepts renewal_configuration_item.custom_price.list_price_point_id, validates and persists it; omitted value follows existing/default behavior; with list vs sales pricing disabled, parameter is ignored (no validation/behavioral impact). This functionality is supported in the API, but is not currently supported in SDKs.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id names a price point that does not exist → Maxio answers 422 with "list_price_point_id not found". Send an existing list price point id.</description></item>
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id names a custom (subscription-specific) price point → Maxio answers 422 with "list_price_point_id must reference a non-custom product price point". Point list_price_point_id at a catalog (non-custom) price point.</description></item>
+    ///   <item><description>With list vs sales pricing enabled, list_price_point_id belongs to a different product or component than the item → Maxio answers 422 with "list_price_point_id must belong to the same product". Use a list price point of the same product or component as the item.</description></item>
+    ///   <item><description>A component item's custom_price for an on/off component has more than one price bracket starting at 1 → the outcome is not stated. Send a single price bracket starting at 1 for on/off components.</description></item>
+    ///   <item><description>renewal_configuration_item.custom_price.list_price_point_id is sent on a site with list vs sales pricing disabled → The parameter is ignored, with no validation or behavioral impact. Rely on list_price_point_id only when list vs sales pricing is enabled.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ScheduledRenewalConfigurationItemResponse> UpdateScheduledRenewalConfigurationItem(UpdateScheduledRenewalConfigurationItemRequest request,
         RequestOptions? requestOptions = null,

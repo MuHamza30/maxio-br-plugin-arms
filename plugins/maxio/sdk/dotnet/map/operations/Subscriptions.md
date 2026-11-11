@@ -101,7 +101,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
   - required: `SubscriptionId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<OverrideSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent(out RawError)` [400] · `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
 
 | Type | Source |
 | --- | --- |

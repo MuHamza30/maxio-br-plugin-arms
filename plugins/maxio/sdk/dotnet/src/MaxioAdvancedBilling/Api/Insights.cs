@@ -69,6 +69,19 @@ public sealed class Insights
     /// * Metered Components
     /// * Prepaid Usage Components
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.</description></item>
+    ///   <item><description>MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.</description></item>
+    ///   <item><description>The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.</description></item>
+    ///   <item><description>An MRR movement is listed → line_items show the subscription's product configuration at the time of the movement, not its current configuration. Read current configuration from the subscription, not from movement line_items.</description></item>
+    ///   <item><description>per_page is above 50 when listing MRR movements → per_page is changed to 50; without per_page, 10 records are returned. Page MRR movements with per_page of at most 50.</description></item>
+    ///   <item><description>A no-charge component allocation was made on a subscription in a currency other than the site's primary currency before the fix announced on 2022-02-09 → The MRR changes from those past allocation events were wrong and are not recalculated automatically; only later events use the proper amount. Ask Maxio support to update MRR for those past events if your reporting depends on them.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListMrrResponse> ListMrrMovements(ListMrrMovementsRequest request,
         RequestOptions? requestOptions = null,
@@ -101,6 +114,20 @@ public sealed class Insights
     /// <exception cref="ApiException{TError}"> of <see cref="ListMrrPerSubscriptionError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists your site's current MRR, including plan and usage breakouts split per subscription.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>at_time is not a valid ISO 8601 timestamp → Maxio answers 400 with "supplied value is invalid, expected ISO 8601 format". Send at_time as an ISO 8601 timestamp, e.g. 2022-01-10T10:00:00-05:00.</description></item>
+    ///   <item><description>per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.</description></item>
+    ///   <item><description>page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.</description></item>
+    ///   <item><description>MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.</description></item>
+    ///   <item><description>The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.</description></item>
+    ///   <item><description>direction is not sent → Records are ordered by subscription_id ascending. Send direction=desc for descending subscription_id order.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SubscriptionMrrResponse> ListMrrPerSubscription(ListMrrPerSubscriptionRequest request,
         RequestOptions? requestOptions = null,
@@ -134,6 +161,16 @@ public sealed class Insights
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Returns your site's current MRR, including plan and usage breakouts.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.</description></item>
+    ///   <item><description>MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.</description></item>
+    ///   <item><description>The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.</description></item>
+    ///   <item><description>A no-charge component allocation was made on a subscription in a currency other than the site's primary currency before the fix announced on 2022-02-09 → The MRR changes from those past allocation events were wrong and are not recalculated automatically; only later events use the proper amount. Ask Maxio support to update MRR for those past events if your reporting depends on them.</description></item>
+    ///   <item><description>at_time is omitted → MRR is returned for the current time; with at_time it is returned for that historic time. Send at_time in ISO 8601 when you need MRR at a past moment.</description></item>
+    /// </list>
     /// </remarks>
     public Task<MrrResponse> ReadMrr(ReadMrrRequest request,
         RequestOptions? requestOptions = null,
@@ -169,6 +206,12 @@ public sealed class Insights
     /// <code>
     /// https://subdomain.chargify.com/dashboard
     /// </code>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Site stats are requested in XML → the outcome is not stated. Request site stats as JSON.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SiteSummary> ReadSiteStats(RequestOptions? requestOptions = null,
         CancellationToken cancellationToken = default) =>

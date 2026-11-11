@@ -52,6 +52,14 @@ public sealed class ReasonCodes
     /// <para>
     /// For more information, see <see href="https://maxio.zendesk.com/hc/en-us/articles/24286647554701-Churn-Reason-Codes">Churn Reason Codes</see>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A reason code is created or updated with a code another reason code on the site already uses → Maxio answers 422 with "Code: This code is already in use.". Use a code that no other reason code on the site has.</description></item>
+    ///   <item><description>A reason code is created with a blank code or description → Maxio answers 422 with "Code: cannot be blank. / Description: cannot be blank.". Send a non-empty code and description.</description></item>
+    ///   <item><description>Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ReasonCodeResponse> CreateReasonCode(CreateReasonCodeOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -79,6 +87,12 @@ public sealed class ReasonCodes
     /// <exception cref="ApiException{TError}"> of <see cref="DeleteReasonCodeError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Deletes a reason code from the Churn Reason Codes. This code will be immediately removed. This action is not reversible.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A reason code is deleted → The code is removed immediately and the deletion cannot be reversed. Confirm before deleting a reason code; recreate it if needed rather than expecting a restore.</description></item>
+    /// </list>
     /// </remarks>
     public Task<OkResponse> DeleteReasonCode(DeleteReasonCodeRequest request,
         RequestOptions? requestOptions = null,
@@ -106,6 +120,17 @@ public sealed class ReasonCodes
     /// <exception cref="ApiException{TError}"> of <see cref="ListReasonCodesError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists all current churn codes for a given site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>page is sent as 0 or a negative number → Maxio answers 422 with "invalid page: 0". Start paging at page 1.</description></item>
+    ///   <item><description>per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.</description></item>
+    ///   <item><description>page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<ReasonCodeResponse>> ListReasonCodes(ListReasonCodesRequest request,
         RequestOptions? requestOptions = null,
@@ -160,6 +185,13 @@ public sealed class ReasonCodes
     /// <exception cref="ApiException{TError}"> of <see cref="UpdateReasonCodeError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Updates an existing reason code for a given site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A reason code is created or updated with a code another reason code on the site already uses → Maxio answers 422 with "Code: This code is already in use.". Use a code that no other reason code on the site has.</description></item>
+    ///   <item><description>Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ReasonCodeResponse> UpdateReasonCode(UpdateReasonCodeOperationRequest request,
         RequestOptions? requestOptions = null,

@@ -43,6 +43,13 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="ArchiveProductPricePointError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Archives a product price point.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The price point to archive is the product's default price point → Maxio answers 422 with "Cannot archive the default price point.". Promote another price point to default before archiving this one.</description></item>
+    ///   <item><description>A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ProductPricePointResponse> ArchiveProductPricePoint(ArchiveProductPricePointRequest request,
         RequestOptions? requestOptions = null,
@@ -73,6 +80,15 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="BulkCreateProductPricePointsError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Creates multiple product price points in one request.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>interval is less than 1 (including fractions such as 0.5) → Maxio answers 422 with "Recurring Interval: must be greater than or equal to 1.". Send interval as a whole number of at least 1.</description></item>
+    ///   <item><description>The price is below 0 → Maxio answers 422 with "Price: must be greater than or equal to 0.". Send prices of 0 or more.</description></item>
+    ///   <item><description>trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.</description></item>
+    ///   <item><description>trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.</description></item>
+    /// </list>
     /// </remarks>
     public Task<BulkCreateProductPricePointsResponse> BulkCreateProductPricePoints(BulkCreateProductPricePointsOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -106,6 +122,14 @@ public sealed class ProductPricePoints
     /// <para>
     /// Note: Currency Prices are not able to be created for custom product price points.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A currency price is sent for a currency not defined in the site's settings → the outcome is not stated. Define the currency at the site level before adding product currency prices in it.</description></item>
+    ///   <item><description>The currency prices do not cover every price role the product price point defines (baseline, plus trial and/or initial setup fee when defined) → Maxio answers 422 with "This product price point requires that prices are defined for: [baseline].". Send a currency price for each role the price point uses: baseline, and trial and initial when it has a trial or setup fee.</description></item>
+    ///   <item><description>The product price point is a custom price point → the outcome is not stated. Create currency prices only on non-custom product price points.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CurrencyPricesResponse> CreateProductCurrencyPrices(CreateProductCurrencyPricesOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -133,6 +157,16 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="CreateProductPricePointError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Creates a Product Price Point. See the <see href="https://maxio.zendesk.com/hc/en-us/articles/24261111947789-Product-Price-Points">Product Price Point</see> documentation for details.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>interval is less than 1 (including fractions such as 0.5) → Maxio answers 422 with "Recurring Interval: must be greater than or equal to 1.". Send interval as a whole number of at least 1.</description></item>
+    ///   <item><description>The price is below 0 → Maxio answers 422 with "Price: must be greater than or equal to 0.". Send prices of 0 or more.</description></item>
+    ///   <item><description>A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.</description></item>
+    ///   <item><description>trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.</description></item>
+    ///   <item><description>trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ProductPricePointResponse> CreateProductPricePoint(CreateProductPricePointOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -160,6 +194,24 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="ListAllProductPricePointsError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists Product Price Points belonging to a site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>filter[start_date] (or another date filter) is not a valid ISO 8601 value → Maxio answers 422 with "start_date supplied value is invalid, expected ISO 8601 format". Send date filters in ISO 8601 format (YYYY-MM-DD, or a full timestamp for the datetime filters).</description></item>
+    ///   <item><description>filter[date_field] is a value other than created_at or updated_at → Maxio answers 422 with "date_field must be one of: created_at, updated_at". Send filter[date_field] as created_at or updated_at only.</description></item>
+    ///   <item><description>filter[type] is not sent → Only catalog and default price points are returned; custom price points are left out. Pass filter[type] including custom when custom price points are needed.</description></item>
+    ///   <item><description>A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.</description></item>
+    ///   <item><description>Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.</description></item>
+    ///   <item><description>Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.</description></item>
+    ///   <item><description>A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.</description></item>
+    ///   <item><description>Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.</description></item>
+    ///   <item><description>per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.</description></item>
+    ///   <item><description>A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    ///   <item><description>start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListProductPricePointsResponse> ListAllProductPricePoints(ListAllProductPricePointsRequest request,
         RequestOptions? requestOptions = null,
@@ -193,6 +245,20 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Retrieves a list of product price points.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.</description></item>
+    ///   <item><description>A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.</description></item>
+    ///   <item><description>Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.</description></item>
+    ///   <item><description>Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.</description></item>
+    ///   <item><description>A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A product's price points are listed → Results are always in descending created_at order; the default price point is not put first. Find the default price point by its type or the product's default id, not by its position in the list.</description></item>
+    ///   <item><description>per_page is omitted or set above 200 → 10 records are returned by default; a per_page above 200 is changed to 200. Page through product price points with per_page of at most 200, expecting 10 by default.</description></item>
+    ///   <item><description>archived is not set → Archived price points are left out of the response. Pass archived=true when archived price points are needed.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListProductPricePointsResponse> ListProductPricePoints(ListProductPricePointsRequest request,
         RequestOptions? requestOptions = null,
@@ -229,6 +295,12 @@ public sealed class ProductPricePoints
     /// <para>
     /// Note: Custom product price points cannot be set as the default for a product.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The price point to promote is a custom product price point → the outcome is not stated. Promote only non-custom product price points to default.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ProductResponse> PromoteProductPricePointToDefault(PromoteProductPricePointToDefaultRequest request,
         RequestOptions? requestOptions = null,
@@ -259,6 +331,15 @@ public sealed class ProductPricePoints
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Returns details for a specific product price point. You can achieve this by using either the product price point ID or handle.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.</description></item>
+    ///   <item><description>A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.</description></item>
+    ///   <item><description>Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.</description></item>
+    ///   <item><description>Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ProductPricePointResponse> ReadProductPricePoint(ReadProductPricePointRequest request,
         RequestOptions? requestOptions = null,
@@ -325,6 +406,14 @@ public sealed class ProductPricePoints
     /// <para>
     /// Note: Currency Prices cannot be updated for custom product price points.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The currency prices do not cover every price role the product price point defines (baseline, plus trial and/or initial setup fee when defined) → Maxio answers 422 with "This product price point requires that prices are defined for: [baseline].". Send a currency price for each role the price point uses: baseline, and trial and initial when it has a trial or setup fee.</description></item>
+    ///   <item><description>The product price point is a custom price point → the outcome is not stated. Update currency prices only on non-custom product price points.</description></item>
+    ///   <item><description>Prices are updated for a currency that has no currency prices on the product price point yet → the outcome is not stated. Create the currency prices with Create Product Currency Prices before updating them.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CurrencyPricesResponse> UpdateProductCurrencyPrices(UpdateProductCurrencyPricesRequest request,
         RequestOptions? requestOptions = null,
@@ -355,6 +444,13 @@ public sealed class ProductPricePoints
     /// <para>
     /// Note: Custom product price points cannot be updated.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.</description></item>
+    ///   <item><description>The product price point is a custom price point → the outcome is not stated. Do not try to update custom product price points.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ProductPricePointResponse> UpdateProductPricePoint(UpdateProductPricePointOperationRequest request,
         RequestOptions? requestOptions = null,

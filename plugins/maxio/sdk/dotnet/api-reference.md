@@ -21,6 +21,10 @@ Every operation below is shown in its throwing form. On an error status it throw
 
 Creates an invoices export and returns a batch job object.
 
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+
 </dd>
 </dl>
 
@@ -77,6 +81,11 @@ catch (ApiException<ExportInvoicesError> ex)
 
 Creates a proforma invoices export and returns a batch job object. Proforma invoices are only available on Relationship Invoicing sites.
 
+**Business rules**
+
+- A proforma invoices export is created or read on a site without Relationship Invoicing → the outcome is not stated. Use proforma invoice exports only on Relationship Invoicing sites.
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+
 </dd>
 </dl>
 
@@ -132,6 +141,10 @@ catch (ApiException<ExportProformaInvoicesError> ex)
 <dd>
 
 Creates a subscriptions export and returns a batch job object.
+
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
 
 </dd>
 </dl>
@@ -190,6 +203,12 @@ catch (ApiException<ExportSubscriptionsError> ex)
 Lists exported invoices for a provided `batch_id`. Use pagination to control responses returned from the server.
 
 Example: `GET https://{subdomain}.chargify.com/api_exports/invoices/123/rows?per_page=10000&page=1`.
+
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+- Exported rows are listed with per_page above 10000 → per_page is changed to 10000 (the default is 100). Page through exported rows with per_page of at most 10000.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
 
 </dd>
 </dl>
@@ -263,6 +282,12 @@ Lists exported proforma invoices for a provided `batch_id`. Use pagination to co
 
 Example: `GET https://{subdomain}.chargify.com/api_exports/proforma_invoices/123/rows?per_page=10000&page=1`.
 
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+- Exported rows are listed with per_page above 10000 → per_page is changed to 10000 (the default is 100). Page through exported rows with per_page of at most 10000.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+
 </dd>
 </dl>
 
@@ -335,6 +360,12 @@ Lists exported subscriptions for a provided `batch_id`. Use pagination to contro
 
 Example: `GET https://{subdomain}.chargify.com/api_exports/subscriptions/123/rows?per_page=200&page=1`.
 
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+- Exported rows are listed with per_page above 10000 → per_page is changed to 10000 (the default is 100). Page through exported rows with per_page of at most 10000.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+
 </dd>
 </dl>
 
@@ -405,6 +436,10 @@ catch (ApiException<ListExportedSubscriptionsError> ex)
 
 Returns a batch job object for an invoices export.
 
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+
 </dd>
 </dl>
 
@@ -474,6 +509,11 @@ catch (ApiException<ReadInvoicesExportError> ex)
 
 Returns a batch job object for a proforma invoices export. Proforma invoices are only available on Relationship Invoicing sites.
 
+**Business rules**
+
+- A proforma invoices export is created or read on a site without Relationship Invoicing → the outcome is not stated. Use proforma invoice exports only on Relationship Invoicing sites.
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
+
 </dd>
 </dl>
 
@@ -542,6 +582,10 @@ catch (ApiException<ReadProformaInvoicesExportError> ex)
 <dd>
 
 Returns a batch job object for a subscriptions export.
+
+**Business rules**
+
+- An export is created → The export runs as an asynchronous batch job: the create call returns a batch job, whose status is read with the Read endpoint before the rows are listed. Poll the export's batch job with the Read endpoint and list rows only after it completes.
 
 </dd>
 </dl>
@@ -622,6 +666,35 @@ Regeneration of the invoice can be forced with the params `force: true`, which v
 
 Consider using either the create or preview endpoints for proforma invoices to preview this advance invoice before using this endpoint to generate it.
 
+**Business rules**
+
+- An advance invoice is requested for a subscription that has nothing due → Maxio answers 422 with "Cannot generate an invoice in advance when nothing is due". Check that the subscription has an amount due at its next renewal before issuing an advance invoice.
+- An advance invoice is requested for a subscription that uses prepaid components → Maxio answers 422 with "Cannot generate an invoice in advance when a subscription uses prepaid components". Do not offer advance invoices for subscriptions with prepaid components.
+- An advance invoice is requested while the subscription already has one for the billing period (and force is not true) → Maxio answers 422 with "Advance invoice already exists". Read the existing advance invoice first, or send force: true to replace it on purpose.
+- An advance invoice is requested for a subscription that belongs to a subscription group → Maxio answers 422 with "Cannot generate an invoice in advance for subscription in the group". Do not offer advance invoices for grouped subscriptions.
+- An advance invoice is requested for an inactive (end-of-life) subscription → Maxio answers 422 with "Cannot generate an invoice in advance for inactive subscription". Issue advance invoices only for live subscriptions.
+- An advance invoice is requested for a subscription on calendar billing → Maxio answers 422 with "Cannot generate an invoice in advance for a calendar billing subscription". Do not offer advance invoices for calendar-billing subscriptions.
+- An advance invoice is requested for a prepaid subscription → Maxio answers 422 with "Cannot generate an invoice in advance for a prepaid subscription". Do not offer advance invoices for prepaid subscriptions.
+- An advance invoice is requested within an hour of the subscription's renewal → Maxio answers 422 with "Cannot generate an invoice in advance within an hour of renewal". Compare the time to the next renewal and do not request an advance invoice in the last hour before it.
+- An advance invoice is requested for a subscription that uses the site-level exchange rate → Maxio answers 422 with "Cannot generate an invoice in advance for a subscription using the site level exchange rate". Do not offer advance invoices for subscriptions priced with the site-level exchange rate.
+- An advance invoice is issued with force: true → Any existing advance invoice is voided and a new one is generated; if none exists a new one is generated. Send force: true only when voiding the current advance invoice is intended, and treat the old invoice as voided.
+- An invoice is issued for a subscription on a Relationship Invoicing site → An invoice_issued webhook is sent. Listen for invoice_issued to learn about issued invoices.
+- An invoice is issued while the subscription has prepayments, with the site's prepayment setting (Config > Settings > Prepayments) in force → Prepayments are applied on issue, on the due date, or not at all per the setting; defaults are on the due date for automatic and on issue for remittance. Check the site's prepayment setting before assuming prepayments reduce an invoice when it is issued.
+- An invoice with net terms is issued while the subscription has prepayments → Prepayments are not applied automatically on issue; they are applied automatically only when the invoice has no net terms. Apply prepayments yourself (record a prepayment-type payment) to invoices that have net terms.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- The subscription's advance invoice for the period has been voided → A new advance invoice can be issued for the same period. Allow issuing a new advance invoice after voiding the old one.
+
 </dd>
 </dl>
 
@@ -692,6 +765,21 @@ catch (ApiException<IssueAdvanceInvoiceError> ex)
 
 Returns the advance invoice generated for a subscription's upcoming renewal. There can only be one advance invoice per subscription per billing cycle.
 
+**Business rules**
+
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -761,6 +849,24 @@ Voids a subscription's existing advance invoice. Once voided, it can later be re
 A `reason` is required to void, and the invoice must have an open status. Voiding causes any prepayments and credits that were applied to the invoice to be returned to the subscription.
 
 For a full overview of the impact of voiding, see [Invoice]($m/Invoice).
+
+**Business rules**
+
+- The subscription's advance invoice is not in open status when a void is requested → the outcome is not stated. Void an advance invoice only while its status is open.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- An advance invoice is voided → Prepayments and credits that were applied to the invoice are returned to the subscription. Expect the subscription's prepayment and service credit balances to rise again after voiding an advance invoice.
+- The subscription's advance invoice for the period has been voided → A new advance invoice can be issued for the same period. Allow issuing a new advance invoice after voiding the old one.
 
 </dd>
 </dl>
@@ -842,6 +948,13 @@ To prevent abuse and overuse, request a new URL only when absolutely necessary. 
 
 For more information configuring the Billing Portal, see [Billing Portal Overview](https://maxio.zendesk.com/hc/en-us/articles/24252412965133-Billing-Portal-Overview).
 
+**Business rules**
+
+- Billing Portal access is enabled for a customer who already has it enabled → Maxio answers 422 with "Portal is already enabled for this customer.". Check portal_customer_created_at or handle the 422 as already enabled instead of retrying.
+- auto_invite=1 is sent in the query when enabling the Billing Portal → An invitation email is sent to the customer; with auto_invite=0 or no auto_invite, no email is sent. Send auto_invite=1 only when the customer should receive the portal invitation email now.
+- The customer has been invited to the Billing Portal → The customer's statements, invoices and receipts automatically carry the Management URL at the bottom. Expect invited customers' documents to include a portal link; do not invite customers who must not see one.
+- A Management URL is issued for a customer → The URL changes periodically for security and is valid for only 65 days. Store the URL with its expires_at and fetch a new one before it expires rather than keeping it indefinitely.
+
 </dd>
 </dl>
 
@@ -918,6 +1031,14 @@ Returns the exact URL required for a subscriber to access the Billing Portal.
 + You must cache and remember this URL if you are going to need it again within 15 days
 + Only request a new URL after the `new_link_available_at` date
 + You are limited to 15 requests for the same URL. If you make more than 15 requests before `new_link_available_at`, you are blocked from further Management URL requests (with a response code `429`).
+
+**Business rules**
+
+- The management link is requested for a customer whose Billing Portal is not enabled → Maxio answers 422 with "Billing Portal is not enabled for this customer.". Enable the Billing Portal for the customer before requesting the management link.
+- More than 15 management link requests are made for the same customer before new_link_available_at → Maxio answers 429 with "Too many requests for this customer's management link". Count link requests per customer and wait until the returned new_link_available_at after a 429.
+- A Management URL is issued for a customer → The URL changes periodically for security and is valid for only 65 days. Store the URL with its expires_at and fetch a new one before it expires rather than keeping it indefinitely.
+- The management link is requested again for the same customer before new_link_available_at → The same URL is returned; a new URL is not generated for 15 days. Cache the URL and request a new one only after new_link_available_at.
+- A merchant needs a customer's Management URL outside the statements, invoices and receipts that carry it → The URL is cryptographically signed with a timestamp, so it can only be obtained by requesting it through the API. Fetch the Management URL from the API; never build it yourself.
 
 </dd>
 </dl>
@@ -998,6 +1119,13 @@ If you attempt to resend an invitation when the Customer does not exist, you wil
 
 This endpoint will only return a JSON response.
 
+**Business rules**
+
+- A customer's Billing Portal invitation is resent 5 times within 30 minutes → Maxio answers 422 with "Too many requests for this customer. You can perform 5 requests within 00:30:00.". Keep invitation resends for one customer below 5 in any 30 minutes and back off on this 422.
+- An invitation is resent for a customer whose Billing Portal is already disabled → Maxio answers 422. Enable the Billing Portal for the customer before resending the invitation.
+- An invitation is resent for a customer that does not exist → Maxio answers 404. Treat a 404 as a missing customer, not a transient failure.
+- The invitation resend or revoke endpoint is called with a non-JSON format → The endpoint only returns a JSON response. Call these endpoints with the .json format and parse JSON.
+
 </dd>
 </dl>
 
@@ -1073,6 +1201,11 @@ If you attempt to revoke an invitation when the Billing Portal is already disabl
 
 This endpoint will only return a JSON response.
 
+**Business rules**
+
+- An invitation is revoked for a customer whose Billing Portal is already disabled → Maxio answers 422. Treat a 422 on revoke as already disabled rather than retrying.
+- The invitation resend or revoke endpoint is called with a non-JSON format → The endpoint only returns a JSON response. Call these endpoints with the .json format and parse JSON.
+
 </dd>
 </dl>
 
@@ -1090,9 +1223,12 @@ try
     });
     // TODO: Handle 'response' of type RevokedInvitation
 }
-catch (ApiException<RawError> ex)
+catch (ApiException<RevokeBillingPortalAccessError> ex)
 {
-    // TODO: Handle 'ex.Error' of type RawError
+    if (ex.Error.TryGetNoContent(out var error))
+    {
+        // TODO: Handle 'error' of type RawError
+    }
 }
 ```
 
@@ -1116,7 +1252,7 @@ catch (ApiException<RawError> ex)
 
 **OnSuccess**: <code>[RevokedInvitation](src/MaxioAdvancedBilling/Models/RevokedInvitation.cs)</code>
 
-**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[RawError](src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs)&gt;</code>
+**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[RevokeBillingPortalAccessError](src/MaxioAdvancedBilling/Errors/RevokeBillingPortalAccessError.cs)&gt;</code>
 
 </dd>
 </dl>
@@ -1142,6 +1278,22 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Attaches a feature template to this component with a concrete value. Pass `price_point_type: "PricePoint"` and `price_point_id` to create an override scoped to a single component price point instead of the whole component.
+
+**Business rules**
+
+- The create request body names the owning product or component → the outcome is not stated. Leave the owning component out of the body; the server takes it from the URL.
+- Only one of price_point_type and price_point_id is sent → the outcome is not stated. Send price_point_type and price_point_id together, or neither.
+- A component feature override is scoped to a price point with a price_point_type other than PricePoint → the outcome is not stated. Use price_point_type "PricePoint" (a component price point) for component overrides; ProductPricePoint is for products.
+- The feature value does not fit the feature template's kind ("true"/"false" for access_right, a numeric string for usage_limit) → the outcome is not stated. Send value as "true"/"false" for access_right, a numeric string for usage_limit, and a string shaped by value_type for service_right.
+- The request body of a feature catalog item create names the owning product or component → Maxio answers 422. Leave the owning product or component out of the body; it comes from the URL.
+- Only one of price_point_type and price_point_id is sent when creating a feature catalog item → Maxio answers 422. Send price_point_type and price_point_id together to scope an override, or neither.
+- A feature is attached to a product or component that subscribers already have → Subscribers are provisioned the entitlement automatically only the next time their subscription changes (for example signup, plan change or component allocation). Do not expect existing subscribers to get a new feature until their subscription next changes.
+- A component feature catalog item is created without price_point_type (and price_point_id) → The item applies to every price point of the component. Send price_point_type and price_point_id only when the feature must be scoped to one component price point.
+- A feature is attached to a component without propagate_to_subscriptions (default false) → Existing subscriptions on the component get the entitlement only at their next subscription change (signup, plan change or component allocation), not immediately. Send propagate_to_subscriptions=true when existing subscribers must get the feature now.
+- The feature template's kind is not usage_limit → periodicity_interval and periodicity_unit are null on the feature catalog item. Send a periodicity only for usage_limit features and expect null periodicity for the other kinds.
+- A feature catalog item is created without price_point_type → The item applies to every price point of the product or component. Omit price_point_type and price_point_id for a product-wide feature.
+- A feature catalog item is created without propagate_to_subscriptions=true → Existing subscribers on the product or component get the entitlement only at their next subscription change (signup, plan change, component allocation). Send propagate_to_subscriptions=true when existing subscribers must get the feature now.
+- A feature catalog item is created with propagate_to_subscriptions=true → Existing subscriptions on the product or component are granted the entitlement immediately. Check subscriptions_count on the list response before propagating to many subscriptions.
 
 </dd>
 </dl>
@@ -1212,6 +1364,12 @@ catch (ApiException<CreateComponentFeatureError> ex)
 
 Lists the feature catalog items attached to this component, including price-point-specific overrides.
 
+**Business rules**
+
+- The feature template's kind is not usage_limit → periodicity_interval and periodicity_unit are null on the feature catalog item. Send a periodicity only for usage_limit features and expect null periodicity for the other kinds.
+- The component has price-point-specific feature overrides → The list returns the overrides together with the component-wide items. Read price_point_type/price_point_id on each item to tell overrides from component-wide items.
+- The component's feature catalog items are listed → subscriptions_count is the number of subscriptions on the component that a change propagated with propagate_to_subscriptions=true would affect. Use subscriptions_count to judge the impact before propagating a feature change.
+
 </dd>
 </dl>
 
@@ -1280,6 +1438,10 @@ catch (ApiException<ListComponentFeaturesError> ex)
 <dd>
 
 Returns a single feature catalog item attached to this component.
+
+**Business rules**
+
+- The feature template's kind is not usage_limit → periodicity_interval and periodicity_unit are null on the feature catalog item. Send a periodicity only for usage_limit features and expect null periodicity for the other kinds.
 
 </dd>
 </dl>
@@ -1351,6 +1513,13 @@ catch (ApiException<ReadComponentFeatureError> ex)
 
 Removes a feature catalog item from this component.
 
+**Business rules**
+
+- A component feature catalog item is removed without destroy_entitlements (default false) → The item is archived and existing subscribers keep their entitlement (grandfathered). Send destroy_entitlements=true if subscribers must lose the feature; otherwise expect existing entitlements to remain.
+- A component feature catalog item is removed with destroy_entitlements=true → The item and every entitlement it created are permanently deleted and subscriber access is revoked immediately. Use destroy_entitlements=true only when immediate, permanent revocation is intended.
+- A feature catalog item is removed without destroy_entitlements=true → Removal is soft: the feature leaves the catalog but subscribers who already have it keep their entitlement. Pass destroy_entitlements=true when access must be revoked immediately.
+- A feature catalog item is removed without destroy_entitlements (or with false) → The item is archived and subscribers who already have the entitlement keep it. Expect existing subscribers to keep the feature after a default removal.
+
 </dd>
 </dl>
 
@@ -1419,6 +1588,11 @@ catch (ApiException<RemoveComponentFeatureError> ex)
 <dd>
 
 Clears the archived state of a feature catalog item attached to this component. Returns `422` if the parent feature template is still archived. Restore the feature template first.
+
+**Business rules**
+
+- The parent feature template of the archived component feature catalog item is still archived → Maxio answers 422. Restore the feature template before restoring the component feature catalog item.
+- An archived component feature catalog item is restored → The item's archived state is cleared. Call restore on an archived item to make it active again.
 
 </dd>
 </dl>
@@ -1489,6 +1663,12 @@ catch (ApiException<RestoreComponentFeatureError> ex)
 <dd>
 
 Updates the value or periodicity of a feature catalog item attached to this component.
+
+**Business rules**
+
+- The feature value does not fit the feature template's kind ("true"/"false" for access_right, a numeric string for usage_limit) → the outcome is not stated. Send value as "true"/"false" for access_right, a numeric string for usage_limit, and a string shaped by value_type for service_right.
+- The feature template's kind is not usage_limit → periodicity_interval and periodicity_unit are null on the feature catalog item. Send a periodicity only for usage_limit features and expect null periodicity for the other kinds.
+- A component or product feature catalog item is updated with propagate_to_subscriptions true → The new value/periodicity is applied immediately to every existing entitlement created from the item. Send propagate_to_subscriptions=true only when existing entitlements must change now; check subscriptions_count first to see how many subscriptions it touches.
 
 </dd>
 </dl>
@@ -1564,6 +1744,12 @@ catch (ApiException<UpdateComponentFeatureError> ex)
 
 Archives a component price point. Subscriptions using a price point that has been archived will continue using it until they're moved to another price point.
 
+**Business rules**
+
+- The price point is already archived → Maxio answers 422 with "Price point is already archived.". Check archived_at before archiving a price point.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A component price point is archived → Subscriptions using it keep using it until they are moved to another price point. Move subscriptions off the price point yourself if archiving should change what they pay.
+
 </dd>
 </dl>
 
@@ -1633,6 +1819,17 @@ catch (ApiException<ArchiveComponentPricePointError> ex)
 <dd>
 
 Creates multiple component price points in one request.
+
+**Business rules**
+
+- A bracket's ending_quantity is not greater than its starting quantity → Maxio answers 422 with "Ending quantity: must be greater than the low end bracket quantity, if given". Make each bracket's ending_quantity greater than its starting_quantity, or leave it empty for an open top bracket.
+- A price point handle does not start with a letter or number, has no letter, or contains characters other than lowercase letters, numbers, dashes and underscores → Maxio answers 422 with "Handle: must begin with a letter or a number, have at least one letter in it, and contain only lowercase letters, numbers, dashes and underscores.". Use price point handles of lowercase letters, numbers, dashes and underscores that start with a letter or number and contain a letter.
+- A unit price below zero is sent → Maxio answers 422 with "Unit price: must be greater than or equal to $0.00.". Send unit prices of zero or more.
+- use_site_exchange_rate or tax_included is sent when creating component price points in bulk → The setting is not supported in bulk creation. Create price points one at a time when you need to set use_site_exchange_rate or tax_included.
+- rollover_prepaid_remainder, renew_prepaid_allocation or the expiration settings are sent for a price point of a component that is not a prepaid usage component → These settings apply only to prepaid usage components. Send rollover_prepaid_remainder, renew_prepaid_allocation and the expiration settings only on price points of prepaid usage components.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- expiration_interval or expiration_interval_unit is sent while rollover_prepaid_remainder is not true → The expiration settings apply only to prepaid usage components that roll over remaining units. Send expiration_interval and expiration_interval_unit only together with rollover_prepaid_remainder: true.
 
 </dd>
 </dl>
@@ -1737,6 +1934,19 @@ Clones a component price point. Custom price points (tied to a specific subscrip
 - Interval settings (if multi-frequency is enabled)
 - Event-based billing segments (if applicable)
 
+**Business rules**
+
+- The source price point is a custom price point (tied to a subscription) → Maxio answers 422 with "Cannot clone a custom price point". Clone only catalog or default price points.
+- The source price point is archived → Maxio answers 422 with "Cannot clone an archived price point". Unarchive the price point before cloning it.
+- The cloned price point fails validation → Maxio answers 422 with "Cloning failed due to validation errors.". Check the clone's name and handle are valid and unused before cloning.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A component price point is cloned → The clone copies the pricing scheme, all price tiers (quantities and unit prices) and the tax included setting. Rely on the clone for these settings and update the clone afterwards for any changes.
+- A component price point is cloned → Currency prices are copied only if definitive pricing is set on the source. Create currency prices on the clone yourself when the source has no definitive pricing.
+- A price point of a prepaid usage component is cloned → Its overage pricing is copied too. Expect overage pricing on clones of prepaid usage price points.
+- A component price point is cloned → Interval settings are copied only if multi-frequency is enabled on the site. Do not expect interval settings on the clone unless the site has multi-frequency enabled.
+- A price point that has event-based billing segments is cloned → The event-based billing segments are copied. Expect segment pricing to carry over to the clone.
+- A cloned price point has currency prices → The clone response always includes them, with no query parameter needed. Read currency prices from the clone response directly.
+
 </dd>
 </dl>
 
@@ -1811,6 +2021,31 @@ catch (ApiException<CloneComponentPricePointError> ex)
 <dd>
 
 Creates a price point for an existing component.
+
+**Business rules**
+
+- Price brackets overlap → Maxio answers 422 with "There cannot be any overlapping bracket ranges". Make price bracket ranges non-overlapping.
+- There is a quantity gap between successive price brackets → Maxio answers 422 with "Successive brackets may not have gaps in quantity (i.e. if one bracket ends at quantity 10, the next must begin at quantity 11)". Start each bracket at the previous bracket's ending_quantity plus 1.
+- A price point handle does not start with a letter or number, has no letter, or contains characters other than lowercase letters, numbers, dashes and underscores → Maxio answers 422 with "Handle: must begin with a letter or a number, have at least one letter in it, and contain only lowercase letters, numbers, dashes and underscores.". Use price point handles of lowercase letters, numbers, dashes and underscores that start with a letter or number and contain a letter.
+- A unit price below zero is sent → Maxio answers 422 with "Unit price: must be greater than or equal to $0.00.". Send unit prices of zero or more.
+- The primary pricing_scheme is per_unit while a secondary pricing model is configured on a hybrid-eligible component → Maxio refuses it with "Pricing scheme cannot be per_unit for hybrid pricing". Use volume, tiered or stairstep as the primary scheme when sending secondary pricing.
+- Secondary pricing is configured and the primary model's highest bracket has no ending_quantity → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity (the included threshold).
+- The primary model's highest bracket has no ending_quantity on a hybrid price point → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity.
+- A hybrid price point is billed → The customer sees one invoice line item per billing period for the component, combining primary and secondary charges. Expect one combined line item, not separate primary and overage lines, for hybrid price points.
+- overage_pricing is sent without overage_pricing_scheme → The whole overage_pricing block is silently ignored and a normal, non-hybrid price point is created with the primary pricing only. Always send overage_pricing_scheme together with overage_pricing when the price point should be hybrid.
+- rollover_prepaid_remainder, renew_prepaid_allocation or the expiration settings are sent for a price point of a component that is not a prepaid usage component → These settings apply only to prepaid usage components. Send rollover_prepaid_remainder, renew_prepaid_allocation and the expiration settings only on price points of prepaid usage components.
+- A price point is sent with overage_pricing but without overage_pricing_scheme → The whole overage_pricing block is silently ignored and the price point is saved as a normal, non-hybrid price point. Always send overage_pricing_scheme with overage_pricing when the price point should be hybrid.
+- A price point meets every Hybrid Pricing requirement (site feature, eligible component, bracketed primary scheme with a finite top bracket, secondary pricing configured) → It becomes a hybrid price point automatically (there is no hybrid flag) and bills primary and secondary pricing as one invoice line item. Treat a price point as hybrid from its configuration; do not look for or send a hybrid flag.
+- A component or price point is configured with secondary pricing on a site without the Hybrid Pricing feature or without Invoice-Centric Billing → The price point falls back to billing primary and secondary pricing as separate invoice line items. Confirm with Maxio that Hybrid Pricing and Invoice-Centric Billing are both enabled before relying on single-line hybrid billing.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- Secondary (overage_pricing) brackets are sent for a hybrid price point → overage_pricing.prices is a separate bracket set starting at quantity 1; it only takes effect once usage passes the primary model's included threshold. Start overage_pricing brackets at 1, not at the primary model's ending_quantity.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- expiration_interval or expiration_interval_unit is sent while rollover_prepaid_remainder is not true → The expiration settings apply only to prepaid usage components that roll over remaining units. Send expiration_interval and expiration_interval_unit only together with rollover_prepaid_remainder: true.
+- A price point is configured with a secondary (overage) pricing model on a site without both the Hybrid Pricing feature and Invoice-Centric Billing enabled → The price point is not hybrid: primary and secondary pricing bill as separate invoice line items. Have the Maxio account team enable Hybrid Pricing and Invoice-Centric Billing before configuring hybrid price points.
+- Secondary pricing is configured on a component other than a quantity-based or non-event-based metered component → The component is not eligible for Hybrid Pricing. Use hybrid pricing only on quantity-based components or metered components not configured for event-based billing.
+- All hybrid requirements are met for a price point → The price point becomes hybrid automatically; there is no hybrid flag in the API. Check the requirements, not a flag, to know whether a price point is hybrid.
+- overage_pricing.prices brackets are defined for a hybrid price point → The secondary brackets are self-contained and start at 1, and they apply only to usage above the primary model's included threshold. Start overage_pricing.prices at starting_quantity 1, not at the primary ending_quantity.
 
 </dd>
 </dl>
@@ -1900,6 +2135,13 @@ When creating currency prices, they need to mirror the structure of your primary
 
 Note: Currency Prices are not able to be created for custom price points.
 
+**Business rules**
+
+- A currency price is sent for a currency that is not defined at the site level → Maxio answers 422 with "Currency: is not one of the allowed values.". Define the currency in the site settings before creating prices in it.
+- A currency price is sent without a currency → Maxio answers 422 with "Currency: cannot be blank.". Send currency on every currency price.
+- The currency prices do not mirror the price point's primary pricing (one price per price level) → the outcome is not stated. Send one currency price for each price level (price_id) of the component price point.
+- The price point is a custom price point → the outcome is not stated. Create currency prices only on non-custom price points.
+
 </dd>
 </dl>
 
@@ -1976,6 +2218,21 @@ catch (ApiException<CreateCurrencyPricesError> ex)
 
 Lists all component price points belonging to a site.
 
+**Business rules**
+
+- filter[start_date] (or another date filter) is not a valid ISO 8601 value → Maxio answers 422 with "start_date supplied value is invalid, expected ISO 8601 format". Send date filters in ISO 8601 format (YYYY-MM-DD, or a full timestamp for the datetime filters).
+- filter[type] is not sent → Only catalog and default price points are returned; custom price points are left out. Pass filter[type] including custom when custom price points are needed.
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+
 </dd>
 </dl>
 
@@ -2051,6 +2308,17 @@ You may specify the component by using either the numeric id or the `handle:gold
 
 If the price point is set to `use_site_exchange_rate: true`, it will return pricing based on the current exchange rate. If the flag is set to false, it will return all of the defined prices for each currency.
 
+**Business rules**
+
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
+- The component is given in the path as handle:<handle> instead of a numeric id → The component is looked up by handle. Use either the numeric component id or handle:<handle> in the path.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -2124,6 +2392,13 @@ See [Price Points Documentation](https://maxio.zendesk.com/hc/en-us/articles/242
 
 Note: Custom price points are not able to be set as the default for a component.
 
+**Business rules**
+
+- The price point to promote is a custom price point → the outcome is not stated. Promote only catalog price points to default, never custom ones.
+- A component price point is promoted to default → The new default applies only to new subscriptions; existing subscriptions stay on their current price point. Migrate existing subscriptions separately if they should move to the new default price point.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -2187,6 +2462,13 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Returns details for a specific component price point. You can achieve this by using either the component price point ID or handle.
+
+**Business rules**
+
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
 
 </dd>
 </dl>
@@ -2325,6 +2607,35 @@ Including an `id` will update the corresponding price, and including the `_destr
 
 Note: Custom price points cannot be updated directly. They must be edited through the Subscription.
 
+**Business rules**
+
+- A bracket's ending_quantity is not greater than its starting quantity → Maxio answers 422 with "Ending quantity: must be greater than the low end bracket quantity, if given". Make each bracket's ending_quantity greater than its starting_quantity, or leave it empty for an open top bracket.
+- Price brackets overlap → Maxio answers 422 with "There cannot be any overlapping bracket ranges". Make price bracket ranges non-overlapping.
+- There is a quantity gap between successive price brackets → Maxio answers 422 with "Successive brackets may not have gaps in quantity (i.e. if one bracket ends at quantity 10, the next must begin at quantity 11)". Start each bracket at the previous bracket's ending_quantity plus 1.
+- The primary pricing_scheme is per_unit while a secondary pricing model is configured on a hybrid-eligible component → Maxio refuses it with "Pricing scheme cannot be per_unit for hybrid pricing". Use volume, tiered or stairstep as the primary scheme when sending secondary pricing.
+- Secondary pricing is configured and the primary model's highest bracket has no ending_quantity → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity (the included threshold).
+- The primary model's highest bracket has no ending_quantity on a hybrid price point → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A price id in the update does not belong to the price point being updated → Maxio answers 422 with "all prices must belong to the price point". Send only price ids read from this price point; handle 422 (not 404) for a foreign price id.
+- The price point being updated is a custom price point → the outcome is not stated. Edit custom price points through the subscription, not this endpoint.
+- The update leaves the price point with no price brackets → Maxio answers 422 with "At least 1 price bracket must be defined". Keep at least one price bracket on the price point.
+- The new price point handle is already used → Maxio answers 422 with "Handle: This handle is already in use.". Use a price point handle that is not already in use.
+- A hybrid price point is billed → The customer sees one invoice line item per billing period for the component, combining primary and secondary charges. Expect one combined line item, not separate primary and overage lines, for hybrid price points.
+- overage_pricing is sent without overage_pricing_scheme → The whole overage_pricing block is silently ignored and a normal, non-hybrid price point is created with the primary pricing only. Always send overage_pricing_scheme together with overage_pricing when the price point should be hybrid.
+- A price point is sent with overage_pricing but without overage_pricing_scheme → The whole overage_pricing block is silently ignored and the price point is saved as a normal, non-hybrid price point. Always send overage_pricing_scheme with overage_pricing when the price point should be hybrid.
+- A price point meets every Hybrid Pricing requirement (site feature, eligible component, bracketed primary scheme with a finite top bracket, secondary pricing configured) → It becomes a hybrid price point automatically (there is no hybrid flag) and bills primary and secondary pricing as one invoice line item. Treat a price point as hybrid from its configuration; do not look for or send a hybrid flag.
+- A component or price point is configured with secondary pricing on a site without the Hybrid Pricing feature or without Invoice-Centric Billing → The price point falls back to billing primary and secondary pricing as separate invoice line items. Confirm with Maxio that Hybrid Pricing and Invoice-Centric Billing are both enabled before relying on single-line hybrid billing.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- Secondary (overage_pricing) brackets are sent for a hybrid price point → overage_pricing.prices is a separate bracket set starting at quantity 1; it only takes effect once usage passes the primary model's included threshold. Start overage_pricing brackets at 1, not at the primary model's ending_quantity.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- A price point is configured with a secondary (overage) pricing model on a site without both the Hybrid Pricing feature and Invoice-Centric Billing enabled → The price point is not hybrid: primary and secondary pricing bill as separate invoice line items. Have the Maxio account team enable Hybrid Pricing and Invoice-Centric Billing before configuring hybrid price points.
+- Secondary pricing is configured on a component other than a quantity-based or non-event-based metered component → The component is not eligible for Hybrid Pricing. Use hybrid pricing only on quantity-based components or metered components not configured for event-based billing.
+- All hybrid requirements are met for a price point → The price point becomes hybrid automatically; there is no hybrid flag in the API. Check the requirements, not a flag, to know whether a price point is hybrid.
+- overage_pricing.prices brackets are defined for a hybrid price point → The secondary brackets are self-contained and start at 1, and they apply only to usage above the primary model's included threshold. Start overage_pricing.prices at starting_quantity 1, not at the primary ending_quantity.
+- A price bracket is sent without an id → The server tries to create a new price on the price point. Include the id of each existing bracket you mean to change, or it is added as a new price.
+- A price bracket is sent with its id and _destroy set to true → That price is removed from the price point. Send the price's id with _destroy: true to remove that price bracket.
+
 </dd>
 </dl>
 
@@ -2410,6 +2721,11 @@ Updates currency prices for a given currency defined at the site level.
 
 Note: Currency Prices are not able to be updated for custom price points.
 
+**Business rules**
+
+- The price point is a custom price point → the outcome is not stated. Update currency prices only on non-custom price points.
+- Pricing already exists on the price point for the currency in the request → Maxio answers 422 with "Pricing already exists for this currency.". Update existing currency prices by their id instead of sending a new set for the same currency.
+
 </dd>
 </dl>
 
@@ -2490,6 +2806,13 @@ catch (ApiException<UpdateCurrencyPricesError> ex)
 
 Archives the component; all current subscribers will continue to be charged as usual.
 
+**Business rules**
+
+- The component is already archived → Maxio answers 422 with "Component cannot be archived. Please make sure it hasn't already been archived.". Check the component's archived flag before archiving it.
+- A component is archived → All current subscribers keep being charged for it as usual. Move or remove the component from existing subscriptions yourself if archiving should stop their charges.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -2567,6 +2890,25 @@ So, instead of reporting usage directly for each component (as you would with me
 For more information, see [Components Overview](https://maxio.zendesk.com/hc/en-us/articles/24261141522189-Components-Overview).
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`; sending a blank value results in a validation error.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- A component is created under a product family that does not exist → the outcome is not stated. Create (or look up) the product family first and create components under its id or handle.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- The component uses a pricing scheme other than per_unit and the request has no price brackets → Maxio answers 422 with "At least 1 price bracket must be defined". Send at least one price bracket in prices for stairstep, volume and tiered schemes; use unit_price for per_unit.
+- A component is created with a handle already used by another component on the site → Maxio answers 422 with "Handle must be unique within a Site.". Use a component handle that is unique within the site.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- An event-based component is attached to a metric → The billed quantity each period comes from the metric's analysis of events, not from usage reported directly for the component. Send events for the metric instead of reporting usage directly for event-based components.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- hide_date_range_on_invoice is sent on a site that does not use Relationship Invoicing → the outcome is not stated. Only rely on hide_date_range_on_invoice on Relationship Invoicing sites.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- A component is created with a unit_name → The unit name is pluralized automatically where needed, e.g. on line items. Send unit_name in the singular.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -2662,6 +3004,37 @@ For more information on components, see our documentation [here](https://maxio.z
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`. Sending `"tax_code": ""` returns `422`.
 
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- Usage or allocations are to be recorded for a component → The component's ID returned at creation is needed in all later usage requests. Create the component first and keep the returned ID for usage and allocation calls.
+- The primary pricing_scheme is per_unit while a secondary pricing model is configured on a hybrid-eligible component → Maxio refuses it with "Pricing scheme cannot be per_unit for hybrid pricing". Use volume, tiered or stairstep as the primary scheme when sending secondary pricing.
+- Secondary pricing is configured and the primary model's highest bracket has no ending_quantity → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity (the included threshold).
+- A component is created under a product family that does not exist → the outcome is not stated. Create (or look up) the product family first and create components under its id or handle.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- The component uses a pricing scheme other than per_unit and the request has no price brackets → Maxio answers 422 with "At least 1 price bracket must be defined". Send at least one price bracket in prices for stairstep, volume and tiered schemes; use unit_price for per_unit.
+- A component is created with a handle already used by another component on the site → Maxio answers 422 with "Handle must be unique within a Site.". Use a component handle that is unique within the site.
+- The primary model's highest bracket has no ending_quantity on a hybrid price point → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A billing period ends for a subscription with metered and quantity-based components → Metered component usage resets to 0; quantity-based allocations do not reset. Report metered usage per period and do not re-allocate quantity components each period.
+- A metered component is used on a subscription → Its unit count resets to 0 at the end of each billing period, unlike recurring quantity-based components. Use a quantity-based component, not a metered one, for quantities that must persist across billing periods.
+- A price point meets every Hybrid Pricing requirement (site feature, eligible component, bracketed primary scheme with a finite top bracket, secondary pricing configured) → It becomes a hybrid price point automatically (there is no hybrid flag) and bills primary and secondary pricing as one invoice line item. Treat a price point as hybrid from its configuration; do not look for or send a hybrid flag.
+- A component or price point is configured with secondary pricing on a site without the Hybrid Pricing feature or without Invoice-Centric Billing → The price point falls back to billing primary and secondary pricing as separate invoice line items. Confirm with Maxio that Hybrid Pricing and Invoice-Centric Billing are both enabled before relying on single-line hybrid billing.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- Secondary (overage_pricing) brackets are sent for a hybrid price point → overage_pricing.prices is a separate bracket set starting at quantity 1; it only takes effect once usage passes the primary model's included threshold. Start overage_pricing brackets at 1, not at the primary model's ending_quantity.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- hide_date_range_on_invoice is sent on a site that does not use Relationship Invoicing → the outcome is not stated. Only rely on hide_date_range_on_invoice on Relationship Invoicing sites.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- A component is created with a unit_name → The unit name is pluralized automatically where needed, e.g. on line items. Send unit_name in the singular.
+- A price point is configured with a secondary (overage) pricing model on a site without both the Hybrid Pricing feature and Invoice-Centric Billing enabled → The price point is not hybrid: primary and secondary pricing bill as separate invoice line items. Have the Maxio account team enable Hybrid Pricing and Invoice-Centric Billing before configuring hybrid price points.
+- Secondary pricing is configured on a component other than a quantity-based or non-event-based metered component → The component is not eligible for Hybrid Pricing. Use hybrid pricing only on quantity-based components or metered components not configured for event-based billing.
+- All hybrid requirements are met for a price point → The price point becomes hybrid automatically; there is no hybrid flag in the API. Check the requirements, not a flag, to know whether a price point is hybrid.
+- overage_pricing.prices brackets are defined for a hybrid price point → The secondary brackets are self-contained and start at 1, and they apply only to usage above the primary model's included threshold. Start overage_pricing.prices at starting_quantity 1, not at the primary ending_quantity.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -2747,6 +3120,23 @@ On/off components are used for any flat fee, recurring add on (think $99/month f
 For more information on components, see our documentation [here](https://maxio.zendesk.com/hc/en-us/articles/24261141522189-Components-Overview).
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`. Sending `"tax_code": ""` returns `422`.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- A component is created under a product family that does not exist → the outcome is not stated. Create (or look up) the product family first and create components under its id or handle.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- A component is created with a handle already used by another component on the site → Maxio answers 422 with "Handle must be unique within a Site.". Use a component handle that is unique within the site.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- hide_date_range_on_invoice is sent on a site that does not use Relationship Invoicing → the outcome is not stated. Only rely on hide_date_range_on_invoice on Relationship Invoicing sites.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- upgrade_charge or downgrade_credit is not provided → The credit type falls back to the component's setting and then the site setting. Send upgrade_charge and downgrade_credit explicitly when the site default proration is not what you want.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -2834,6 +3224,27 @@ Prepaid components allow customers to pre-purchase units that can be used up ove
 For more information, see [Components Overview](https://maxio.zendesk.com/hc/en-us/articles/24261141522189-Components-Overview).
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`; sending a blank value results in a validation error.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- A component is created under a product family that does not exist → the outcome is not stated. Create (or look up) the product family first and create components under its id or handle.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- The component uses a pricing scheme other than per_unit and the request has no price brackets → Maxio answers 422 with "At least 1 price bracket must be defined". Send at least one price bracket in prices for stairstep, volume and tiered schemes; use unit_price for per_unit.
+- A component is created with a handle already used by another component on the site → Maxio answers 422 with "Handle must be unique within a Site.". Use a component handle that is unique within the site.
+- A prepaid usage component is created with a name that is already taken → Maxio answers 422 with "Name: must be unique - that value has been taken.". Use a component name that is not already taken.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- hide_date_range_on_invoice is sent on a site that does not use Relationship Invoicing → the outcome is not stated. Only rely on hide_date_range_on_invoice on Relationship Invoicing sites.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- A component is created with a unit_name → The unit name is pluralized automatically where needed, e.g. on line items. Send unit_name in the singular.
+- Units of a prepaid usage component are purchased on a subscription → The units are charged at the time of purchase and later usage is tracked against the purchased amount. Expect prepaid components to charge at purchase, not at the end of the period like metered components.
+- expiration_interval or expiration_interval_unit is sent while rollover_prepaid_remainder is not true → The expiration settings apply only to prepaid usage components that roll over remaining units. Send expiration_interval and expiration_interval_unit only together with rollover_prepaid_remainder: true.
+- upgrade_charge or downgrade_credit is not provided → The credit type falls back to the component's setting and then the site setting. Send upgrade_charge and downgrade_credit explicitly when the site default proration is not what you want.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -2943,6 +3354,38 @@ For more information on components, see our documentation [here](https://maxio.z
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`. Sending `"tax_code": ""` returns `422`.
 
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- The primary pricing_scheme is per_unit while a secondary pricing model is configured on a hybrid-eligible component → Maxio refuses it with "Pricing scheme cannot be per_unit for hybrid pricing". Use volume, tiered or stairstep as the primary scheme when sending secondary pricing.
+- Secondary pricing is configured and the primary model's highest bracket has no ending_quantity → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity (the included threshold).
+- A component is created under a product family that does not exist → the outcome is not stated. Create (or look up) the product family first and create components under its id or handle.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- The component uses a pricing scheme other than per_unit and the request has no price brackets → Maxio answers 422 with "At least 1 price bracket must be defined". Send at least one price bracket in prices for stairstep, volume and tiered schemes; use unit_price for per_unit.
+- A component is created with a handle already used by another component on the site → Maxio answers 422 with "Handle must be unique within a Site.". Use a component handle that is unique within the site.
+- The primary model's highest bracket has no ending_quantity on a hybrid price point → Maxio refuses it with "Prices primary pricing must have a finite included threshold for hybrid pricing". Give the primary model's top bracket a finite ending_quantity.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A billing period ends for a subscription with metered and quantity-based components → Metered component usage resets to 0; quantity-based allocations do not reset. Report metered usage per period and do not re-allocate quantity components each period.
+- A hybrid price point is billed → The customer sees one invoice line item per billing period for the component, combining primary and secondary charges. Expect one combined line item, not separate primary and overage lines, for hybrid price points.
+- A price point meets every Hybrid Pricing requirement (site feature, eligible component, bracketed primary scheme with a finite top bracket, secondary pricing configured) → It becomes a hybrid price point automatically (there is no hybrid flag) and bills primary and secondary pricing as one invoice line item. Treat a price point as hybrid from its configuration; do not look for or send a hybrid flag.
+- A component or price point is configured with secondary pricing on a site without the Hybrid Pricing feature or without Invoice-Centric Billing → The price point falls back to billing primary and secondary pricing as separate invoice line items. Confirm with Maxio that Hybrid Pricing and Invoice-Centric Billing are both enabled before relying on single-line hybrid billing.
+- Secondary pricing is configured on a component that is not quantity-based or metered, or on a metered component configured for event-based billing (metric, meter or formula) → The price point is not eligible for Hybrid Pricing. Use Hybrid Pricing only on quantity-based or non-event-based metered components.
+- Secondary (overage_pricing) brackets are sent for a hybrid price point → overage_pricing.prices is a separate bracket set starting at quantity 1; it only takes effect once usage passes the primary model's included threshold. Start overage_pricing brackets at 1, not at the primary model's ending_quantity.
+- A unit price is sent with more than 8 decimal places → the outcome is not stated. Send unit prices with at most 8 decimal places.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- hide_date_range_on_invoice is sent on a site that does not use Relationship Invoicing → the outcome is not stated. Only rely on hide_date_range_on_invoice on Relationship Invoicing sites.
+- interval or interval_unit is sent for a component or component price point on a site without Multifrequency enabled → the outcome is not stated. Send interval and interval_unit only when the site has Multifrequency enabled.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- A component is created with a unit_name → The unit name is pluralized automatically where needed, e.g. on line items. Send unit_name in the singular.
+- A quantity-based component is created as one-time (not recurring) and later allocated → The allocated quantity is reset to zero immediately after each allocation. Create one-time quantity-based components only for ad hoc charges that should not recur.
+- A price point is configured with a secondary (overage) pricing model on a site without both the Hybrid Pricing feature and Invoice-Centric Billing enabled → The price point is not hybrid: primary and secondary pricing bill as separate invoice line items. Have the Maxio account team enable Hybrid Pricing and Invoice-Centric Billing before configuring hybrid price points.
+- Secondary pricing is configured on a component other than a quantity-based or non-event-based metered component → The component is not eligible for Hybrid Pricing. Use hybrid pricing only on quantity-based components or metered components not configured for event-based billing.
+- All hybrid requirements are met for a price point → The price point becomes hybrid automatically; there is no hybrid flag in the API. Check the requirements, not a flag, to know whether a price point is hybrid.
+- overage_pricing.prices brackets are defined for a hybrid price point → The secondary brackets are self-contained and start at 1, and they apply only to usage above the primary model's included threshold. Start overage_pricing.prices at starting_quantity 1, not at the primary ending_quantity.
+- upgrade_charge or downgrade_credit is not provided → The credit type falls back to the component's setting and then the site setting. Send upgrade_charge and downgrade_credit explicitly when the site default proration is not what you want.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -3027,6 +3470,11 @@ catch (ApiException<CreateQuantityBasedComponentError> ex)
 
 Returns information for a component matching the provided handle. You can identify your components with a handle so you don't have to save or reference the IDs we generate.
 
+**Business rules**
+
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -3089,6 +3537,23 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists components for a site.
+
+**Business rules**
+
+- An app wants component features embedded in List Components results → List Components does not support include_features, so features are not embedded. Read each component with include_features=true (Read Component) to get its features.
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- include_archived is not set to true → Archived components or products are left out of the list. Pass include_archived=true when archived items must be listed.
+- filter[use_site_exchange_rate] is used → The filter matches the setting of each item's default price point, not of its other price points. Remember filter[use_site_exchange_rate] tests only the default price point.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- include_features=true is passed to read features embedded in product or component responses → List Products, Read Product and Read Component embed features; List Components does not support include_features. Read component features one by one or with the features endpoints instead of List Components.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -3157,6 +3622,21 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists components for a particular product family.
+
+**Business rules**
+
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- include_archived is not set to true → Archived components or products are left out of the list. Pass include_archived=true when archived items must be listed.
+- filter[use_site_exchange_rate] is used → The filter matches the setting of each item's default price point, not of its other price points. Remember filter[use_site_exchange_rate] tests only the default price point.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -3229,6 +3709,13 @@ Returns information regarding a component from a specific product family.
 
 You can read the component by either the component's id or handle. When using the handle, it must be prefixed with `handle:`.
 
+**Business rules**
+
+- include_features=true is passed to read features embedded in product or component responses → List Products, Read Product and Read Component embed features; List Components does not support include_features. Read component features one by one or with the features endpoints instead of List Components.
+- A product or component is read without include_features=true → The response has no features array; with include_features=true it embeds only the active feature catalog items. Pass include_features=true when you need the features attached to a product or component.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
+
 </dd>
 </dl>
 
@@ -3299,6 +3786,17 @@ Updates a component.
 You may read the component by either the component's id or handle. When using the handle, it must be prefixed with `handle:`.
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`. Sending `"tax_code": ""` returns `422`.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- upgrade_charge or downgrade_credit is not provided → The credit type falls back to the component's setting and then the site setting. Send upgrade_charge and downgrade_credit explicitly when the site default proration is not what you want.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -3372,6 +3870,16 @@ Updates a component from a specific product family.
 You may read the component by either the component's id or handle. When using the handle, it must be prefixed with `handle:`.
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, taxable components must include a non-blank `tax_code`. Sending `"tax_code": ""` returns `422`.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a taxable component is created or updated with a blank tax_code → Maxio answers 422. On Catalog-experience sites, send a non-blank tax_code for every taxable component.
+- Taxes are enabled on the site and the component is saved without a tax type → Maxio answers 422 with "Must set tax type if taxes enabled". When the site has taxes enabled, set the component's tax settings before creating or updating it.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- upgrade_charge or downgrade_credit is not provided → The credit type falls back to the component's setting and then the site setting. Send upgrade_charge and downgrade_credit explicitly when the site default proration is not what you want.
+- A returned component uses the per_unit pricing scheme → Its prices array is empty; the price is carried in unit_price. Read unit_price, not prices, for per_unit components.
+- A returned component uses a pricing scheme other than per_unit → unit_price may be null; the pricing is in the prices brackets. Handle a null unit_price on bracketed components and read prices instead.
 
 </dd>
 </dl>
@@ -3449,6 +3957,10 @@ Archives a coupon, making it unavailable for future use while remaining active o
 Archiving makes that Coupon unavailable for future use, but allows it to remain attached and functional on existing Subscriptions that are using it.
 The `archived_at` date and time will be assigned.
 
+**Business rules**
+
+- A coupon is archived → The coupon becomes unavailable for future use but stays attached and working on existing subscriptions; archived_at is set. Remove the coupon from existing subscriptions separately if its discount must stop.
+
 </dd>
 </dl>
 
@@ -3515,6 +4027,21 @@ Creates a coupon under the specified product family.
 You can create either a flat amount coupon, by specifying `amount_in_cents`, or percentage coupon by specifying `percentage`.
 
 See [Apply Coupons to Subscriptions](https://maxio.zendesk.com/hc/en-us/articles/24261259337101-Coupons-and-Subscriptions) for information on applying a coupon to a subscription in the Advanced Billing UI.
+
+**Business rules**
+
+- A new coupon is created without name, code or description → the outcome is not stated. Send name, code and description when creating a coupon.
+- The coupon code contains characters other than uppercase letters, digits and % @ + - _  → the outcome is not stated. Build coupon codes from uppercase letters, digits and the allowed special characters only.
+- A new coupon is created with neither percentage nor amount_in_cents → the outcome is not stated. Send percentage for a percentage coupon or amount_in_cents for a flat amount coupon.
+- percentage and amount_in_cents are both sent → the outcome is not stated. Send only one of percentage and amount_in_cents.
+- allow_negative_balance is set to true together with restricted_products or restricted_components → the outcome is not stated. Do not combine allow_negative_balance with product or component restrictions.
+- end_date is in the past → Maxio answers 422 with "Expiration Date cannot be in the past". Send an end_date of today or later, or none.
+- The coupon amount is negative → Maxio answers 422 with "Amount: must be greater than or equal to $0.00.". Send a coupon amount of zero or more.
+- name, code or description is longer than 255 characters → the outcome is not stated. Keep coupon name, code and description to 255 characters or fewer.
+- compounding_strategy is set on a coupon that is not stackable → compounding_strategy applies only to stackable coupons. Set stackable true when the compounding strategy matters.
+- A stackable percentage coupon is combined with other discounts → With compound the percentage is taken from the price remaining after prior discounts; with full-price it is taken from the original item price. Choose compound or full-price deliberately and compute expected totals the same way.
+- allow_negative_balance is true and the discount exceeds the amount billed → The discount is not limited; the excess becomes credit that carries forward to the next billing. Set allow_negative_balance only when unused discount should carry forward as credit.
+- A coupon has an end_date → After the end of that day the code is invalid for new signups; recurring discounts started before the date keep recurring after it. Do not use end_date to stop discounts already running; it only blocks new signups.
 
 </dd>
 </dl>
@@ -3634,6 +4161,11 @@ So, if the coupon subcode is `20%OFF`, the URL to delete this coupon subcode wou
 
 For more information on coupon codes and applying coupons to subscriptions, see [Coupon Codes](https://maxio.zendesk.com/hc/en-us/articles/24261208729229-Coupon-Codes) and [Coupons and Subscriptions](https://maxio.zendesk.com/hc/en-us/articles/24261259337101-Coupons-and-Subscriptions).
 
+**Business rules**
+
+- A subcode is sent with lowercase letters → The lowercase letters are capitalized before the subcode is created. Store and compare subcodes in uppercase.
+- A subcode in the list is not valid (contains spaces or disallowed characters) → That subcode is not created and is reported among the invalid codes in the response; the rest are processed. Check invalid_codes in the response instead of assuming every subcode was created.
+
 </dd>
 </dl>
 
@@ -3702,6 +4234,11 @@ catch (ApiException<RawError> ex)
 Creates and/or updates currency prices for an existing coupon. Multiple prices can be created or updated in a single request but each of the currencies must be defined on the site level already and the coupon must be an amount-based coupon, not percentage.
 
 Currency pricing for coupons must mirror the setup of the primary coupon pricing - if the primary coupon is percentage based, you will not be able to define pricing in non-primary currencies.
+
+**Business rules**
+
+- Currency prices are sent for a percentage-based coupon → Maxio answers 422 with "Cannot create prices for a percentage-based coupon.". Set currency prices only on amount-based coupons.
+- A currency price is sent for a currency not defined at the site level → Maxio answers 422 with "Currency must be defined on the site level.". Define the currency on the site before setting coupon prices in it.
 
 </dd>
 </dl>
@@ -3802,6 +4339,10 @@ Note: If you are using any of the allowed special characters (“%”, “@”, 
 
 Or if the coupon subcode is 20%OFF, the URL to delete this coupon subcode would be: @https://<subdomain>.chargify.com/coupons/567/codes/20%25OFF.<format>.
 
+**Business rules**
+
+- The subcode in the URL path contains one of the special characters % @ + - _ or . without percent-encoding → the outcome is not stated. Percent-encode % @ + - _ and . in the subcode path segment (for example 20%OFF as 20%25OFF).
+
 </dd>
 </dl>
 
@@ -3873,6 +4414,11 @@ Searches for a coupon by code.
 
 If you have more than one product family and if the coupon you are trying to find does not belong to the default product family in your site, you need to specify (either in the URL or as a query string param) the `product_family_id`.
 
+**Business rules**
+
+- The site has more than one product family and the coupon is not in the default (first-created, unarchived) product family, and no product family is given → the outcome is not stated. Pass product_family_id (or the product family in the URL, by id or handle:<handle>) when the coupon may be outside the default family.
+- currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.
+
 </dd>
 </dl>
 
@@ -3935,6 +4481,13 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists the subcodes attached to a coupon.
+
+**Business rules**
+
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -4004,6 +4557,19 @@ catch (ApiException<RawError> ex)
 
 Lists coupons for a site.
 
+**Business rules**
+
+- Coupons are listed for the site → Coupons from all product families are returned, not only the default product family. Page through the results, and use the product-family coupon list when you need one family only.
+- currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.
+- filter[use_site_exchange_rate] is sent → true returns only coupons priced from the site's current exchange rates (on-the-fly currency_prices); false returns only coupons with manually defined amounts per currency (stored currency_prices). Omit the filter to get both kinds of coupons.
+- start_date or end_date (date only) is sent to filter by date_field → start_date matches records at or after midnight and end_date matches records up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
+
 </dd>
 </dl>
 
@@ -4071,6 +4637,18 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists coupons for a specific product family in a site.
+
+**Business rules**
+
+- currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.
+- filter[use_site_exchange_rate] is sent → true returns only coupons priced from the site's current exchange rates (on-the-fly currency_prices); false returns only coupons with manually defined amounts per currency (stored currency_prices). Omit the filter to get both kinds of coupons.
+- start_date or end_date (date only) is sent to filter by date_field → start_date matches records at or after midnight and end_date matches records up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
 
 </dd>
 </dl>
@@ -4144,6 +4722,11 @@ Returns a coupon by its system-assigned ID. You must identify the Coupon in this
 If instead you would like to find a Coupon using a Coupon code, use the [Find Coupon]($e/Coupons/findCoupon) endpoint.
 
 If the coupon is set to `use_site_exchange_rate: true`, it returns pricing based on the current exchange rate. If the flag is set to false, it returns all of the defined prices for each currency.
+
+**Business rules**
+
+- currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.
+- A coupon is read → With use_site_exchange_rate true the pricing is based on the current exchange rate; with false all defined prices for each currency are returned. Expect exchange-rate coupon prices to change between reads.
 
 </dd>
 </dl>
@@ -4283,6 +4866,21 @@ Updates a coupon.
 You can restrict a coupon to only apply to specific products / components by optionally passing in hashes of `restricted_products` and/or `restricted_components` in the format:
 `{ "<product/component_id>": boolean_value }`
 
+**Business rules**
+
+- The coupon code contains characters other than uppercase letters, digits and % @ + - _  → the outcome is not stated. Build coupon codes from uppercase letters, digits and the allowed special characters only.
+- percentage and amount_in_cents are both sent → the outcome is not stated. Send only one of percentage and amount_in_cents.
+- allow_negative_balance is set to true together with restricted_products or restricted_components → the outcome is not stated. Do not combine allow_negative_balance with product or component restrictions.
+- end_date is in the past → Maxio answers 422 with "Expiration Date cannot be in the past". Send an end_date of today or later, or none.
+- The coupon amount is negative → Maxio answers 422 with "Amount: must be greater than or equal to $0.00.". Send a coupon amount of zero or more.
+- name, code or description is longer than 255 characters → the outcome is not stated. Keep coupon name, code and description to 255 characters or fewer.
+- The coupon code is changed to a code another coupon already uses → Maxio answers 422 with "Code: must be unique - that value has been taken.". Use a coupon code no other coupon on the site has.
+- The code is changed on a coupon that belongs to one or more active offers → Maxio answers 422 with "Code cannot be changed because coupon belongs to one or more active offers: offer-1". Archive or remove the coupon from active offers before changing its code, or leave the code unchanged.
+- compounding_strategy is set on a coupon that is not stackable → compounding_strategy applies only to stackable coupons. Set stackable true when the compounding strategy matters.
+- A stackable percentage coupon is combined with other discounts → With compound the percentage is taken from the price remaining after prior discounts; with full-price it is taken from the original item price. Choose compound or full-price deliberately and compute expected totals the same way.
+- allow_negative_balance is true and the discount exceeds the amount billed → The discount is not limited; the excess becomes credit that carries forward to the next billing. Set allow_negative_balance only when unused discount should carry forward as credit.
+- A coupon has an end_date → After the end of that day the code is invalid for new signups; recurring discounts started before the date keep recurring after it. Do not use end_date to stop discounts already running; it only blocks new signups.
+
 </dd>
 </dl>
 
@@ -4381,6 +4979,12 @@ The response will contain:
 
 + Any subcodes not created because they are invalid.
 
+**Business rules**
+
+- A subcode in the list is not valid (contains spaces or disallowed characters) → That subcode is not created and is reported among the invalid codes in the response; the rest are processed. Check invalid_codes in the response instead of assuming every subcode was created.
+- A list of subcodes is sent to update a coupon's subcodes → All current subcodes of the coupon are deleted first and replaced with the list sent. Send the complete list of subcodes to keep; use create to add subcodes without removing others.
+- A subcode in the list already exists → That subcode is not created and is reported in the response as already existing. Read the duplicate list in the response to see which subcodes were not created.
+
 </dd>
 </dl>
 
@@ -4462,6 +5066,11 @@ Supplying the `product_family_id` as a query parameter:
 https://<subdomain>.chargify.com/coupons/validate.<format>?code=<coupon_code>&product_family_id=<id>
 ```
 
+**Business rules**
+
+- The site has more than one product family and the coupon is not in the default (first-created, unarchived) product family, and no product family is given → the outcome is not stated. Pass product_family_id (or the product family in the URL, by id or handle:<handle>) when the coupon may be outside the default family.
+- The coupon code being validated is not found → Maxio answers 404 with "Coupon code could not be found.". Show the customer an invalid-code message on 404 rather than treating it as a failure of the service.
+
 </dd>
 </dl>
 
@@ -4535,6 +5144,15 @@ Creates metadata and metafields for a specific subscription or customer, or upda
 If you create metadata on a subscription or customer with a metafield that does not already exist, the metafield is created with the metadata you specify and it is always added as a text field. You can update the input_type for the metafield with the [Update Metafield]($e/Custom%20Fields/updateMetafield) endpoint. 
 
 >Note: Each site is limited to 100 unique metafields per resource. This means you can have 100 metafields for Subscriptions and another 100 for Customers.
+
+**Business rules**
+
+- A metadata (custom field) value is larger than 2 KB / 2048 characters → the outcome is not stated. Keep custom field values within 2048 characters (2 KB).
+- Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.
+- A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.
+- Metadata is created or updated on a subscription or customer with a metafield name that does not exist yet → The metafield is created on the site as a text field with the given value. Create metafields first (or change input_type afterwards with Update Metafield) when they should not be text fields.
+- Create Metadata names a metafield that already has a value on the subscription or customer → The existing value is updated rather than rejected. Treat Create Metadata as an upsert and do not use it to detect existing values.
+- A custom field value is added or changed on a subscription or customer (including at signup) → A custom_field_value_change webhook is fired. Expect custom_field_value_change webhooks for your own metadata writes and avoid loops.
 
 </dd>
 </dl>
@@ -4625,6 +5243,16 @@ In the UI and product documentation, metafields and metadata are called Custom F
 - Metadata is the data populating the custom field.
 
 See [Custom Fields Reference](https://docs.maxio.com/hc/en-us/articles/24266140850573-Custom-Fields-Reference) and [Custom Fields Tab](https://maxio.zendesk.com/hc/en-us/articles/24251701302925-Subscription-Summary-Custom-Fields-Tab) for information on using Custom Fields in the Advanced Billing UI.
+
+**Business rules**
+
+- Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.
+- A metafield already exists and its resource type (subscriptions or customers) would need to change → the outcome is not stated. Choose the resource type correctly when creating a metafield; create a new metafield on the other resource instead of moving it.
+- A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.
+- enum values are sent for a metafield whose input_type is not radio or dropdown → enum applies only to radio and dropdown metafields. Send enum only with input_type radio or dropdown.
+- The enum list of a new metafield contains empty strings → Empty strings are not submitted as enum values. Do not rely on empty strings being stored as dropdown or radio options.
+- A metafield is created without input_type → The metafield defaults to a text field. Send input_type explicitly when the metafield should be radio, dropdown or balance_tracker.
+- A metafield's scope flags (csv, invoices, statements, portal, public_show, public_edit) are set to 1 → The metafield and its metadata are shown or exported in those places: CSV export, invoices, statements, the portal/Public Signup Pages, and viewable or editable in Embeddable Components. Set each scope flag deliberately, since it controls where custom field data is shown to customers.
 
 </dd>
 </dl>
@@ -4780,6 +5408,10 @@ catch (ApiException<DeleteMetadataError> ex)
 
 Deletes a metafield from your Site. Removes the metafield and associated metadata from all Subscriptions or Customers resources on the Site.
 
+**Business rules**
+
+- A metafield is deleted → The metafield and its metadata are removed from every subscription or customer on the site. Delete a metafield only when its values are no longer needed on any record.
+
 </dd>
 </dl>
 
@@ -4844,6 +5476,11 @@ catch (ApiException<DeleteMetafieldError> ex)
 <dd>
 
 Lists metadata and metafields for a specific customer or subscription.
+
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -4914,6 +5551,16 @@ catch (ApiException<RawError> ex)
 
 Lists metadata for a specified array of subscriptions or customers.
 
+**Business rules**
+
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- start_date or end_date is used to filter metadata → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Interpret start_date and end_date as whole days in the site's time zone.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a time zone offset in start_datetime and end_datetime when you mean UTC or another zone.
+- Both a date and a datetime bound are sent (start_date with start_datetime, or end_date with end_datetime) → The datetime parameter is used instead of the date parameter. Send either the date or the datetime form of each bound, not both.
+- List Metafields or List Metadata for Resource Type is called without direction → Results are sorted by id ascending; direction=desc sorts descending. Pass direction explicitly when the order matters.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -4982,6 +5629,12 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists the metafields and their associated details for a Site and resource type. You can filter the request to a specific metafield.
+
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- List Metafields or List Metadata for Resource Type is called without direction → Results are sorted by id ascending; direction=desc sorts descending. Pass direction explicitly when the order matters.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -5054,6 +5707,14 @@ Updates metadata and metafields on the Site and the customer or subscription spe
 If you update metadata on a subscription or customer with a metafield that does not already exist, the metafield is created with the metadata you specify and it is always added as a text field to the Site and to the subscription or customer you specify. You can update the input_type for the metafield with the Update Metafield endpoint. 
 
 Each site is limited to 100 unique metafields per resource. This means you can have 100 metafields for the Subscription resource and another 100 for the Customer resource.
+
+**Business rules**
+
+- A metadata (custom field) value is larger than 2 KB / 2048 characters → the outcome is not stated. Keep custom field values within 2048 characters (2 KB).
+- Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.
+- A metafield or metadata entry is sent without a name → Maxio answers 422 with "'name' must be present to create or update metafields". Always send name for every metafield and metadata entry.
+- Metadata is created or updated on a subscription or customer with a metafield name that does not exist yet → The metafield is created on the site as a text field with the given value. Create metafields first (or change input_type afterwards with Update Metafield) when they should not be text fields.
+- A custom field value is added or changed on a subscription or customer (including at signup) → A custom_field_value_change webhook is fired. Expect custom_field_value_change webhooks for your own metadata writes and avoid loops.
 
 </dd>
 </dl>
@@ -5145,6 +5806,19 @@ With this endpoint, you can:
 
 - Add or update scope settings for a metafield.
   >Note: Scope changes overwrite existing settings. You must specify the complete scope, including the changes you want to make.
+
+**Business rules**
+
+- Creating a metafield (directly, by Update Metafield with a new current_name, or implicitly through metadata) would exceed 100 unique metafields for that resource type on the site → the outcome is not stated. Keep at most 100 metafields for subscriptions and 100 for customers per site, and reuse existing metafields.
+- A metafield already exists and its resource type (subscriptions or customers) would need to change → the outcome is not stated. Choose the resource type correctly when creating a metafield; create a new metafield on the other resource instead of moving it.
+- A metafield is given a name already used by another metafield of the same resource type → Maxio answers 422 with "Metafield name must be unique for the Attachment Type". Keep metafield names unique within subscriptions and within customers.
+- enum values are sent for a metafield whose input_type is not radio or dropdown → enum applies only to radio and dropdown metafields. Send enum only with input_type radio or dropdown.
+- A metafield's scope flags (csv, invoices, statements, portal, public_show, public_edit) are set to 1 → The metafield and its metadata are shown or exported in those places: CSV export, invoices, statements, the portal/Public Signup Pages, and viewable or editable in Embeddable Components. Set each scope flag deliberately, since it controls where custom field data is shown to customers.
+- A metafield's scope is updated with only some of the scope attributes → The partial scope overwrites the existing scope settings; attributes left out are not kept. Send the complete scope object, including unchanged attributes, whenever you update scope.
+- Update Metafield names a current_name that does not exist for the resource type → A new metafield is added instead of an error being returned. Check the current_name spelling, since a typo creates a new metafield.
+- Update Metafield is used only to change a metafield's metadata (enum) while keeping its name → the outcome is not stated. Send the current metafield name in both current_name and name.
+- A metafield's input type is changed from text to dropdown or radio → Existing values on subscriptions or customers are not adjusted to the new input type. Update each subscription or customer that used the metafield so its value matches the new metafield and metadata.
+- The metadata values (enum) of a dropdown or radio metafield are updated → The sent list overwrites the existing values; values left out are removed. Send the full list of values: all existing ones plus additions, or all except those to remove.
 
 </dd>
 </dl>
@@ -5255,6 +5929,29 @@ The legacy `vat_number` and `vat_country` pair still works on its own. When neit
 
 The response reports the stored identifier in `entity_identifier_kind` and `entity_identifier_value`, and repeats its value in `vat_number`.
 
+**Business rules**
+
+- A customer is created with a reference value that another customer on the site already has → the outcome is not stated. Send a reference that no other customer on the site uses, or leave reference blank and store the returned id.
+- entity_identifier_kind is vat_eu or national_tax and no vat_country is sent → Maxio answers 422. Send vat_country whenever entity_identifier_kind is vat_eu or national_tax.
+- vat_country does not fit the identifier kind: vat_eu with a country that is not an EU member state or GB, or national_tax with a country outside AL, AM, AR, AU, BR, CA, CH, DZ, IN, MX, NO, NZ, ZA → Maxio answers 422. Check vat_country against the kind's allowed countries before sending the customer.
+- entity_identifier_kind is gln, duns or lei and the value is not 13 digits, 9 digits, or 18 letters or digits followed by 2 digits respectively → Maxio answers 422. Validate the identifier value's length and characters for gln, duns and lei before sending it.
+- entity_identifier_value is sent without entity_identifier_kind while a vat_country is present → Maxio answers 422 with "names entity_identifier_kind". Send entity_identifier_kind whenever entity_identifier_value is sent.
+- entity_identifier_value is sent with surrounding whitespace or lowercase letters → The value is trimmed and stored in uppercase. Compare stored identifiers in trimmed uppercase form, not as originally entered.
+- An identifier is stored through entity_identifier_kind with kind company_reg, gln, duns or lei → vat_country is set to null. Expect vat_country to be null after saving a company_reg, gln, duns or lei identifier, even if one was sent.
+- organization is omitted, null or an empty string → organization is populated with the customer's first and last name separated by a space. Do not treat a returned organization as a real company name unless your app set it.
+- surcharging is omitted when creating a customer on a site where surcharging control is enabled → surcharging defaults to true. Send surcharging false explicitly if the customer must not be surcharged.
+- surcharging is sent on a site where surcharging control is not enabled → The value is not applied, and surcharging is not included in the customer response. Confirm surcharging control is enabled on the site before relying on the customer's surcharging setting.
+- branding_theme_id is sent on a site where Branding Themes are not enabled → The field is available only when Branding Themes are enabled for the site. Send branding_theme_id only on sites with Branding Themes enabled.
+- On a site with Branding Themes enabled, a customer has a branding_theme_id and one of its subscriptions has no subscription-level Branding Theme → The customer's Branding Theme is used for that subscription. Expect changing the customer's branding_theme_id to change the branding of every subscription without its own theme.
+- A vat_number is added or updated on a customer → The number is not validated when saved; it is validated via VIES before taxes are calculated, and only a valid number allows VAT opt-out. Validate VAT numbers yourself if you need to catch bad ones at entry; a saved number does not mean VAT opt-out will apply.
+- tax_exempt is sent as 1 or 0 → 1 is accepted as true and 0 as false. Send tax_exempt as true/false or 1/0 only.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- A new customer is created → A customer_create webhook is sent. Subscribe to customer_create if other systems must learn of new customers.
+- entity_identifier_value is sent without entity_identifier_kind and no vat_country is present → The value is stored as a company_reg identifier. Always send entity_identifier_kind with entity_identifier_value so the kind is not chosen for you.
+- entity_identifier_kind and entity_identifier_value are both sent blank → The blank pair is ignored rather than rejected or read as a clear; a vat_number sent alongside it still takes effect. Do not send a blank pair to clear an identifier; send a supported kind with a blank value instead.
+- Only the legacy vat_number (and vat_country) is sent, with neither entity identifier field → The kind is derived from vat_country: an EU member state code or GB gives vat_eu, a national tax country code gives national_tax, and a blank or unrecognized country gives company_reg. Send vat_country with a legacy vat_number, or send entity_identifier_kind explicitly, so the derived kind is the one you intend.
+- The customer holds an entity identifier of any kind → The response reports the identifier in entity_identifier_kind and entity_identifier_value and repeats its value in vat_number, whatever its kind. Read the identifier's kind from entity_identifier_kind; do not treat vat_number as a VAT number when the kind is not vat_eu.
+
 </dd>
 </dl>
 
@@ -5343,6 +6040,10 @@ catch (ApiException<CreateCustomerError> ex)
 
 Deletes the customer.
 
+**Business rules**
+
+- A customer is deleted explicitly as a single action → A customer_delete webhook is sent; it is not sent when a subscription and its customer are deleted together. Do not expect customer_delete when the customer is removed together with a subscription; reconcile those deletions separately.
+
 </dd>
 </dl>
 
@@ -5406,6 +6107,10 @@ catch (ApiException<RawError> ex)
 Lists all subscriptions that belong to a customer.
 
  If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, subscriptions no longer require an associated product. For subscriptions without an associated product, 'product', 'product_price_point_id', and 'product_price_point_type' are returned as 'null'.
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and a customer's subscription has no associated product → product, product_price_point_id and product_price_point_type are returned as null for that subscription. Handle null product and price point fields on listed subscriptions.
 
 </dd>
 </dl>
@@ -5486,6 +6191,20 @@ Common use cases are:
 + Search by a first or last name
 
 To retrieve a single, exact match by reference, use the [lookup endpoint](https://developers.chargify.com/docs/api-docs/b710d8fbef104-read-customer-by-reference).
+
+**Business rules**
+
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- The q query parameter is sent → Customers whose email, Advanced Billing ID, organization, reference, or first or last name match the query are returned. Expect q to match across several fields; filter the results yourself if you need one field.
+- Customers are listed → Results are sorted by time of creation, in the order set by direction. Use direction to control creation-time order when paging through customers.
+- start_date or end_date (date only) is sent to filter by date_field → start_date matches records at or after midnight and end_date matches records up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
+- A customer is looked up by its reference → The lookup endpoint returns a single exact match, while the list search with q returns an array of customers matching the query. Use the lookup endpoint, not the q search, when you need the one customer with an exact reference.
 
 </dd>
 </dl>
@@ -5618,6 +6337,10 @@ catch (ApiException<RawError> ex)
 
 Returns a customer by their unique reference ID. It will return a single match.
 
+**Business rules**
+
+- A customer is looked up by its reference → The lookup endpoint returns a single exact match, while the list search with q returns an array of customers matching the query. Use the lookup endpoint, not the q search, when you need the one customer with an exact reference.
+
 </dd>
 </dl>
 
@@ -5701,6 +6424,35 @@ Sending a customer response straight back leaves the tax ID alone. A blank pair,
 What you do change is applied, and the entity identifier fields take precedence over `vat_number`. A different kind or value writes that identifier, and `vat_number` and `vat_country` follow from it. A different `vat_country` next to an unchanged pair is a real edit, so it is validated and can return `422`. Changing only `vat_number` leaves the pair unchanged, so the derivation above decides the kind, which turns a `gln`, `duns`, or `lei` customer into a `company_reg`. Setting `vat_number` to `null` or a blank string still clears the identifier.
 
 The response reports the stored identifier in `entity_identifier_kind` and `entity_identifier_value`, and repeats its value in `vat_number`.
+
+**Business rules**
+
+- entity_identifier_kind is vat_eu or national_tax and no vat_country is sent → Maxio answers 422. Send vat_country whenever entity_identifier_kind is vat_eu or national_tax.
+- vat_country does not fit the identifier kind: vat_eu with a country that is not an EU member state or GB, or national_tax with a country outside AL, AM, AR, AU, BR, CA, CH, DZ, IN, MX, NO, NZ, ZA → Maxio answers 422. Check vat_country against the kind's allowed countries before sending the customer.
+- entity_identifier_kind is gln, duns or lei and the value is not 13 digits, 9 digits, or 18 letters or digits followed by 2 digits respectively → Maxio answers 422. Validate the identifier value's length and characters for gln, duns and lei before sending it.
+- entity_identifier_value is sent without entity_identifier_kind while a vat_country is present → Maxio answers 422 with "names entity_identifier_kind". Send entity_identifier_kind whenever entity_identifier_value is sent.
+- A different vat_country is sent next to a kind/value pair that is unchanged from what is stored → Maxio answers 422. Treat a vat_country change as a new identifier and make sure it fits the stored kind.
+- entity_identifier_value is sent with surrounding whitespace or lowercase letters → The value is trimmed and stored in uppercase. Compare stored identifiers in trimmed uppercase form, not as originally entered.
+- An identifier is stored through entity_identifier_kind with kind company_reg, gln, duns or lei → vat_country is set to null. Expect vat_country to be null after saving a company_reg, gln, duns or lei identifier, even if one was sent.
+- organization is omitted, null or an empty string → organization is populated with the customer's first and last name separated by a space. Do not treat a returned organization as a real company name unless your app set it.
+- surcharging is sent on a site where surcharging control is not enabled → The value is not applied, and surcharging is not included in the customer response. Confirm surcharging control is enabled on the site before relying on the customer's surcharging setting.
+- branding_theme_id is sent on a site where Branding Themes are not enabled → The field is available only when Branding Themes are enabled for the site. Send branding_theme_id only on sites with Branding Themes enabled.
+- On a site with Branding Themes enabled, a customer has a branding_theme_id and one of its subscriptions has no subscription-level Branding Theme → The customer's Branding Theme is used for that subscription. Expect changing the customer's branding_theme_id to change the branding of every subscription without its own theme.
+- A vat_number is added or updated on a customer → The number is not validated when saved; it is validated via VIES before taxes are calculated, and only a valid number allows VAT opt-out. Validate VAT numbers yourself if you need to catch bad ones at entry; a saved number does not mean VAT opt-out will apply.
+- tax_exempt is sent as 1 or 0 → 1 is accepted as true and 0 as false. Send tax_exempt as true/false or 1/0 only.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- entity_identifier_value is sent without entity_identifier_kind and no vat_country is present → The value is stored as a company_reg identifier. Always send entity_identifier_kind with entity_identifier_value so the kind is not chosen for you.
+- entity_identifier_kind and entity_identifier_value are both sent blank → The blank pair is ignored rather than rejected or read as a clear; a vat_number sent alongside it still takes effect. Do not send a blank pair to clear an identifier; send a supported kind with a blank value instead.
+- Only the legacy vat_number (and vat_country) is sent, with neither entity identifier field → The kind is derived from vat_country: an EU member state code or GB gives vat_eu, a national tax country code gives national_tax, and a blank or unrecognized country gives company_reg. Send vat_country with a legacy vat_number, or send entity_identifier_kind explicitly, so the derived kind is the one you intend.
+- The customer holds an entity identifier of any kind → The response reports the identifier in entity_identifier_kind and entity_identifier_value and repeats its value in vat_number, whatever its kind. Read the identifier's kind from entity_identifier_kind; do not treat vat_number as a VAT number when the kind is not vat_eu.
+- An identifier of a different kind is saved on a customer that already holds one → The new identifier replaces the existing one; a customer holds one identifier at a time. Store only one tax or business identifier per customer and expect the old one to be gone after a kind change.
+- A supported entity_identifier_kind is sent with a blank entity_identifier_value → The identifier is cleared along with vat_number and vat_country, whatever identifier the customer holds and whatever kind was sent. Send a kind with a blank value only when you mean to remove the customer's identifier of any kind.
+- vat_number is sent on its own as null or a blank string → The customer's identifier is cleared. Do not send a blank or null vat_number unless you mean to clear the customer's identifier.
+- The kind/value pair sent matches the stored identifier and vat_country is unchanged, as when a customer response is sent straight back → Nothing is changed; for gln, duns and lei the mirrored vat_number is also read as no change, so the kind survives the round trip. You may send a read customer back unchanged without losing its identifier.
+- The entity identifier fields and vat_number are both sent and the kind or value differs from what is stored → The entity identifier fields take precedence; the new identifier is written and vat_number and vat_country follow from it. Set the identifier through entity_identifier_kind and entity_identifier_value, not vat_number, when both are present.
+- Only vat_number is changed on a customer whose identifier kind is gln, duns or lei → The kind is re-derived from vat_country, turning the customer into a company_reg. Change a gln, duns or lei identifier through entity_identifier_kind and entity_identifier_value, not vat_number alone.
+- verified (ACH verification) is sent for a customer on a site whose gateway is not Authorize.Net → The field is available only on the Authorize.Net gateway. Send verified only when the site uses the Authorize.Net gateway.
+- A customer update changes first_name, last_name, organization, email, reference, address, address 2, city, state, zip, country, phone, vat_number, parent_id or cc_email → A customer_update webhook is sent; changes to other customer fields do not trigger it. Do not rely on customer_update to learn of changes to fields outside the listed set; read the customer back instead.
 
 </dd>
 </dl>
@@ -5790,6 +6542,21 @@ When more than one product or component grants the same feature key and periodic
 - **`service_right`** features are not combined: one contributor's value wins. Do not rely on which one when several grant the same feature key.
 
 `enabled` reflects both the aggregated value and the subscription's state. The field is `false` whenever the subscription is not in a live state (`active`, `trialing`, `assessing`, `past_due`, `soft_failure`), regardless of the aggregated value. Entitlements deliberately stay enabled through dunning.
+
+**Business rules**
+
+- Several products/components grant the same feature, or a usage_limit feature is granted with different periodicities → Entitlements are collapsed into one entry per feature key and periodicity window; different periodicities come back as separate entries sharing one feature_key. Key entitlements by periodicity_key, not by feature_key.
+- An aggregated entitlement has a periodicity window → periodicity_key is the prefixed feature key suffixed with :{interval}:{unit}; it equals feature_key when periodicity is null. Use periodicity_key as the unique id of an entry.
+- Several products or components on a subscription grant the same feature → Entitlements are collapsed into one entry per feature key and periodicity window, so different periodicities give separate entries with their own periodicity_key. Key entitlements by periodicity_key, not only by feature_key.
+- The subscription is not in a live state (active, trialing, assessing, past_due or soft_failure) → enabled is false regardless of the aggregated value; entitlements stay enabled while the subscription is in dunning. Check enabled before granting access in your application.
+- More than one contributor grants the same access_right feature key and periodicity → Values are combined with boolean OR: true if any contributor grants access; source_products lists only contributors that granted true. Treat an access_right as granted when any product or component grants it.
+- More than one contributor grants the same usage_limit feature key → Values are summed across contributors sharing the same periodicity window; grants with different periodicities are not summed and are returned as separate entries. Read the summed limit per periodicity_key; do not add entries of different periodicities yourself.
+- More than one contributor grants the same service_right feature key → Values are not combined; one contributor's value wins, and which one is not defined. Avoid granting the same service_right key from several products/components, or do not depend on which value is returned.
+- The subscription is not in a live state (active, trialing, assessing, past_due, soft_failure), e.g. awaiting_signup, canceled, expired or on hold → enabled is false for every entitlement, regardless of the aggregated value. Check enabled, not value, before granting access in your application.
+- The subscription is in dunning (past_due or soft_failure) → Entitlements stay enabled through dunning. Do not expect entitlements to switch off while the subscription is in dunning; restrict access yourself if your policy requires it.
+- The aggregated value is not truthy for the feature's kind (for example false or 0) → enabled is false even when the subscription is live. Check enabled rather than the presence of an entry.
+- An aggregated entitlement is returned → value is coerced by type: boolean for access_right (and boolean service_right), number for usage_limit (and numeric service_right), string for text service_right. Parse value according to type rather than as the string stored on the feature catalog item.
+- An aggregated entitlement is returned → feature_key is the template key prefixed by kind: feature.* for access_right, usage.* for usage_limit, service.* for service_right. Match entitlements on the prefixed key (e.g. feature.sso), not the bare template key.
 
 </dd>
 </dl>
@@ -5943,6 +6710,22 @@ Message updates:
 - “Successful payment for allocation changes to Product on Subscription”
 - “Failed payment for allocation changes to Product on Subscription”
 
+**Business rules**
+
+- The filter parameter names a legacy event key (payment_failure_recreated, payment_success_recreated, renewal_failure_recreated, renewal_success_recreated, zferral_revenue_post_failure, zferral_revenue_post_success) → the outcome is not stated. Do not filter events by the legacy keys.
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.
+- start_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp at or after midnight (12:00:00 AM) in the site's time zone on that date match. Express start_date in the site's time zone, or use start_datetime with an explicit offset.
+- end_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp up to and including 11:59:59 PM in the site's time zone on that date match. Express end_date in the site's time zone, or use end_datetime with an explicit offset.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.
+- The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
+
 </dd>
 </dl>
 
@@ -6037,6 +6820,16 @@ Message updates:
 - “Failed payment for allocation changes to Product on Subscription”
 - “Plan changed on Subscription from previous plan to new plan”
 
+**Business rules**
+
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.
+- The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.
+- The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -6120,6 +6913,16 @@ Message updates:
 - “Failed payment for allocation changes to Product on Subscription”
 - “Plan changed on Subscription from previous plan to new plan”
 
+**Business rules**
+
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.
+- The site uses the enhanced (new) Catalog experience → Event keys are renamed: subscription_product_change to subscription_plan_change, component_allocation_change to allocation_change, component_billing_date_change to product_billing_date_change. Accept and filter on both the old and the renamed event keys.
+- The site uses the enhanced (new) Catalog experience → Event messages use the new wording, e.g. "Plan changed on Subscription from previous plan to new plan" and "Successful payment for allocation changes to Product on Subscription". Do not parse event message text; rely on key and event_specific_data.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -6196,6 +6999,14 @@ If any of the records contain an error the whole request would fail and none of 
 
 You may specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
 
+**Business rules**
+
+- Any segment in a bulk create or bulk update request fails validation → Maxio answers 422. Treat a bulk segment request as all-or-nothing and resubmit the whole batch after fixing it.
+- Several segments in a bulk request are invalid → Maxio answers 422 with "Pricing scheme: cannot be blank". Expect further failures after fixing the reported segment; validate the whole batch before sending.
+- A segment_property_N_value does not match the type of that property in the related event-based billing metric → the outcome is not stated. Send each segment property value with the type the metric defines for that property.
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+- A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.
+
 </dd>
 </dl>
 
@@ -6270,6 +7081,13 @@ If any of the records contain an error the whole request would fail and none of 
 
 You may specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
 
+**Business rules**
+
+- Any segment in a bulk create or bulk update request fails validation → Maxio answers 422. Treat a bulk segment request as all-or-nothing and resubmit the whole batch after fixing it.
+- Several segments in a bulk request are invalid → Maxio answers 422 with "Pricing scheme: cannot be blank". Expect further failures after fixing the reported segment; validate the whole batch before sending.
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+- A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.
+
 </dd>
 </dl>
 
@@ -6341,6 +7159,14 @@ catch (ApiException<BulkUpdateSegmentsError> ex)
 Creates a new segment for a component with a segmented metric. It allows you to specify properties to bill upon and prices for each Segment. You can only pass as many "property_values" as the related Metric has segmenting properties defined.
 
 You may specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
+
+**Business rules**
+
+- More segment property values are sent than the related metric has segmenting properties → the outcome is not stated. Send no more segment_property_N_value fields than the metric's segmenting properties.
+- A segment_property_N_value does not match the type of that property in the related event-based billing metric → the outcome is not stated. Send each segment property value with the type the metric defines for that property.
+- The component's metric is not segmented → the outcome is not stated. Create or update segments only for components whose metric has segmenting properties.
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+- A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.
 
 </dd>
 </dl>
@@ -6427,6 +7253,10 @@ Deletes a segment with the specified ID.
 
 You may specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
 
+**Business rules**
+
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+
 </dd>
 </dl>
 
@@ -6500,6 +7330,15 @@ Lists segments created for a given price point, in order of creation.
 You can pass `page` and `per_page` parameters in order to access all of the segments. By default it will return `30` records. You can set `per_page` to `200` at most.
 
 You may specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
+
+**Business rules**
+
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+- A filter[segment_property_N_value] is sent as an empty string → the outcome is not stated. Omit a segment property filter instead of sending it empty.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- Segments for a price point are listed → Segments are returned in order of creation. Rely on creation order when paging through segments.
+- per_page is above 200 when listing segments → per_page is changed to 200; without per_page, 30 records are returned. Page segments with per_page of at most 200.
 
 </dd>
 </dl>
@@ -6575,6 +7414,12 @@ catch (ApiException<ListSegmentsForPricePointError> ex)
 Updates a single segment for a component with a segmented metric. You can also update the pricing for the segment.
 
 You can specify component and/or price point by using either the numeric ID or the `handle:gold` syntax.
+
+**Business rules**
+
+- The component's metric is not segmented → the outcome is not stated. Create or update segments only for components whose metric has segmenting properties.
+- component_id or price_point_id in the path is a handle rather than a numeric id → the outcome is not stated. Prefix a handle with handle: in the path (e.g. handle:gold); otherwise send the numeric id.
+- A segment price unit_price has more than 8 decimal places → the outcome is not stated. Send segment unit prices with at most 8 decimal places.
 
 </dd>
 </dl>
@@ -6653,6 +7498,13 @@ Archives a feature template. Archived feature templates are not addressable via 
 
 The feature template record itself is never hard-deleted, and can always be restored with [Restore Feature Template]($e/Feature%20Templates/restoreFeatureTemplate). Reversibility does not extend to `remove_from_catalog=true`: the feature catalog items and entitlements that parameter destroys are gone permanently, and restoring the template will not bring subscriber access back.
 
+**Business rules**
+
+- archiveFeatureTemplate is called with remove_from_catalog=true → Every feature catalog item made from the template and their entitlements are destroyed permanently, revoking subscriber access at once; restoring the template does not bring them back. Use remove_from_catalog=true only when subscriber access must end now and for good.
+- A feature template is archived without remove_from_catalog=true → Existing entitlements are kept by default, as with removing a catalog item; remove_from_catalog=true overrides this. Pass remove_from_catalog=true when archiving should also revoke the feature.
+- archiveFeatureTemplate is called without remove_from_catalog (or with false) → The template and its feature catalog items are archived, and existing entitlements are kept. Expect current subscribers to keep the feature after a default archive.
+- A feature template is archived → The template record is never hard-deleted and can always be restored. Use restoreFeatureTemplate to bring an archived template back; its key stays taken.
+
 </dd>
 </dl>
 
@@ -6717,6 +7569,18 @@ catch (ApiException<ArchiveFeatureTemplateError> ex)
 <dd>
 
 Defines a new feature at the site level. Feature templates aren't billable on their own. Attach a template to products or components to grant the feature to subscribers.
+
+**Business rules**
+
+- A feature template is created with kind usage_limit and no unit → Maxio answers 422. Send unit whenever kind is usage_limit.
+- A feature template is created with kind service_right and no value_type → Maxio answers 422. Send value_type (text, boolean or numeric) whenever kind is service_right.
+- default_periodicity_interval or default_periodicity_unit is sent for a feature template whose kind is not usage_limit → Maxio answers 422. Send default periodicity only for usage_limit templates.
+- Only one of default_periodicity_unit and default_periodicity_interval is sent → Maxio answers 422. Send default_periodicity_unit and default_periodicity_interval together or not at all.
+- A feature template is created with a key that another feature template already uses → Maxio answers 422. Choose a key not already used by any feature template on the site (archived ones included).
+- A feature template's key would be changed after it was set → the outcome is not stated. Choose feature template keys carefully; create a new template instead of changing a key.
+- A Feature has wallet_behavior and a subscription resolves an entitlement to it → A wallet with origin feature is provisioned automatically; Create Wallet is never called for it. Configure wallet_behavior on the Feature template instead of creating these wallets yourself.
+- A feature template of kind access_right or usage_limit is created with a value_type → value_type is ignored and set automatically: boolean for access_right, numeric for usage_limit. Do not send value_type for access_right or usage_limit; it is inferred.
+- A feature template is created or updated with wallet_behavior (wallet_product_id, name, price_point_id, depletion_policy, hard_stop_overflow, optional meter_id and conversion_rate), a field the Feature Template reference does not list → Subscriptions that resolve an entitlement to that feature get a wallet provisioned automatically (origin feature). Configure wallet_behavior on the feature template to auto-provision wallets; do not call createWallet for that case.
 
 </dd>
 </dl>
@@ -6792,6 +7656,16 @@ Lists the feature templates defined for your site, active (non-archived) ones by
 
 Supply `page` or `per_page` to paginate. Without either parameter, the response includes the full result set.
 
+**Business rules**
+
+- listFeatureTemplates is called without page and without per_page → The full result set is returned in one response, not a first page of 20. Send page or per_page to paginate feature templates; otherwise expect every match at once.
+- listFeatureTemplates is called with q → Only templates whose name contains q, compared case-insensitively, are returned. Use q for a case-insensitive name substring search.
+- listFeatureTemplates is called with updated_from → Templates updated on or after that date are returned (the date itself included). Treat updated_from as an inclusive lower bound.
+- listFeatureTemplates is called with updated_to → Templates updated on or before that date are returned (the date itself included). Treat updated_to as an inclusive upper bound.
+- listFeatureTemplates returns a non-empty active result set and status=archived was not requested → archived_count is returned as 0, not the real number of archived templates. Do not read archived_count as a total unless status=archived or the active result is empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -6862,6 +7736,10 @@ catch (ApiException<ListFeatureTemplatesError> ex)
 
 Returns a single feature template. Archived feature templates are not addressable here and return `404`. Restore a template first to read or update it.
 
+**Business rules**
+
+- A read or update is sent for a feature template that is archived → Maxio answers 404. Restore an archived template with restoreFeatureTemplate before reading or updating it.
+
 </dd>
 </dl>
 
@@ -6927,6 +7805,11 @@ catch (ApiException<ReadFeatureTemplateError> ex)
 <dd>
 
 Clears the feature template's archived state. Feature catalog items created from this template are not automatically restored. Restore each one individually.
+
+**Business rules**
+
+- An archived feature template is restored → Feature catalog items created from the template stay archived. Restore each feature catalog item individually after restoring its template.
+- An archived feature template is restored → Entitlements removed when it was archived are never restored. Re-grant removed entitlements yourself after restoring a feature template.
 
 </dd>
 </dl>
@@ -6995,6 +7878,16 @@ catch (ApiException<RestoreFeatureTemplateError> ex)
 Updates the name, description, unit, value type, default value, or default periodicity of a feature template. `key` is rejected on every update. `kind` is rejected once any feature catalog item has been created from this template.
 
 Archived feature templates are not addressable here and return `404`. Restore a template first to update it.
+
+**Business rules**
+
+- A read or update is sent for a feature template that is archived → Maxio answers 404. Restore an archived template with restoreFeatureTemplate before reading or updating it.
+- An update to a feature template includes key → Maxio answers 422. Never send key on an update; it is fixed at creation.
+- A feature template's key would be changed after it was set → the outcome is not stated. Choose feature template keys carefully; create a new template instead of changing a key.
+- A feature template's kind is changed after the template has been attached to a product or component → the outcome is not stated. Set the right kind before attaching the template anywhere.
+- An update changes kind on a feature template from which a feature catalog item has already been created → Maxio answers 422. Settle kind before attaching the template to any product or component.
+- A Feature has wallet_behavior and a subscription resolves an entitlement to it → A wallet with origin feature is provisioned automatically; Create Wallet is never called for it. Configure wallet_behavior on the Feature template instead of creating these wallets yourself.
+- A feature template is created or updated with wallet_behavior (wallet_product_id, name, price_point_id, depletion_policy, hard_stop_overflow, optional meter_id and conversion_rate), a field the Feature Template reference does not list → Subscriptions that resolve an entitlement to that feature get a wallet provisioned automatically (origin feature). Configure wallet_behavior on the feature template to auto-provision wallets; do not call createWallet for that case.
 
 </dd>
 </dl>
@@ -7090,6 +7983,17 @@ Usage includes revenue from:
 * Metered Components
 * Prepaid Usage Components
 
+**Business rules**
+
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.
+- MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.
+- The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.
+- An MRR movement is listed → line_items show the subscription's product configuration at the time of the movement, not its current configuration. Read current configuration from the subscription, not from movement line_items.
+- per_page is above 50 when listing MRR movements → per_page is changed to 50; without per_page, 10 records are returned. Page MRR movements with per_page of at most 50.
+- A no-charge component allocation was made on a subscription in a currency other than the site's primary currency before the fix announced on 2022-02-09 → The MRR changes from those past allocation events were wrong and are not recalculated automatically; only later events use the proper amount. Ask Maxio support to update MRR for those past events if your reporting depends on them.
+
 </dd>
 </dl>
 
@@ -7152,6 +8056,18 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists your site's current MRR, including plan and usage breakouts split per subscription.
+
+**Business rules**
+
+- at_time is not a valid ISO 8601 timestamp → Maxio answers 400 with "supplied value is invalid, expected ISO 8601 format". Send at_time as an ISO 8601 timestamp, e.g. 2022-01-10T10:00:00-05:00.
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.
+- MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.
+- The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.
+- direction is not sent → Records are ordered by subscription_id ascending. Send direction=desc for descending subscription_id order.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -7225,6 +8141,14 @@ catch (ApiException<ListMrrPerSubscriptionError> ex)
 
 Returns your site's current MRR, including plan and usage breakouts.
 
+**Business rules**
+
+- MRR is reported with breakouts → The plan breakout covers revenue from Products, Quantity-Based Components and On/Off Components. Read plan revenue from the plan breakout and do not expect metered or prepaid revenue in it.
+- MRR is reported with breakouts → The usage breakout covers revenue from Metered Components and Prepaid Usage Components. Read metered and prepaid usage revenue from the usage breakout.
+- The site's MRR Report UI is set to exclude usage revenue → The MRR API responses still include both plan and usage breakouts; the UI setting does not apply. Subtract the usage breakout yourself if you want MRR without usage revenue.
+- A no-charge component allocation was made on a subscription in a currency other than the site's primary currency before the fix announced on 2022-02-09 → The MRR changes from those past allocation events were wrong and are not recalculated automatically; only later events use the proper amount. Ask Maxio support to update MRR for those past events if your reporting depends on them.
+- at_time is omitted → MRR is returned for the current time; with at_time it is returned for that historic time. Send at_time in ISO 8601 when you need MRR at a past moment.
+
 </dd>
 </dl>
 
@@ -7295,6 +8219,10 @@ There currently is not a complimentary matching set of documentation that compli
 ```
 https://subdomain.chargify.com/dashboard
 ```
+
+**Business rules**
+
+- Site stats are requested in XML → the outcome is not stated. Request site stats as JSON.
 
 </dd>
 </dl>
@@ -7531,6 +8459,53 @@ A custom memo can be sent with the `memo` parameter to override the site's defau
 
 By default, invoices will be created with open status. Possible alternative is `draft`.
 
+**Business rules**
+
+- A custom line item (no product_id or component_id) lacks a title, a quantity or a unit price → the outcome is not stated. Send title, quantity and unit_price on every custom line item.
+- A line item's period_range_end is before its period_range_start → the outcome is not stated. Make period_range_end the same as or later than period_range_start.
+- A taxable line item is sent without tax_code on a site that uses Avalara (AvaTax) → the outcome is not stated. Send a tax_code with every taxable line item when the site uses AvaTax.
+- A tax_code longer than 25 characters is sent → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A coupon sends both code and subcode → the outcome is not stated. Send either code or subcode on each coupon, not both.
+- A coupon code contains characters other than uppercase letters, numbers and the allowed special characters → the outcome is not stated. Use only letters, numbers and allowed special characters in ad hoc coupon codes.
+- A line item sends product_id together with title or component_id → the outcome is not stated. Leave out title and component_id on product line items.
+- A coupon percentage has more than 4 decimal places or is outside 0 to 100 → the outcome is not stated. Send coupon percentages between 0 and 100 with at most 4 decimal places.
+- A coupon sends both percentage and amount → the outcome is not stated. Send either percentage or amount on an ad hoc coupon, not both.
+- issue_date is a future date in the site's time zone → the outcome is not stated. Send issue_date as today or an earlier date, judged in the site's time zone.
+- A line item sends component_id together with title or product_id → the outcome is not stated. Leave out title and product_id on component line items.
+- A seller, billing or shipping address is sent without first_name → Maxio answers 422 with "Billing address must include name.". Include first_name in every address object sent on an invoice.
+- A price point is sent for a component that is not quantity-based, on/off or metered → the outcome is not stated. Send price_point_id only for quantity-based, on/off and metered components.
+- A line item for a prepaid or event-based billing component is sent without unit_price → the outcome is not stated. Always send unit_price for prepaid and event-based components.
+- A line item sends a price point (price_point_id or product_price_point_id) together with unit_price → the outcome is not stated. Send either a price point or unit_price on a line item, never both.
+- A price point is sent on a custom (non-catalog) line item → the outcome is not stated. Use price points only on product or component line items.
+- A quantity or unit_price has more than 8 decimal places → The value is rounded down to the 8th decimal place. Round quantity and unit_price to 8 decimal places before sending.
+- A line item is sent with taxable: true on a site not configured to calculate taxes → the outcome is not stated. Send taxable: true only on sites that have tax calculation configured.
+- taxable is sent on a product or component (catalog) line item → The catalog item's own tax settings apply; they cannot be overwritten. Set taxability on the product or component in the catalog, not on the invoice line.
+- A line item is sent with a description → The given description replaces the line item's generated description. Leave description out to keep the generated description (which can carry period details).
+- A coupon code contains lowercase letters → Lowercase letters are converted to uppercase. Expect coupon codes to come back in uppercase.
+- A coupon is applied by subcode → The subcode is matched case-insensitively, stored in uppercase, and the response shows both the main code and the subcode. Match coupons in responses by both code and subcode.
+- A coupon's code matches an existing catalog coupon and percentage, amount or description is also sent → percentage, amount and description are ignored; the catalog coupon's settings apply. Send percentage, amount or description only for ad hoc coupons whose code is not in the catalog.
+- A coupon code is not unique across product families on the site → product_family_id is used to pick the matching existing coupon. Send product_family_id with the coupon code when codes repeat across product families.
+- A percentage coupon is sent without compounding_strategy → compound is used: the percentage applies to the price remaining after earlier discounts. Send compounding_strategy: full-price when the percentage should apply to the original price.
+- An amount (flat) coupon is applied → The discount is always calculated against the original item price, before other discounts. Do not expect compounding_strategy to change how amount coupons are calculated.
+- compounding_strategy is sent for a coupon that is not stackable → The setting has no effect. Rely on compounding_strategy only for stackable coupons.
+- An ad hoc invoice is created without issue_date → issue_date is today in the site's time zone. Send issue_date when the invoice should carry an earlier date.
+- An ad hoc invoice is created without net_terms → The due date is the invoice creation date; with net_terms it is that many days later. Send net_terms when the invoice should not be due immediately.
+- An ad hoc invoice is created without seller, billing or shipping addresses, memo or payment instructions → The site's defaults (seller address, memo) and the customer's defaults (billing and shipping addresses) are used. Send the address, memo or payment_instructions fields only to override the site and customer defaults.
+- A product line item is sent without unit_price or product_price_point_id → unit_price is taken from the product's default price point. Send unit_price or product_price_point_id when the product's default price should not apply.
+- A component line item is sent without unit_price or price_point_id → unit_price is taken from the default price point. Send unit_price or price_point_id when the default component price should not apply.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -7611,6 +8586,13 @@ Deletes an ad hoc invoice while it is in the `draft` state.
 
 A successful deletion returns a `204 No Content` response and the invoice is permanently removed.
 
+**Business rules**
+
+- An invoice that is not in draft status is deleted → Maxio answers 422 with "Status must be draft.". Delete only draft invoices; void issued invoices instead.
+- An invoice that is not ad hoc (for example a renewal or signup invoice) is deleted → Maxio answers 422 with "Only adhoc invoices can be deleted.". Delete only ad hoc invoices.
+- The invoice does not belong to the subscription in the path → Maxio answers 404 with "Invoice not found". Send the subscription_id that owns the invoice.
+- A draft ad hoc invoice is deleted → Maxio answers 204. Confirm before deleting; a deleted invoice cannot be recovered.
+
 </dd>
 </dl>
 
@@ -7685,6 +8667,35 @@ For Automatic subscriptions, prepayments and service credits will apply to the i
 - `rollback_to_pending` - prepayments and credits not applied; invoice remains in "pending" status; no email sent to the customer; payment failure recorded in the invoice history.
 - `initiate_dunning` - prepayments and credits applied to the invoice; invoice status set to "open"; email sent to the customer for the issued invoice (if setting applies); payment failure recorded in the invoice history; subscription will  most likely go into "past_due" or "canceled" state (depending upon net terms and dunning settings).
 
+**Business rules**
+
+- An invoice that is not in pending or draft status is issued → the outcome is not stated. Issue only pending or draft invoices.
+- A pending child invoice created for a member subscription of a group is issued → the outcome is not stated. Do not issue pending child invoices of grouped subscriptions.
+- on_failed_payment is sent when issuing an invoice of a remittance subscription → the outcome is not stated. Send on_failed_payment only for automatic subscriptions.
+- Payment fails while issuing with on_failed_payment initiate_dunning → The invoice becomes open with credits applied, an email is sent if the setting applies, and the subscription will most likely go past_due or canceled per net terms and dunning settings. Use initiate_dunning only when a failed charge should move the subscription into dunning.
+- An invoice is issued for a subscription on a Relationship Invoicing site → An invoice_issued webhook is sent. Listen for invoice_issued to learn about issued invoices.
+- An invoice is issued while the subscription has prepayments, with the site's prepayment setting (Config > Settings > Prepayments) in force → Prepayments are applied on issue, on the due date, or not at all per the setting; defaults are on the due date for automatic and on issue for remittance. Check the site's prepayment setting before assuming prepayments reduce an invoice when it is issued.
+- An invoice with net terms is issued while the subscription has prepayments → Prepayments are not applied automatically on issue; they are applied automatically only when the invoice has no net terms. Apply prepayments yourself (record a prepayment-type payment) to invoices that have net terms.
+- An invoice of a remittance subscription is issued → The invoice goes to open status and no payment is attempted. Collect remittance invoices by recording payments after issuing them.
+- An invoice of a remittance subscription is issued while the subscription has prepayments or service credits → The prepayments and service credits are applied to the invoice automatically. Expect a remittance invoice's due amount to be reduced by existing prepayments and service credits.
+- An invoice is issued (or paid on issue) and the site's invoice email setting is on → An email is sent to the customer for the issued invoice; with the setting off none is sent. Check the site's email settings before telling customers they will be emailed.
+- An invoice of an automatic subscription is issued → Prepayments and service credits are applied first, then payment is attempted; on success the invoice becomes paid. Expect a charge to the payment method when issuing an automatic subscription's invoice.
+- Payment fails while issuing an automatic subscription's invoice with on_failed_payment leave_open_invoice (the default) → Prepayments and credits stay applied, the invoice becomes open, an email is sent if the setting applies and the failure is recorded. Choose on_failed_payment deliberately; the default leaves an open invoice after a failed charge.
+- Payment fails while issuing with on_failed_payment rollback_to_pending → Prepayments and credits are not applied, the invoice stays pending, no email is sent and the failure is recorded. Use rollback_to_pending to retry issuing later without notifying the customer.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A payment is attempted or applied to an invoice → A payment_success or payment_failure webhook is sent. Listen for payment_success and payment_failure, and expect some payments (ACH, direct debit) to fail later.
+
 </dd>
 </dl>
 
@@ -7750,6 +8761,25 @@ catch (ApiException<IssueInvoiceError> ex)
 <dd>
 
 Lists segments for a consolidated invoice. Invoice segments returned on the index will only include totals, not detailed breakdowns for `line_items`, `discounts`, `taxes`, `credits`, `payments`, or `custom_fields`.
+
+**Business rules**
+
+- Segments of a consolidated invoice are listed → Segments carry totals only, without line_items, discounts, taxes, credits, payments or custom_fields. Read a segment with Read Invoice when its detail is needed.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
 
 </dd>
 </dl>
@@ -7820,6 +8850,25 @@ catch (ApiException<RawError> ex)
 Lists credit notes for a site. Credit Notes are like inverse invoices. They reduce the amount a customer owes.
 
 By default, the credit notes returned by this endpoint will exclude the arrays of `line_items`, `discounts`, `taxes`, `applications`, or `refunds`. To include these arrays, pass the specific field as a key in the query with a value set to `true`.
+
+**Business rules**
+
+- Credit notes are listed without the array flags set to true → line_items, discounts, taxes, applications and refunds arrays are left out. Pass the array flags (e.g. line_items=true) when the app needs credit-note detail.
+- A date range (start_date/end_date) is sent without an explicit date_field → date_field defaults to issue_date. Send date_field explicitly with every date filter.
+- Only start_datetime/end_datetime are sent without an explicit date_field → date_field defaults to created_at instead of issue_date. Send date_field explicitly with datetime filters.
+- An unrecognized date_field value is sent → The date_field is ignored and no error is raised. Validate date_field against issue_date, applied_date, created_at and updated_at before sending.
+- Credit notes are filtered with start_date and/or end_date → start_date starts at midnight and end_date runs to 11:59:59 PM, both in the site's time zone. Convert date bounds to the site's time zone before filtering.
+- start_datetime or end_datetime is sent without a time zone offset → The value is interpreted as UTC. Send datetime filters with an explicit offset, or in UTC.
+- start_datetime or end_datetime is sent together with start_date or end_date → The datetime parameter is used instead of the date parameter. Send either the date or the datetime form of each bound, not both.
+- start_datetime or end_datetime is sent with a date_field other than created_at or updated_at → the outcome is not stated. Use datetime filters only with date_field=created_at or updated_at.
+- Credit notes are listed with a direction → The order is by sequence_number. Sort credit notes by sequence_number in the app, or rely on direction for sequence order only.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- A credit note is returned → total_amount is subtotal_amount - discount_amount + tax_amount and remaining_amount is total_amount - applied_amount. Use remaining_amount as the credit still available to apply.
+- A credit note is only partly applied → applied_date has no value until the credit note is fully applied. Do not treat an empty applied_date as unapplied; check applied_amount.
+- A credit note is returned → Subtotal, discount and tax amounts are positive numbers representing amounts credited back; discount and tax credits are proportional to the credited share of the original purchase. Treat credit-note amounts as positive credits, not negative invoice amounts.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
 
 </dd>
 </dl>
@@ -7912,6 +8961,17 @@ If both a `since_date` and `since_id` are provided in request parameters, the `s
 
 Note - invoice events that occurred prior to 09/05/2018 __will not__ contain an `invoice` snapshot.
 
+**Business rules**
+
+- Invoice events are listed → Events are returned in ascending order. Page forward through invoice events and keep the last id or time seen.
+- Both since_date and since_id are sent → since_date is used and since_id is ignored. Send only one of since_date or since_id.
+- since_id is sent → The event with that id is excluded; only events with a higher id are returned. Pass the id of the last event already processed as since_id.
+- since_date is sent as a date without a time → Events are returned from the beginning of that day; events before since_date are not returned. Send a full timestamp in since_date when resuming mid-day.
+- An invoice event occurred before 09/05/2018 → The event has no invoice snapshot. Handle a missing invoice snapshot on old invoice events.
+- Invoice events are listed with per_page above 200, or with no per_page → per_page defaults to 100 and any value over 200 is changed to 200. Page invoice events with per_page of 200 or less.
+- Invoice events are listed without with_change_invoice_status → change_invoice_status events are not included. Send with_change_invoice_status when the app needs invoice status-change events.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+
 </dd>
 </dl>
 
@@ -7974,6 +9034,32 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists invoices for a site. By default, invoices returned on the index will only include totals, not detailed breakdowns for `line_items`, `discounts`, `taxes`, `credits`, `payments`, `custom_fields`, or `refunds`. To include breakdowns, pass the specific field as a key in the query with a value set to `true`.
+
+**Business rules**
+
+- Invoices are listed without the breakdown flags set to true → Each invoice carries totals only; line_items, discounts, taxes, credits, payments, custom_fields and refunds are left out. Pass line_items=true (and the other breakdown flags) when the app needs the detail arrays.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- Invoices are filtered with start_date and/or end_date → start_date starts at midnight and end_date runs to 11:59:59 PM, both in the site's time zone. Convert date bounds to the site's time zone before filtering, not UTC.
+- Invoices are filtered with start_datetime or end_datetime as well as start_date or end_date → The datetime parameter is used and the matching date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- start_datetime or end_datetime is sent with a date_field other than created_at or updated_at → the outcome is not stated. Use start_datetime/end_datetime only with date_field=created_at or updated_at, and start_date/end_date with due_date, issue_date or paid_date.
+- start_datetime or end_datetime is sent without a time zone → The value is read in the site's time zone. Include an explicit offset in datetime filters, or convert to the site's time zone first.
+- Invoices are listed with subscription_group_uid → The list holds the consolidated invoices of that group. Use subscription_group_uid to fetch a group's consolidated invoices, not its members' individual invoices.
+- Invoices are filtered by consolidation_level → The filter accepts one level or a comma-separated list of levels (none, parent, child). Send several consolidation levels as one comma-separated value, e.g. none,parent.
+- Invoices are filtered by product_ids → Invoices match when any of their line items has one of the given product ids. Expect product_ids to match on line-item products, not only the subscription's base product.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
 
 </dd>
 </dl>
@@ -8049,6 +9135,11 @@ Previews the effect of customer information changes on an open invoice. Customer
 
 The endpoint doesn't accept a request body. Customer information differences are calculated on the application side.
 
+**Business rules**
+
+- The invoice is not in open status → Maxio answers 422 with "Invoice must have an open status". Preview or update customer information only on open invoices.
+- Customer information is previewed or updated on an invoice → No request body is taken; the differences between the invoice and the current customer record are calculated by Maxio. Update the customer record first, then call these endpoints without a body.
+
 </dd>
 </dl>
 
@@ -8117,6 +9208,13 @@ catch (ApiException<PreviewCustomerInformationChangesError> ex)
 <dd>
 
 Returns the details for a credit note.
+
+**Business rules**
+
+- A credit note is returned → total_amount is subtotal_amount - discount_amount + tax_amount and remaining_amount is total_amount - applied_amount. Use remaining_amount as the credit still available to apply.
+- A credit note is only partly applied → applied_date has no value until the credit note is fully applied. Do not treat an empty applied_date as unapplied; check applied_amount.
+- A credit note is returned → Subtotal, discount and tax amounts are positive numbers representing amounts credited back; discount and tax credits are proportional to the credited share of the original purchase. Treat credit-note amounts as positive credits, not negative invoice amounts.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
 
 </dd>
 </dl>
@@ -8193,6 +9291,22 @@ Required parameters: `uid`
 Response: A single Invoice.
 ```
 
+**Business rules**
+
+- An invoice is requested with Accept: application/pdf or a .pdf extension → The invoice is returned as a PDF document instead of JSON. Request /invoices/{uid}.pdf or send Accept: application/pdf to get the PDF.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -8255,6 +9369,32 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Applies a payment of a given type against a specific invoice. If you would like to apply a payment across multiple invoices, you can use the [Record Payment for Multiple Invoices]($e/Invoices/recordPaymentForMultipleInvoices) endpoint.
+
+**Business rules**
+
+- The payment amount is more than the invoice's due amount → Maxio answers 422 with "Payment amount 10.50 exceeds due amount 4.00". Read the invoice's due_amount and do not pay more than it on a single invoice.
+- A payment is recorded against an invoice that is not open or in collections → Maxio answers 422 with "Invoice must be open or in collections to apply payment". Record payments only on open or in-collections invoices.
+- The payment amount is not a number → Maxio answers 422 with "Amount: is not a number.". Send the amount as a numeric value or numeric string.
+- received_on is today or a future date → Maxio answers 422 with "Effective date must occur in the past". Send received_on as a date in the past.
+- A subscription's prepayment account balance changes (prepayment added, or used to pay an invoice) → A subscription_prepayment_account_balance_changed webhook is sent. Listen for subscription_prepayment_account_balance_changed to keep prepayment balances in sync.
+- A subscription's service credit account balance changes (credit given, deducted or used for payment) → A subscription_service_credit_account_balance_changed webhook is sent. Listen for subscription_service_credit_account_balance_changed to keep service credit balances in sync.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A payment is recorded without a type → The type defaults to external. Send type explicitly (external, prepayment, service_credit or payment).
+- A payment is recorded without a method → The method defaults to other. Send the payment method explicitly so reports show how it was paid.
+- memo, details or received_on are sent on a payment whose type is not external → These fields apply only to external payments. Send memo, details and received_on only with external payments.
+- A payment is recorded with type prepayment or service_credit → The payment is taken from the subscription's prepayment or service credit account. Check the subscription's prepayment or service credit balance before paying from it.
+- A payment is attempted or applied to an invoice → A payment_success or payment_failure webhook is sent. Listen for payment_success and payment_failure, and expect some payments (ACH, direct debit) to fail later.
 
 </dd>
 </dl>
@@ -8338,6 +9478,25 @@ Records an external payment against multiple invoices.
 To apply a payment to multiple invoices, at minimum, specify the `amount` and `applications` (i.e., `invoice_uid` and `amount`) details.
 
 Note that the invoice payment amounts must be greater than 0. Total amount must be greater or equal to invoices payment amount sum.
+
+**Business rules**
+
+- received_on is today or a future date → Maxio answers 422 with "Effective date must occur in the past". Send received_on as a date in the past.
+- The total payment amount is zero or less → Maxio answers 422 with "Total amount must be greater than 0". Send a total amount greater than 0.
+- An application names an invoice with no open balance → Maxio answers 422 with "Invoice must have an open balance". Include only invoices that still have an amount due.
+- The payment's effective date is missing → Maxio answers 422 with "Effective date is missing". Send the date the payment was received (received_on).
+- The payment's effective date is invalid or malformed → Maxio answers 422 with "Effective date is invalid or malformed". Send received_on as a valid YYYY-MM-DD date.
+- More than one application names the same invoice → Maxio answers 422 with "Multiple applications associated to a single invoice, please aggregate and send as a single application per invoice.". Aggregate amounts per invoice and send one application per invoice_uid.
+- The total amount is less than the sum of the application amounts → Maxio answers 422 with "Total amount must be higher or equal to invoices payment amount sum". Make the total amount at least the sum of the per-invoice amounts.
+- An application names an invoice that does not exist → Maxio answers 422 with "Invoice does not exist". Check every invoice_uid exists before sending; expect 422, not 404, for unknown invoices.
+- The invoices in one multi-invoice payment have different currencies → Maxio answers 422 with "Invoices must be in the same currency". Group invoices by currency and send one payment per currency.
+- The total amount exceeds the invoices' due amounts and the invoices belong to different subscriptions → Maxio answers 422 with "Invoices belong to different subscriptions. Only invoices from same subscriptions are allowed when total amount exceeds invoices due amount.". Only overpay (create a prepayment) when all invoices belong to one subscription.
+- An application amount is more than that invoice's due amount → Maxio answers 422 with "Individual invoices may not be overpaid. To create a prepayment, add overage to the total amount.". Cap each application at the invoice's due amount and put any overage in the total amount instead.
+- An application names a consolidated invoice → Maxio answers 422 with "Paying consolidated invoices is forbidden". Do not include consolidated invoices in a multi-invoice payment.
+- An application amount is zero or less → Maxio answers 422 with "Invoice payment amounts must be greater than 0". Send every application amount greater than 0.
+- A subscription's prepayment account balance changes (prepayment added, or used to pay an invoice) → A subscription_prepayment_account_balance_changed webhook is sent. Listen for subscription_prepayment_account_balance_changed to keep prepayment balances in sync.
+- A payment is recorded without a method → The method defaults to other. Send the payment method explicitly so reports show how it was paid.
+- The total amount is greater than the sum of the application amounts → The overage becomes a prepayment. Expect any overage in the total amount to be kept as a prepayment on the subscription.
 
 </dd>
 </dl>
@@ -8427,6 +9586,14 @@ Excess payment will result in the creation of a prepayment on the Invoice Accoun
 
 Only ungrouped or primary subscriptions may be paid using the "bulk" payment request.
 
+**Business rules**
+
+- A payment is recorded for a subscription in a group that is not the group's primary subscription → Maxio answers 422 with "If in a group, the Subscription must be the primary". Record group payments against the group's primary subscription.
+- The payment amount is zero or less → Maxio answers 422 with "Payment amount must be greater than zero". Send a payment amount greater than zero.
+- A subscription's prepayment account balance changes (prepayment added, or used to pay an invoice) → A subscription_prepayment_account_balance_changed webhook is sent. Listen for subscription_prepayment_account_balance_changed to keep prepayment balances in sync.
+- A payment is recorded against a subscription → It is applied to the oldest open invoice first, then the next oldest, until the amount is used up. Do not expect to choose which invoices a subscription payment pays; use the invoice payment endpoints for that.
+- A subscription payment is larger than the open invoices it pays → The excess becomes a prepayment on the invoice account. Expect any excess to show up as a prepayment in the response and on the subscription.
+
 </dd>
 </dl>
 
@@ -8511,6 +9678,29 @@ Refunds an invoice, segment, or consolidated invoice.
 A refund less than the total of a consolidated invoice will be split across its segments.
 
 For a $50.00 refund on a $100.00 consolidated invoice with one $60.00 segment and one $40.00 segment, the refunded amount will be applied as 50% of each ($30.00 and $20.00, respectively).
+
+**Business rules**
+
+- The refund amount is zero or negative → Maxio answers 422 with "Amount: must be greater than 0.". Send a refund amount greater than 0.
+- The refund amount is more than the remaining refundable balance of the payment → the outcome is not stated. Keep each refund at or below what is left refundable on that payment.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A refund smaller than the total of a consolidated invoice is requested → The refund is split across the segments in proportion to each segment's share of the total. Expect partial consolidated refunds to be spread proportionally over all segments, not taken from one segment.
+- A refund is sent with external: true (it defaults to false) → The refund is recorded but no money is returned to the customer. Send external: true only for refunds already paid outside Maxio; leave it false to return money through the gateway.
+- A refund is sent with apply_credit: true (it defaults to false) → A credit is created and applied to the invoice. Set apply_credit only when the refunded amount should come back to the invoice as credit.
+- A full-amount refund is sent with void_invoice: true and apply_credit false → The invoice is voided after the refund; in other cases void_invoice has no effect. Expect the invoice to become voided only for a full refund without apply_credit when void_invoice is true.
+- A consolidated-invoice refund is sent without an amount → The refund defaults to the full amount of the payment. Always send an amount on consolidated refunds unless the whole payment should be refunded.
+- A consolidated-invoice refund is sent with segment_uids set to the string 'all' → All segments of the consolidated invoice are refunded. Send 'all' only when every segment should be refunded; otherwise list the segment uids.
 
 </dd>
 </dl>
@@ -8604,6 +9794,24 @@ A note about reactivations: any canceled invoices from the most recent active pe
 
 When reopening a consolidated invoice, all of its canceled segments will also be reopened.
 
+**Business rules**
+
+- An invoice that is not in canceled status is reopened → Maxio answers 422 with "The invoice must be in canceled status to be reopened.". Reopen only invoices whose status is canceled.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A canceled invoice is reopened → The invoice becomes due for payment again. Collect payment on a reopened invoice by reactivating the subscription or recording a payment.
+- A consolidated invoice is reopened → All its canceled segments are reopened too. Expect the segments of a reopened consolidated invoice to become due as well.
+
 </dd>
 </dl>
 
@@ -8675,6 +9883,14 @@ Sends an invoice to the customer via email. This endpoint supports the delivery 
 If no recipient email addresses are specified in the request, then the subscription's default email configuration will be used. For example, if `recipient_emails` is left blank, then the invoice will be delivered to the subscription's customer email address.
 
 On success, a 204 no-content response will be returned. The response does not indicate that email(s) have been delivered, but instead indicates that emails have been successfully queued for delivery. If _any_ invalid or malformed email address is found in the request body, the entire request will be rejected and a 422 response will be returned.
+
+**Business rules**
+
+- An invoice email is sent with attachment_urls → the outcome is not stated. Send requests with attachment_urls as multipart/form-data.
+- An attachment file is larger than 10MB → the outcome is not stated. Attach at most 10 files of 10MB or less each.
+- Any recipient, cc or bcc email address in the request is invalid or malformed → Maxio answers 422 with "cc_recipient_emails: must be a valid email address". Validate every email address before sending; one bad address rejects the whole request.
+- No recipient email addresses are sent → The subscription's default email configuration is used, e.g. the customer's email address. Send recipient_emails when the invoice must go somewhere other than the subscription's defaults.
+- An invoice email request succeeds → Maxio answers 204. Do not report the email as delivered on a 204; it was only queued.
 
 </dd>
 </dl>
@@ -8751,6 +9967,23 @@ catch (ApiException<SendInvoiceError> ex)
 Updates customer information on an open invoice and returns the updated invoice. If you would like to preview changes that will be applied, use the `/invoices/{uid}/customer_information/preview.json` endpoint first.
 
 The endpoint doesn't accept a request body. Customer information differences are calculated on the application side.
+
+**Business rules**
+
+- The invoice is not in open status → Maxio answers 422 with "Invoice must have an open status". Preview or update customer information only on open invoices.
+- Customer information is previewed or updated on an invoice → No request body is taken; the differences between the invoice and the current customer record are calculated by Maxio. Update the customer record first, then call these endpoints without a body.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
 
 </dd>
 </dl>
@@ -8861,6 +10094,61 @@ The seller, shipping and billing addresses can be sent to replace the addresses 
 
 A custom memo can be sent with the `memo` parameter. Likewise, custom payment instructions can be sent with the `payment_instructions` parameter.
 
+**Business rules**
+
+- A custom line item (no product_id or component_id) lacks a title, a quantity or a unit price → the outcome is not stated. Send title, quantity and unit_price on every custom line item.
+- A line item's period_range_end is before its period_range_start → the outcome is not stated. Make period_range_end the same as or later than period_range_start.
+- A taxable line item is sent without tax_code on a site that uses Avalara (AvaTax) → the outcome is not stated. Send a tax_code with every taxable line item when the site uses AvaTax.
+- A tax_code longer than 25 characters is sent → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A coupon sends both code and subcode → the outcome is not stated. Send either code or subcode on each coupon, not both.
+- A coupon code contains characters other than uppercase letters, numbers and the allowed special characters → the outcome is not stated. Use only letters, numbers and allowed special characters in ad hoc coupon codes.
+- A line item sends product_id together with title or component_id → the outcome is not stated. Leave out title and component_id on product line items.
+- A coupon percentage has more than 4 decimal places or is outside 0 to 100 → the outcome is not stated. Send coupon percentages between 0 and 100 with at most 4 decimal places.
+- A coupon sends both percentage and amount → the outcome is not stated. Send either percentage or amount on an ad hoc coupon, not both.
+- issue_date is a future date in the site's time zone → the outcome is not stated. Send issue_date as today or an earlier date, judged in the site's time zone.
+- A line item sends component_id together with title or product_id → the outcome is not stated. Leave out title and product_id on component line items.
+- A seller, billing or shipping address is sent without first_name → Maxio answers 422 with "Billing address must include name.". Include first_name in every address object sent on an invoice.
+- A price point is sent for a component that is not quantity-based, on/off or metered → the outcome is not stated. Send price_point_id only for quantity-based, on/off and metered components.
+- A line item for a prepaid or event-based billing component is sent without unit_price → the outcome is not stated. Always send unit_price for prepaid and event-based components.
+- A line item sends a price point (price_point_id or product_price_point_id) together with unit_price → the outcome is not stated. Send either a price point or unit_price on a line item, never both.
+- A price point is sent on a custom (non-catalog) line item → the outcome is not stated. Use price points only on product or component line items.
+- An invoice that is not an ad hoc invoice in draft status is updated → Maxio answers 422. Update only draft ad hoc invoices; change issued invoices by voiding and recreating them.
+- The invoice does not belong to the subscription in the path → Maxio answers 404 with "Invoice not found". Send the subscription_id that owns the invoice.
+- A line item uid that does not exist on the invoice is sent → Maxio answers 422 with "Line item not found.". Use line item uids read from the same invoice.
+- A quantity or unit_price has more than 8 decimal places → The value is rounded down to the 8th decimal place. Round quantity and unit_price to 8 decimal places before sending.
+- A line item is sent with taxable: true on a site not configured to calculate taxes → the outcome is not stated. Send taxable: true only on sites that have tax calculation configured.
+- taxable is sent on a product or component (catalog) line item → The catalog item's own tax settings apply; they cannot be overwritten. Set taxability on the product or component in the catalog, not on the invoice line.
+- A line item is sent with a description → The given description replaces the line item's generated description. Leave description out to keep the generated description (which can carry period details).
+- A coupon code contains lowercase letters → Lowercase letters are converted to uppercase. Expect coupon codes to come back in uppercase.
+- A coupon is applied by subcode → The subcode is matched case-insensitively, stored in uppercase, and the response shows both the main code and the subcode. Match coupons in responses by both code and subcode.
+- A coupon's code matches an existing catalog coupon and percentage, amount or description is also sent → percentage, amount and description are ignored; the catalog coupon's settings apply. Send percentage, amount or description only for ad hoc coupons whose code is not in the catalog.
+- A coupon code is not unique across product families on the site → product_family_id is used to pick the matching existing coupon. Send product_family_id with the coupon code when codes repeat across product families.
+- A percentage coupon is sent without compounding_strategy → compound is used: the percentage applies to the price remaining after earlier discounts. Send compounding_strategy: full-price when the percentage should apply to the original price.
+- An amount (flat) coupon is applied → The discount is always calculated against the original item price, before other discounts. Do not expect compounding_strategy to change how amount coupons are calculated.
+- compounding_strategy is sent for a coupon that is not stackable → The setting has no effect. Rely on compounding_strategy only for stackable coupons.
+- A product line item is sent without unit_price or product_price_point_id → unit_price is taken from the product's default price point. Send unit_price or product_price_point_id when the product's default price should not apply.
+- A component line item is sent without unit_price or price_point_id → unit_price is taken from the default price point. Send unit_price or price_point_id when the default component price should not apply.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- issue_date or net_terms changes on a draft invoice → The due date is recalculated as issue date plus net terms days. Read the new due_date from the response after changing issue_date or net_terms.
+- An address is changed on a draft invoice → Taxes are recalculated. Re-read tax and total amounts after changing an invoice address.
+- A draft invoice is updated with only some attributes → Only the submitted attributes change; omitted attributes keep their values. Send only the fields to change; there is no need to resend the whole invoice.
+- line_items is sent on an update → Existing line items not referenced in the array stay unchanged. Remove a line item explicitly with uid and _destroy; leaving it out of the array keeps it.
+- A line item without a uid is sent on an update → A new line item is added to the invoice. Send the uid of an existing line item to change it; without uid a new line is added.
+- A line item with the uid of an existing line item is sent on an update → The line item is updated with the submitted attributes and the invoice's amounts and taxes are recalculated. Re-read the returned totals after changing a line item.
+- A line item with a uid and _destroy: true is sent on an update → That line item is removed; other line items stay unchanged. Send _destroy: true together with the line item's uid to remove it.
+- The coupons key is present on an update → The submitted coupons replace all discounts on the invoice; an empty array removes all discounts. Send the full set of coupons wanted on the invoice, or omit the coupons key to keep the current discounts.
+
 </dd>
 </dl>
 
@@ -8931,6 +10219,23 @@ catch (ApiException<UpdateInvoiceError> ex)
 <dd>
 
 Voids any invoice with the "open" or "canceled" status.  It will also allow voiding of an invoice with the "pending" status if it is not a consolidated invoice.
+
+**Business rules**
+
+- An invoice whose status is not open, canceled or pending is voided → Maxio answers 422 with "Invoice status must be 'open', 'canceled', or 'pending' and non-consolidated to be voided.". Void only open, canceled or pending invoices.
+- A pending invoice that is a consolidated invoice is voided → Maxio answers 422 with "Invoice status must be 'open', 'canceled', or 'pending' and non-consolidated to be voided.". Do not void pending consolidated invoices.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- A consolidated (parent) invoice is returned → The parent invoice has no line items of its own; its totals aggregate the segments. Read a consolidated invoice's lines from its segments, not from the parent.
+- Branding Themes are not enabled for the site → branding_theme_id is not available on invoices. Treat branding_theme_id as optional and only rely on it when Branding Themes are enabled.
+- An invoice is returned → total_amount is computed as subtotal_amount - discount_amount + tax_amount. Use the returned total_amount rather than recomputing it from line items.
+- An invoice is returned → due_amount is computed as total_amount - credit_amount - paid_amount. Use due_amount as the amount still owed; it already nets out credits and payments.
+- An invoice has received only partial payment → paid_date stays empty until the invoice is paid in full. Do not treat an empty paid_date as no payment; check paid_amount for partial payments.
+- An invoice or credit note returns issue_date, due_date or paid_date → The date is the site's local calendar date, not a UTC date. Interpret invoice and credit-note dates in the site's time zone.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
 
 </dd>
 </dl>
@@ -9078,6 +10383,13 @@ For more information, see [Offers](https://maxio.zendesk.com/hc/en-us/articles/2
 
 You can optionally pass in a `product_price_point_id` that corresponds with the `product_id` and the offer will use that price point. If a `product_price_point_id` is not passed in, the product's default price point will be used.
 
+**Business rules**
+
+- product_price_point_id is sent for a price point that does not belong to the offer's product_id → the outcome is not stated. Send a product_price_point_id that belongs to the product_id.
+- An offer component that is an On/Off component has a starting_quantity other than 0 or 1 → Maxio answers 422 with "starting_quantity for an On/Off component can only be '1' or '0': 24". Send starting_quantity 0 or 1 for On/Off components.
+- An offer is created without product_price_point_id → The offer uses the product's default price point. Send product_price_point_id when the offer must use a price point other than the product's default.
+- An offer is returned from a site without Multifrequency enabled → The offer items' interval and interval_unit properties are only available on sites with Multifrequency enabled. Treat offer item interval and interval_unit as optional and absent unless the site has Multifrequency.
+
 </dd>
 </dl>
 
@@ -9159,6 +10471,16 @@ catch (ApiException<CreateOfferError> ex)
 
 Lists offers for a site.
 
+**Business rules**
+
+- page is sent as 0 or a negative number → Maxio answers 422 with "invalid page: 0". Start paging at page 1.
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- Offers are listed without include_archived=true → Archived offers are included only when include_archived=true is sent. Send include_archived=true when archived offers are needed.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- An offer is returned from a site without Multifrequency enabled → The offer items' interval and interval_unit properties are only available on sites with Multifrequency enabled. Treat offer item interval and interval_unit as optional and absent unless the site has Multifrequency.
+
 </dd>
 </dl>
 
@@ -9229,6 +10551,10 @@ catch (ApiException<ListOffersError> ex)
 <dd>
 
 Returns a specific offer's attributes. This is different from listing all offers for a site, as it requires an `offer_id`.
+
+**Business rules**
+
+- An offer is returned from a site without Multifrequency enabled → The offer items' interval and interval_unit properties are only available on sites with Multifrequency enabled. Treat offer item interval and interval_unit as optional and absent unless the site has Multifrequency.
 
 </dd>
 </dl>
@@ -9361,6 +10687,12 @@ Changes the default payment profile on the subscription to the existing payment 
 
 You must elect to change the existing payment profile to a new payment profile ID in order to receive a satisfactory response from this endpoint.
 
+**Business rules**
+
+- The payment profile given is already the current default for the subscription or subscription group → Maxio answers 422 with "This is already the current payment profile". Compare with the current default before calling, and treat this 422 as no change needed.
+- A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.
+- A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.
+
 </dd>
 </dl>
 
@@ -9431,6 +10763,12 @@ Changes the default payment profile on the subscription group to the existing pa
 You must elect to change the existing payment profile to a new payment profile ID in order to receive a satisfactory response from this endpoint.
 
 The new payment profile must belong to the subscription group's customer, otherwise you will receive an error.
+
+**Business rules**
+
+- The payment profile given is already the current default for the subscription or subscription group → Maxio answers 422 with "This is already the current payment profile". Compare with the current default before calling, and treat this 422 as no change needed.
+- The new default payment profile does not belong to the subscription group's customer → the outcome is not stated. Use only payment profiles of the group's own customer as the group default.
+- The active credit-card-type payment profile on a subscription group changes → A subscription_group_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_group_card_update to keep group payment details in sync.
 
 </dd>
 </dl>
@@ -9531,6 +10869,31 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- An ACH bank-account profile is created without bank_routing_number → the outcome is not stated. Send bank_routing_number for ACH; with GoCardless it is optional and is passed on as bank_code.
+- A bank-account profile is created with ACH, GoCardless, Stripe BECS or BACS Direct Debit with neither bank_account_number nor bank_iban → the outcome is not stated. Send bank_account_number whenever bank_iban is blank on these gateways.
+- A Stripe BECS or BACS Direct Debit bank-account profile is created without bank_branch_code → the outcome is not stated. Send bank_branch_code for Stripe BECS and BACS; with GoCardless an IBAN may be sent instead.
+- An ACH payment profile has a billing_country other than US → the outcome is not stated. Use billing_country US for ACH bank accounts.
+- The payment needs 3D Secure authentication to meet Strong Customer Authentication → Maxio answers 422. On this 422, send the customer to the returned action_link to complete 3DS and handle the post-authentication flow.
+- The chargify_token sent does not match an existing Advanced Billing token → Maxio answers 422 with "Advanced Billing token not found". Obtain a fresh token from Maxio.js and send it unchanged.
+- A credit card profile is created without expiration_month or expiration_year and is not an import via vault_token → Maxio answers 422 with "Credit card expiration month: cannot be blank.". Send expiration_month and expiration_year for every card that is not imported via vault_token.
+- A new payment profile is created without customer_id → the outcome is not stated. Always send customer_id when creating a payment profile.
+- A bank-account profile is created with ACH or GoCardless without bank_name → the outcome is not stated. Send bank_name for ACH and GoCardless bank accounts; it is optional only with Stripe Direct Debit.
+- A Stripe Direct Debit bank-account profile is created without bank_iban → the outcome is not stated. Send bank_iban for Stripe Direct Debit; with GoCardless send either the IBAN or local bank details.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- A new payment profile is created for a customer → The profile is not made current for any of the customer's subscriptions. After creating a profile, set it as the default on each subscription or subscription group that should use it.
+- bank_account_type is omitted for a bank-account profile → bank_account_type defaults to checking. Send bank_account_type savings explicitly for savings accounts.
+- bank_account_holder_type is omitted for a bank-account profile → bank_account_holder_type defaults to personal. Send bank_account_holder_type business explicitly for business accounts.
+- Billing address fields or a CVV are sent on a payment profile → The values are merely passed through to the payment gateway, which may require its own formats such as specific country codes. Format billing address and country values to your gateway's requirements; Advanced Billing does not normalise them.
+- customer_vault_token is sent for a vault other than Authorize.Net CIM or Square → customer_vault_token applies only to Authorize.Net CIM storage or Square. Send customer_vault_token only when importing from Authorize.Net CIM or Square.
+- gateway_handle is sent on a site without the MultiGateway feature enabled → gateway_handle is only available with MultiGateway; with it, the handle selects the gateway that stores the profile. Send gateway_handle only on MultiGateway sites, using the unique handle of the target gateway.
+- current_vault is sent with a value that does not match a gateway configured for the site, such as stripe instead of stripe_connect → The value is not currently validated against the site's gateways; that validation was briefly applied, reverted, and is to be re-introduced. Send the current_vault value that matches the site's configured gateway so the request keeps working when validation returns.
+- A new PayPal account payment profile is added → No webhook is generated. Do not wait for a webhook after adding a PayPal account; read the profile back instead.
+- A bank-account profile is created from an IBAN or local bank details → A customer, bank account and mandate are created in the site's current vault. If the customer, bank account and mandate already exist in the vault, import them with vault_token, customer_vault_token and current_vault instead of sending bank details.
+- first_name or last_name is omitted when creating a payment profile → The customer's first_name or last_name is used. Send the card or account holder's name when it differs from the customer's name.
+- A one-time token is used for ACH (bank account) data on a gateway other than Authorize.Net or Stripe → One-time tokens hold ACH data only for Authorize.Net or Stripe. Use one-time tokens for ACH only on Authorize.Net or Stripe sites.
+
 </dd>
 </dl>
 
@@ -9609,6 +10972,10 @@ Deletes a Payment Profile belonging to a Subscription Group.
 
 **Note**: If the Payment Profile belongs to multiple Subscription Groups and/or Subscriptions, it will be removed from all of them.
 
+**Business rules**
+
+- The deleted payment profile belongs to several subscription groups and/or subscriptions → The payment profile is removed from all of them. Check every group and subscription that used the profile for a missing payment method after this delete.
+
 </dd>
 </dl>
 
@@ -9679,6 +11046,13 @@ If the customer has multiple subscriptions, the payment profile is removed from 
 
 If you delete the default payment profile for a subscription, you need to specify another payment profile to be the default through the API, or either prompt the user to enter a card in the billing portal or on the self-service page, or visit the Payment Details tab on the subscription in the Admin UI and use the “Add New Credit Card” or “Make Active Payment Method” link, (depending on whether there are other cards present).
 
+**Business rules**
+
+- A payment profile is deleted through one subscription while the customer has several subscriptions → The payment profile is removed from all of the customer's subscriptions. Check every subscription of the customer for a missing payment method after this delete.
+- The deleted payment profile is the subscription's default payment profile → The subscription is left without a default payment profile until another is set. Set another default payment profile through the API, or prompt the customer to add one, after deleting the default.
+- A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.
+- A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.
+
 </dd>
 </dl>
 
@@ -9747,6 +11121,10 @@ Deletes an unused payment profile.
 
 If the payment profile is in use by one or more subscriptions or groups, an error message is returned.
 
+**Business rules**
+
+- The payment profile is in use by one or more subscriptions or subscription groups → Maxio answers 422 with "The payment profile is in use by one or more subscriptions and cannot be deleted". Move subscriptions and groups to another payment profile before deleting this one, or use the subscription-scoped delete.
+
 </dd>
 </dl>
 
@@ -9814,6 +11192,14 @@ catch (ApiException<DeleteUnusedPaymentProfileError> ex)
 <dd>
 
 Lists all active payment profiles for a site, or for one customer within a site. If no payment profiles are found, this endpoint returns an empty array.
+
+**Business rules**
+
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- Payment profiles are listed, with or without customer_id → Only active payment profiles are returned, for the site or for the one customer given; an empty array is returned when none are found. Do not expect inactive profiles in this list, and treat an empty array as no profiles rather than an error.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -9885,6 +11271,11 @@ Returns the one-time token data, including credit card or ACH details, associate
 You can use One Time Tokens while creating a subscription or payment profile instead of passing all bank account or credit card data directly to a given API endpoint.
 
 To obtain a One Time Token you have to use [Chargify.js](https://docs.maxio.com/hc/en-us/articles/38163190843789-Chargify-js-Overview#chargify-js-overview-0-0).
+
+**Business rules**
+
+- The chargify_token in the path does not match an Advanced Billing token, which can only be obtained through Chargify.js → Maxio answers 404 with "Advanced Billing token not found". Obtain the token through Chargify.js before reading it, and treat a 404 as an unknown token.
+- A one-time token is used for ACH (bank account) data on a gateway other than Authorize.Net or Stripe → One-time tokens hold ACH data only for Authorize.Net or Stripe. Use one-time tokens for ACH only on Authorize.Net or Stripe sites.
 
 </dd>
 </dl>
@@ -10066,6 +11457,11 @@ Additionally, if you attempt to send a "request payment update" email for a subs
 
 These error responses are designed to prevent excessive or invalid requests, and to provide clear and helpful information to users who encounter errors during the request process.
 
+**Business rules**
+
+- A request payment update email is sent more than five times within 30 minutes → Maxio answers 422 with "Too many requests. You can perform 5 requests within 00:30:00". Send at most 5 request-payment-update emails per subscription in any 30 minutes.
+- The request payment update email is requested for a subscription that does not exist → Maxio answers 404. Treat a 404 as a missing subscription, not a transient failure.
+
 </dd>
 </dl>
 
@@ -10169,6 +11565,22 @@ The result will be that you have updated the billing information for the card, y
 
 - If you are using Authorize.net or Stripe, you may elect to manually trigger a retry for a past due subscription after a partial update.
 
+**Business rules**
+
+- An ACH payment profile has a billing_country other than US → the outcome is not stated. Use billing_country US for ACH bank accounts.
+- The payment profile of a customer who pays taxes is updated → the outcome is not stated. Send complete address information when updating the payment profile of a taxed customer.
+- A payment profile is updated with attributes of another profile type, such as bank account attributes on a credit card profile → the outcome is not stated. Send only attributes of the profile's own type; create a new profile to switch between card and bank account.
+- A card profile is updated without expiration_month or expiration_year, is not an import via vault_token, and the site's gateway is not one that allows billing-only partial updates → the outcome is not stated. Send expiration_month and expiration_year on card updates unless the gateway supports billing-only partial updates.
+- The payment profile of a customer who pays taxes is updated without complete address information → the outcome is not stated. Send the complete billing address when updating a taxed customer's payment profile.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- Billing address fields or a CVV are sent on a payment profile → The values are merely passed through to the payment gateway, which may require its own formats such as specific country codes. Format billing address and country values to your gateway's requirements; Advanced Billing does not normalise them.
+- current_vault is sent with a value that does not match a gateway configured for the site, such as stripe instead of stripe_connect → The value is not currently validated against the site's gateways; that validation was briefly applied, reverted, and is to be re-introduced. Send the current_vault value that matches the site's configured gateway so the request keeps working when validation returns.
+- A card profile is updated with only billing and contact information on the Authorize.net, Stripe, Cybersource, Forte or Braintree Blue gateway → The billing information is updated and the original card number data is retained. On these gateways, send only billing and contact fields to change them without re-entering the card.
+- A card number or CVV is sent in an update on the Authorize.net, Cybersource, Forte, Braintree Blue or Stripe gateway → The card number and CVV are ignored and a partial update is attempted. To change the card number on these gateways, create a new payment profile for the customer instead of updating.
+- A payment profile used by a past-due subscription is updated directly → No attempt is made to capture the past-due balance. Update the card through the subscription, or trigger a retry yourself after a partial update, when the past-due balance should be collected.
+- A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.
+- A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.
+
 </dd>
 </dl>
 
@@ -10252,6 +11664,13 @@ catch (ApiException<UpdatePaymentProfileError> ex)
 
 Verifies a bank account. Submit the two small deposit amounts the customer received in their bank account to verify the bank account. (Stripe only)
 
+**Business rules**
+
+- A bank account is verified on a site whose gateway is not Stripe → the outcome is not stated. Call bank account verification only for bank accounts stored with Stripe.
+- Verification has already been attempted 10 times for the bank account → Maxio answers 422 with "You have tried to verify this bank account 10 times. To continue trying to verify the account, please reach out to us directly.". Limit deposit-amount attempts and route the customer to support after the tenth failure.
+- Verification is submitted before the customer has received the two small deposits, or with amounts that are not the deposits received → the outcome is not stated. Wait until the customer sees the two deposits in the bank account and submit exactly those amounts in cents.
+- The two deposit amounts are provided successfully for a bank account → The bank account's verified flag records that it has been verified. Read verified on the bank account profile to know whether verification has completed.
+
 </dd>
 </dl>
 
@@ -10331,6 +11750,15 @@ Creates a Product Family within your site. Create a Product Family to act as a c
 
 Full documentation on how Product Families operate within the Advanced Billing UI can be located [here](https://maxio.zendesk.com/hc/en-us/articles/24261098936205-Product-Families).
 
+**Business rules**
+
+- A product is created → the outcome is not stated. Create the product family first and create products inside it.
+- The product family handle is already taken → Maxio answers 422 with "API Handle: must be unique - that value has been taken.". Use a product family handle not already taken on the site.
+- A product family is created without a handle → The handle is generated automatically. Read the generated handle from the response if you did not send one.
+- surcharging is omitted when creating a product family → surcharging defaults to true. Send surcharging: false explicitly if the family must not be surcharged.
+- surcharging is sent on a site where surcharging is not enabled → The value is not applied. Rely on the surcharging setting only on sites with surcharging enabled.
+- A product family is returned on a site where surcharging is not enabled → The surcharging field is left out of the product family. Treat a missing surcharging field as normal on sites without surcharging.
+
 </dd>
 </dl>
 
@@ -10408,6 +11836,14 @@ catch (ApiException<CreateProductFamilyError> ex)
 
 Lists Product Families for a site.
 
+**Business rules**
+
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+- A product family is returned on a site where surcharging is not enabled → The surcharging field is left out of the product family. Treat a missing surcharging field as normal on sites without surcharging.
+
 </dd>
 </dl>
 
@@ -10473,6 +11909,22 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Retrieves a list of Products belonging to a Product Family.
+
+**Business rules**
+
+- The product family id in the path is not a valid product family → Maxio answers 404 with "A valid product_family_id is required". List products only for a product family that exists.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- include_archived is not set to true → Archived components or products are left out of the list. Pass include_archived=true when archived items must be listed.
+- filter[use_site_exchange_rate] is used → The filter matches the setting of each item's default price point, not of its other price points. Remember filter[use_site_exchange_rate] tests only the default price point.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- filter[prepaid_product_price_point] is sent without include=prepaid_product_price_point → the outcome is not stated. Send include=prepaid_product_price_point whenever you use the prepaid product price point filter.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
 
 </dd>
 </dl>
@@ -10549,6 +12001,11 @@ Retrieves a Product Family via the `product_family_id`. The response will contai
 
 The product family can be specified either with the id number, or with the `handle:my-family` format.
 
+**Business rules**
+
+- A product family is returned on a site where surcharging is not enabled → The surcharging field is left out of the product family. Treat a missing surcharging field as normal on sites without surcharging.
+- The product family is given in the path as handle:<handle> instead of a numeric id → The product family is looked up by handle. Use either the numeric id or handle:<handle> in the path.
+
 </dd>
 </dl>
 
@@ -10615,6 +12072,15 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Attaches a feature template to this product with a concrete value. Pass `price_point_type: "ProductPricePoint"` and `price_point_id` to create an override scoped to a single product price point instead of the whole product.
+
+**Business rules**
+
+- The request body of a feature catalog item create names the owning product or component → Maxio answers 422. Leave the owning product or component out of the body; it comes from the URL.
+- Only one of price_point_type and price_point_id is sent when creating a feature catalog item → Maxio answers 422. Send price_point_type and price_point_id together to scope an override, or neither.
+- A feature is attached to a product or component that subscribers already have → Subscribers are provisioned the entitlement automatically only the next time their subscription changes (for example signup, plan change or component allocation). Do not expect existing subscribers to get a new feature until their subscription next changes.
+- A feature catalog item is created without price_point_type → The item applies to every price point of the product or component. Omit price_point_type and price_point_id for a product-wide feature.
+- A feature catalog item is created without propagate_to_subscriptions=true → Existing subscribers on the product or component get the entitlement only at their next subscription change (signup, plan change, component allocation). Send propagate_to_subscriptions=true when existing subscribers must get the feature now.
+- A feature catalog item is created with propagate_to_subscriptions=true → Existing subscriptions on the product or component are granted the entitlement immediately. Check subscriptions_count on the list response before propagating to many subscriptions.
 
 </dd>
 </dl>
@@ -10818,6 +12284,12 @@ catch (ApiException<ReadProductFeatureError> ex)
 
 Removes a feature catalog item from this product.
 
+**Business rules**
+
+- A component feature catalog item is removed with destroy_entitlements=true → The item and every entitlement it created are permanently deleted and subscriber access is revoked immediately. Use destroy_entitlements=true only when immediate, permanent revocation is intended.
+- A feature catalog item is removed without destroy_entitlements=true → Removal is soft: the feature leaves the catalog but subscribers who already have it keep their entitlement. Pass destroy_entitlements=true when access must be revoked immediately.
+- A feature catalog item is removed without destroy_entitlements (or with false) → The item is archived and subscribers who already have the entitlement keep it. Expect existing subscribers to keep the feature after a default removal.
+
 </dd>
 </dl>
 
@@ -10882,6 +12354,10 @@ catch (ApiException<RemoveProductFeatureError> ex)
 <dd>
 
 Clears the archived state of a feature catalog item attached to this product. Returns `422` if the parent feature template is still archived. Restore the feature template first.
+
+**Business rules**
+
+- restoreProductFeature is called while the item's parent feature template is still archived → Maxio answers 422. Restore the feature template first, then the product feature catalog item.
 
 </dd>
 </dl>
@@ -10952,6 +12428,10 @@ catch (ApiException<RestoreProductFeatureError> ex)
 <dd>
 
 Updates the value or periodicity of a feature catalog item attached to this product.
+
+**Business rules**
+
+- A component or product feature catalog item is updated with propagate_to_subscriptions true → The new value/periodicity is applied immediately to every existing entitlement created from the item. Send propagate_to_subscriptions=true only when existing entitlements must change now; check subscriptions_count first to see how many subscriptions it touches.
 
 </dd>
 </dl>
@@ -11027,6 +12507,11 @@ catch (ApiException<UpdateProductFeatureError> ex)
 
 Archives a product price point.
 
+**Business rules**
+
+- The price point to archive is the product's default price point → Maxio answers 422 with "Cannot archive the default price point.". Promote another price point to default before archiving this one.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+
 </dd>
 </dl>
 
@@ -11096,6 +12581,13 @@ catch (ApiException<ArchiveProductPricePointError> ex)
 <dd>
 
 Creates multiple product price points in one request.
+
+**Business rules**
+
+- interval is less than 1 (including fractions such as 0.5) → Maxio answers 422 with "Recurring Interval: must be greater than or equal to 1.". Send interval as a whole number of at least 1.
+- The price is below 0 → Maxio answers 422 with "Price: must be greater than or equal to 0.". Send prices of 0 or more.
+- trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.
+- trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.
 
 </dd>
 </dl>
@@ -11208,6 +12700,12 @@ When creating currency prices, they need to mirror the structure of your primary
 
 Note: Currency Prices are not able to be created for custom product price points.
 
+**Business rules**
+
+- A currency price is sent for a currency not defined in the site's settings → the outcome is not stated. Define the currency at the site level before adding product currency prices in it.
+- The currency prices do not cover every price role the product price point defines (baseline, plus trial and/or initial setup fee when defined) → Maxio answers 422 with "This product price point requires that prices are defined for: [baseline].". Send a currency price for each role the price point uses: baseline, and trial and initial when it has a trial or setup fee.
+- The product price point is a custom price point → the outcome is not stated. Create currency prices only on non-custom product price points.
+
 </dd>
 </dl>
 
@@ -11285,6 +12783,14 @@ catch (ApiException<CreateProductCurrencyPricesError> ex)
 <dd>
 
 Creates a Product Price Point. See the [Product Price Point](https://maxio.zendesk.com/hc/en-us/articles/24261111947789-Product-Price-Points) documentation for details.
+
+**Business rules**
+
+- interval is less than 1 (including fractions such as 0.5) → Maxio answers 422 with "Recurring Interval: must be greater than or equal to 1.". Send interval as a whole number of at least 1.
+- The price is below 0 → Maxio answers 422 with "Price: must be greater than or equal to 0.". Send prices of 0 or more.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.
+- trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.
 
 </dd>
 </dl>
@@ -11374,6 +12880,22 @@ catch (ApiException<CreateProductPricePointError> ex)
 
 Lists Product Price Points belonging to a site.
 
+**Business rules**
+
+- filter[start_date] (or another date filter) is not a valid ISO 8601 value → Maxio answers 422 with "start_date supplied value is invalid, expected ISO 8601 format". Send date filters in ISO 8601 format (YYYY-MM-DD, or a full timestamp for the datetime filters).
+- filter[date_field] is a value other than created_at or updated_at → Maxio answers 422 with "date_field must be one of: created_at, updated_at". Send filter[date_field] as created_at or updated_at only.
+- filter[type] is not sent → Only catalog and default price points are returned; custom price points are left out. Pass filter[type] including custom when custom price points are needed.
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+
 </dd>
 </dl>
 
@@ -11445,6 +12967,18 @@ catch (ApiException<ListAllProductPricePointsError> ex)
 
 Retrieves a list of product price points.
 
+**Business rules**
+
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A product's price points are listed → Results are always in descending created_at order; the default price point is not put first. Find the default price point by its type or the product's default id, not by its position in the list.
+- per_page is omitted or set above 200 → 10 records are returned by default; a per_page above 200 is changed to 200. Page through product price points with per_page of at most 200, expecting 10 by default.
+- archived is not set → Archived price points are left out of the response. Pass archived=true when archived price points are needed.
+
 </dd>
 </dl>
 
@@ -11515,6 +13049,10 @@ Sets a product price point as the default for the product.
 
 Note: Custom product price points cannot be set as the default for a product.
 
+**Business rules**
+
+- The price point to promote is a custom product price point → the outcome is not stated. Promote only non-custom product price points to default.
+
 </dd>
 </dl>
 
@@ -11578,6 +13116,13 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Returns details for a specific product price point. You can achieve this by using either the product price point ID or handle.
+
+**Business rules**
+
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A price point is read or listed without the currency prices query parameter (currency_prices=true or include=currency_prices) → currency_prices is left out of the response; it appears only on read endpoints when requested. Pass the currency prices query parameter when you need currency pricing.
+- Currency prices are requested for a price point → With use_site_exchange_rate true the prices are computed from the current exchange rate; with false the defined prices for each currency are returned. Expect converted prices to change with the exchange rate when use_site_exchange_rate is true.
+- Currency prices are requested on a site without multiple currencies defined → Currency pricing data is available only when the site defines multiple currencies. Define extra currencies at the site level before relying on currency_prices.
 
 </dd>
 </dl>
@@ -11717,6 +13262,12 @@ When updating the pricing, it needs to mirror the structure of your primary pric
 
 Note: Currency Prices cannot be updated for custom product price points.
 
+**Business rules**
+
+- The currency prices do not cover every price role the product price point defines (baseline, plus trial and/or initial setup fee when defined) → Maxio answers 422 with "This product price point requires that prices are defined for: [baseline].". Send a currency price for each role the price point uses: baseline, and trial and initial when it has a trial or setup fee.
+- The product price point is a custom price point → the outcome is not stated. Update currency prices only on non-custom product price points.
+- Prices are updated for a currency that has no currency prices on the product price point yet → the outcome is not stated. Create the currency prices with Create Product Currency Prices before updating them.
+
 </dd>
 </dl>
 
@@ -11795,6 +13346,11 @@ Updates a product price point.
 
 Note: Custom product price points cannot be updated.
 
+**Business rules**
+
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- The product price point is a custom price point → the outcome is not stated. Do not try to update custom product price points.
+
 </dd>
 </dl>
 
@@ -11872,6 +13428,13 @@ Archives the product. All current subscribers will be unaffected; their subscrip
 
 This will restrict the option to chose the product for purchase via the Billing Portal, as well as disable Public Signup Pages for the product.
 
+**Business rules**
+
+- The server refuses to archive the product (the spec gives no reason) → Maxio answers 422 with "Product cannot be archived.". Handle a 422 from Archive Product and check the product's current state.
+- A product is archived → Current subscribers are unaffected and keep being charged. Migrate or cancel existing subscriptions yourself if archiving should stop their charges.
+- A product is archived → The product can no longer be chosen for purchase in the Billing Portal. Expect archived products to disappear from Billing Portal purchase options.
+- A product is archived → Public Signup Pages for the product are disabled. Replace links to the product's Public Signup Pages before archiving it.
+
 </dd>
 </dl>
 
@@ -11944,6 +13507,20 @@ For more information, see:
 
 + [Products Overview](https://maxio.zendesk.com/hc/en-us/articles/24261090117645-Products-Overview)
 + [Changing a Subscription's Product](https://maxio.zendesk.com/hc/en-us/articles/24252069837581-Product-Changes-and-Migrations)
+
+**Business rules**
+
+- The site has the new Catalog experience enabled and the request includes auto_create_signup_page with any value → Maxio answers 422 with "Auto Create Signup Page: is not allowed". Leave auto_create_signup_page out of Create Product on Catalog-experience sites.
+- A product is created → the outcome is not stated. Create the product family first and create products inside it.
+- The product is created under a product family that does not exist → the outcome is not stated. Create the product family first and create the product under its id or handle.
+- A subscription is to be sold for a product that has not been created → the outcome is not stated. Create and configure the product before creating subscriptions to it.
+- A component, product family, product or price point is identified in the path by its handle without the handle: prefix → the outcome is not stated. Prefix handles in path parameters with handle: (for example handle:gold); send bare values only for numeric ids.
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- A new product is created → A Public Signup Page is created automatically for the product. Expect a public signup page to exist for every new product.
+- require_credit_card is sent for a product on a site without legacy hosted pages → The deprecated value can be ignored; Public Signup Pages carry their own setting. Set the credit-card requirement on the Public Signup Page, not through require_credit_card.
+- trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.
+- trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.
 
 </dd>
 </dl>
@@ -12030,6 +13607,22 @@ catch (ApiException<CreateProductError> ex)
 
 Lists products belonging to a site.
 
+**Business rules**
+
+- A list is filtered with start_date or end_date → start_date matches from midnight and end_date up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.
+- Both start_datetime and start_date (or end_datetime and end_date) are sent → The datetime parameter is used and the date parameter is ignored. Send either the date or the datetime form of each bound, not both.
+- date_field is given a value other than created_at or updated_at → The value is ignored and the date filters are not applied. Send date_field as created_at or updated_at only, and check that date-filtered results really are filtered.
+- include_archived is not set to true → Archived components or products are left out of the list. Pass include_archived=true when archived items must be listed.
+- filter[use_site_exchange_rate] is used → The filter matches the setting of each item's default price point, not of its other price points. Remember filter[use_site_exchange_rate] tests only the default price point.
+- per_page is omitted or set above 200 → 20 records are returned by default; a per_page above 200 is changed to 200. Page through results with per_page of at most 200 and do not assume a larger page was honoured.
+- A page number past the last page of results is requested → An empty result set is returned, not an error. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- filter[prepaid_product_price_point] is sent without include=prepaid_product_price_point → the outcome is not stated. Send include=prepaid_product_price_point whenever you use the prepaid product price point filter.
+- include_features=true is passed to read features embedded in product or component responses → List Products, Read Product and Read Component embed features; List Components does not support include_features. Read component features one by one or with the features endpoints instead of List Components.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+- A product or component is read without include_features=true → The response has no features array; with include_features=true it embeds only the active feature catalog items. Pass include_features=true when you need the features attached to a product or component.
+
 </dd>
 </dl>
 
@@ -12099,6 +13692,11 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Reads the current details of a product.
+
+**Business rules**
+
+- include_features=true is passed to read features embedded in product or component responses → List Products, Read Product and Read Component embed features; List Components does not support include_features. Read component features one by one or with the features endpoints instead of List Components.
+- A product or component is read without include_features=true → The response has no features array; with include_features=true it embeds only the active feature catalog items. Pass include_features=true when you need the features attached to a product or component.
 
 </dd>
 </dl>
@@ -12237,6 +13835,15 @@ Updates aspects of an existing product.
 
 Updating a product using this endpoint will create a new price point and set it as the default price point for this product. If you should like to update an existing product price point, that must be done separately.
 
+**Business rules**
+
+- A tax_code longer than 25 characters is sent for a component or product → the outcome is not stated. Keep tax_code to 25 characters or fewer.
+- A component or product is saved with unspsc_code set (or without it) → The unspsc_code is sent as the commodity code on invoice line items instead of the default derived from item_category. Set unspsc_code when the commodity code derived from item_category is not the one you want on invoice line items.
+- require_credit_card is sent for a product on a site without legacy hosted pages → The deprecated value can be ignored; Public Signup Pages carry their own setting. Set the credit-card requirement on the Public Signup Page, not through require_credit_card.
+- trial_type is no_obligation and a subscription's trial ends with no credit card on file → The subscription moves to Trial Ended and Maxio sends no emails or statements. Choose no_obligation only when trials should end quietly without dunning.
+- trial_type is payment_expected and a subscription's trial ends with no credit card on file → The subscription moves to Past Due and Maxio sends normal dunning emails and statements. Choose payment_expected only when trials without a card on file should go into dunning.
+- A product is updated through Update Product → A new price point is created and set as the product's default price point. Use the product price point endpoints to change an existing price point; expect Update Product to add a new default one.
+
 </dd>
 </dl>
 
@@ -12313,6 +13920,15 @@ If the information becomes outdated, simply void the old consolidated proforma i
 
 Proforma invoices are only available on Relationship Invoicing sites. To create a proforma invoice, the subscription must not be prepaid, and must be in a live state.
 
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A consolidated proforma invoice is requested while one is already being generated for the group → Maxio answers 422 with "Consolidated proforma invoice generation already in progress". Wait for the running generation to finish before requesting another for the group.
+- A proforma invoice is requested for a prepaid subscription → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Do not request proforma invoices for prepaid subscriptions.
+- A proforma invoice is requested for a subscription that is not in a live state (e.g. end-of-life) → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Request proforma invoices only for live subscriptions.
+- A consolidated proforma invoice is requested for a subscription group → Maxio answers 201. Poll List Subscription Group Proforma Invoices to find the new consolidated proforma invoice.
+- The subscription's billing information changes after a proforma invoice was created → The existing proforma invoice is not updated. Void an outdated proforma invoice and create a new one; use the preview endpoint to check for changes.
+
 </dd>
 </dl>
 
@@ -12387,6 +14003,20 @@ If you would like to preview the next billing amounts without generating a full 
 
 Proforma invoices are only available on Relationship Invoicing sites. To create a proforma invoice, the subscription must not be in a group, must not be prepaid, and must be in a live state.
 
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A proforma invoice is requested for a subscription that is in a group → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Use the consolidated proforma endpoint for grouped subscriptions.
+- A proforma invoice is requested for a prepaid subscription → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Do not request proforma invoices for prepaid subscriptions.
+- A proforma invoice is requested for a subscription that is not in a live state (e.g. end-of-life) → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Request proforma invoices only for live subscriptions.
+- The subscription's billing information changes after a proforma invoice was created → The existing proforma invoice is not updated. Void an outdated proforma invoice and create a new one; use the preview endpoint to check for changes.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -12459,6 +14089,26 @@ Creates a proforma invoice to preview costs before a subscription's signup. This
 Pass a payload that resembles a subscription create or signup preview request. For example, you can specify components, coupons/a referral, offers, custom pricing, and an existing customer or payment profile to populate a shipping or billing address.
 
 A product and customer first name, last name, and email are the minimum requirements. We recommend associating the proforma invoice with a customer_id to easily find their proforma invoices, since the subscription_id will always be blank.
+
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A signup proforma invoice or preview is requested for a consolidated (group) signup → the outcome is not stated. Do not use the signup proforma endpoints for subscription group signups.
+- A signup proforma invoice or preview is requested for a prepaid subscription → the outcome is not stated. Do not use the signup proforma endpoints for prepaid subscriptions.
+- The signup payload has no customer_id and lacks the customer's first name, last name or email → Maxio answers 422 with "Missing required customer attributes". Send a product plus either customer_id or customer first_name, last_name and email.
+- The signup payload names a product that does not exist on the site → Maxio answers 422 with "Couldn't find Product by 1". Check the product id or handle exists before requesting a signup proforma.
+- The subscription body names neither product_handle nor product_id, uses no offer_id, and is not a components-only subscription under the new Catalog experience → the outcome is not stated. Identify the product with product_handle or product_id (or pass offer_id) unless building a components-only subscription on a Catalog-experience site.
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- payment_collection_method is set to a value the site's invoicing architecture does not support (invoice/automatic on legacy Statements; remittance/automatic/prepaid on Relationship Invoicing) → the outcome is not stated. Choose payment_collection_method from the values valid for the site's architecture.
+- A signup proforma invoice is created → Its subscription_id is always blank. Send customer_id so the signup proforma invoice can be found by customer later.
+- group.target.id is sent while target type is self, parent or eldest → The id is ignored. Omit target.id when the target type is self, parent or eldest.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A metafields key is sent that does not yet exist as a custom field on the site → The metafield is created on the fly for that key. Check metafield keys before sending; a misspelt key silently creates a new custom field.
 
 </dd>
 </dl>
@@ -12546,6 +14196,13 @@ If `recipient_emails` is omitted, the system will fall back to the primary recip
 subscription. At least one recipient must be present, either via the request body or via this default behavior, so an
 empty body may still succeed when defaults are available.
 
+**Business rules**
+
+- No recipient is given and none can be derived from the invoice or subscription → Maxio answers 422 with "recipient_emails: must include at least one email". Send at least one recipient email when the subscription has no default recipient.
+- A recipient email address is not valid → Maxio answers 422 with "recipient_emails: must be a valid email address". Validate email addresses before delivering a proforma invoice.
+- The proforma invoice cannot be queued for email delivery → Maxio answers 422 with "Unable to enqueue proforma invoice for email delivery". Treat this 422 as not sent and show the error rather than assuming delivery.
+- A proforma invoice is delivered without recipient_emails → It is sent to the primary recipient derived from the invoice or subscription. Send recipient_emails when the proforma must go to someone other than the default recipient.
+
 </dd>
 </dl>
 
@@ -12621,6 +14278,20 @@ catch (ApiException<DeliverProformaInvoiceError> ex)
 
 Lists proforma invoices for a subscription. By default, results only include totals, not detailed breakdowns for `line_items`, `discounts`, `taxes`, `credits`, `payments`, or `custom_fields`. To include breakdowns, pass the specific field as a key in the query with a value set to `true`.
 
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- A subscription's proforma invoices are filtered with start_date and end_date → The range applies to the proforma invoice's due date. Filter proforma invoices by their due date range.
+- Proforma invoices are listed without the breakdown flags set to true → Each proforma invoice carries totals only; line_items, discounts, taxes, credits, payments and custom_fields are left out. Pass the breakdown flags (e.g. line_items=true) when the app needs the detail arrays.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -12690,6 +14361,17 @@ catch (ApiException<RawError> ex)
 Lists proforma invoices with a `consolidation_level` of parent for the subscription group.
 
 By default, proforma invoices returned on the index will only include totals, not detailed breakdowns for `line_items`, `discounts`, `taxes`, `credits`, `payments`, `custom_fields`. To include breakdowns, pass the specific field as a key in the query with a value set to true.
+
+**Business rules**
+
+- A subscription group's proforma invoices are listed → Only proforma invoices with consolidation_level parent are returned. Use List Subscription Proforma Invoices to see a member subscription's own proforma invoices.
+- Proforma invoices are listed without the breakdown flags set to true → Each proforma invoice carries totals only; line_items, discounts, taxes, credits, payments and custom_fields are left out. Pass the breakdown flags (e.g. line_items=true) when the app needs the detail arrays.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
 
 </dd>
 </dl>
@@ -12764,6 +14446,20 @@ If all the data returned in the preview is as expected, you may then create a st
 
 Alternatively, if you have some proforma invoices already, you may make a preview call to determine whether any billing information for the subscription's upcoming renewal has changed.
 
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A proforma invoice is requested for a subscription that is in a group → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Use the consolidated proforma endpoint for grouped subscriptions.
+- A proforma invoice is requested for a prepaid subscription → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Do not request proforma invoices for prepaid subscriptions.
+- A proforma invoice is requested for a subscription that is not in a live state (e.g. end-of-life) → Maxio answers 422 with "this subscription is not eligible to create proforma invoices". Request proforma invoices only for live subscriptions.
+- A proforma invoice preview is requested → Nothing is saved; the preview cannot be retrieved after the call. Store the preview response yourself if it is needed later, or create a proforma invoice.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -12836,6 +14532,27 @@ Creates a signup preview in the format of a proforma invoice to preview costs be
 Pass a payload that resembles a subscription create or signup preview request. For example, you can specify components, coupons/a referral, offers, custom pricing, and an existing customer or payment profile to populate a shipping or billing address.
 
 A product and customer first name, last name, and email are the minimum requirements.
+
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A signup proforma invoice or preview is requested for a consolidated (group) signup → the outcome is not stated. Do not use the signup proforma endpoints for subscription group signups.
+- A signup proforma invoice or preview is requested for a prepaid subscription → the outcome is not stated. Do not use the signup proforma endpoints for prepaid subscriptions.
+- The signup payload has no customer_id and lacks the customer's first name, last name or email → Maxio answers 422 with "Missing required customer attributes". Send a product plus either customer_id or customer first_name, last_name and email.
+- The signup payload names a product that does not exist on the site → Maxio answers 422 with "Couldn't find Product by 1". Check the product id or handle exists before requesting a signup proforma.
+- The subscription body names neither product_handle nor product_id, uses no offer_id, and is not a components-only subscription under the new Catalog experience → the outcome is not stated. Identify the product with product_handle or product_id (or pass offer_id) unless building a components-only subscription on a Catalog-experience site.
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- payment_collection_method is set to a value the site's invoicing architecture does not support (invoice/automatic on legacy Statements; remittance/automatic/prepaid on Relationship Invoicing) → the outcome is not stated. Choose payment_collection_method from the values valid for the site's architecture.
+- group.target.id is sent while target type is self, parent or eldest → The id is ignored. Omit target.id when the target type is self, parent or eldest.
+- A proforma invoice preview is requested → Nothing is saved; the preview cannot be retrieved after the call. Store the preview response yourself if it is needed later, or create a proforma invoice.
+- A signup proforma preview is requested without include=next_proforma_invoice → Only the current proforma invoice is returned; the first renewal's preview is left out. Send include=next_proforma_invoice to preview the first renewal's costs too.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+- A metafields key is sent that does not yet exist as a custom field on the site → The metafield is created on the fly for that key. Check metafield keys before sending; a misspelt key silently creates a new custom field.
 
 </dd>
 </dl>
@@ -12923,6 +14640,16 @@ Returns the details of an existing proforma invoice.
 
 Proforma invoices are only available on Relationship Invoicing sites.
 
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A line item's period_range_start and period_range_end are set → Charges in advance run from the billing date to the next billing date; charges in arrears (metered) run from the previous billing to the current one; one-off charges have equal dates. Read the period range according to whether the charge is billed in advance, in arrears or once.
+- A line item bills a component → product_id may be set even for component charges; only a nil component_id marks a product-only charge. Use component_id, not product_id, to tell component charges from product charges.
+- Line-item amounts are summed or recomputed by the client → subtotal_amount is the canonical line amount; the sum of line total_amounts may not equal the invoice total_amount because of rounding. Reconcile against the invoice totals, not the sum of line total_amount values.
+- A line item shows discount_amount or tax_amount → The per-line discount and tax are approximations of the invoice-level amounts apportioned across lines. Use the invoice-level discount_amount and tax_amount for accounting, not the sum of per-line values.
+- A line item is returned with tax_included → tax_included is inherited from the source price point; custom or ad hoc lines always return false. Do not expect tax-inclusive pricing on custom ad hoc lines.
+- A line item was priced with a tiered scheme → unit_price is the blended average per unit and tiered_unit_price is true. Do not multiply unit_price by quantity to re-derive tiered charges; use subtotal_amount.
+
 </dd>
 </dl>
 
@@ -12999,6 +14726,11 @@ Proforma invoices are only available on Relationship Invoicing sites.
 Only proforma invoices that have the appropriate status may be reopened. If the invoice identified by {uid} does not have the appropriate status, the response will have HTTP status code 422 and an error message.
 
 A reason for the void operation is required to be included in the request body. If one is not provided, the response will have HTTP status code 422 and an error message.
+
+**Business rules**
+
+- A proforma invoice endpoint is called on a site that does not use Relationship Invoicing → the outcome is not stated. Use proforma invoices only on Relationship Invoicing sites.
+- A proforma invoice that is not in draft status is voided → Maxio answers 422 with "Only draft proforma invoices may be voided.". Void only draft proforma invoices.
 
 </dd>
 </dl>
@@ -13079,6 +14811,12 @@ Add a set of churn reason codes to be displayed in-app and/or the Maxio Billing 
 
 For more information, see [Churn Reason Codes](https://maxio.zendesk.com/hc/en-us/articles/24286647554701-Churn-Reason-Codes).
 
+**Business rules**
+
+- A reason code is created or updated with a code another reason code on the site already uses → Maxio answers 422 with "Code: This code is already in use.". Use a code that no other reason code on the site has.
+- A reason code is created with a blank code or description → Maxio answers 422 with "Code: cannot be blank. / Description: cannot be blank.". Send a non-empty code and description.
+- Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.
+
 </dd>
 </dl>
 
@@ -13151,6 +14889,10 @@ catch (ApiException<CreateReasonCodeError> ex)
 
 Deletes a reason code from the Churn Reason Codes. This code will be immediately removed. This action is not reversible.
 
+**Business rules**
+
+- A reason code is deleted → The code is removed immediately and the deletion cannot be reversed. Confirm before deleting a reason code; recreate it if needed rather than expecting a restore.
+
 </dd>
 </dl>
 
@@ -13216,6 +14958,15 @@ catch (ApiException<DeleteReasonCodeError> ex)
 <dd>
 
 Lists all current churn codes for a given site.
+
+**Business rules**
+
+- page is sent as 0 or a negative number → Maxio answers 422 with "invalid page: 0". Start paging at page 1.
+- per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.
+- page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -13349,6 +15100,11 @@ catch (ApiException<ReadReasonCodeError> ex)
 
 Updates an existing reason code for a given site.
 
+**Business rules**
+
+- A reason code is created or updated with a code another reason code on the site already uses → Maxio answers 422 with "Code: This code is already in use.". Use a code that no other reason code on the site has.
+- Reason codes are listed or shown → Codes appear in the order given by their position. Set position on each reason code to control the order in which it appears.
+
 </dd>
 </dl>
 
@@ -13420,6 +15176,10 @@ catch (ApiException<UpdateReasonCodeError> ex)
 Validates whether a referral code is valid and applicable within your site. This method is useful for validating referral codes that are entered by a customer.
 
 For more information, see [Understanding Referrals](https://docs.maxio.com/hc/en-us/articles/24286981223693-Understanding-Referrals) in the product documentation.
+
+**Business rules**
+
+- The referral code is not valid or not applicable within the site → Maxio answers 404 with "Referral code is invalid.". Treat 404 as an invalid code and do not pass it as ref when creating the subscription.
 
 </dd>
 </dl>
@@ -13502,6 +15262,21 @@ Access to the Sales Commission API endpoints is available to users with financia
 
 > Note: The request is at seller level, it means `<<subdomain>>` variable will be replaced by `app`.
 
+**Business rules**
+
+- A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.
+- Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.
+- A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.
+- A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.
+- The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.
+- The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.
+- A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.
+- The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.
+- The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.
+- The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+
 </dd>
 </dl>
 
@@ -13576,6 +15351,21 @@ The Sales Commission API differs from other Chargify API endpoints. This resourc
 Access to the Sales Commission API endpoints is available to users with financial access, where the seller has the Advanced Analytics component enabled. For further information on getting access to Advanced Analytics contact Maxio support.
 
 > Note: The request is at seller level, it means `<<subdomain>>` variable will be replaced by `app`.
+
+**Business rules**
+
+- A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.
+- Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.
+- A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.
+- A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.
+- The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.
+- The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.
+- A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.
+- The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.
+- The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.
+- The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
 
 </dd>
 </dl>
@@ -13652,6 +15442,21 @@ Access to the Sales Commission API endpoints is available to users with financia
 
 > Note: The request is at seller level, it means `<<subdomain>>` variable will be replaced by `app`.
 
+**Business rules**
+
+- A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.
+- Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.
+- A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.
+- A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.
+- The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.
+- The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.
+- A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.
+- The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.
+- The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.
+- The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+
 </dd>
 </dl>
 
@@ -13726,6 +15531,15 @@ Clears all data from a test site asynchronously. This call is asynchronous and t
 
 **This functionality will only work on sites in TEST mode. Attempts to perform this on sites in “live” mode will result in a response of 403 FORBIDDEN.**
 
+**Business rules**
+
+- Clear Site Data is called on a site in live mode rather than test mode → Maxio answers 403 with "FORBIDDEN". Call Clear Site Data only against a site in test mode.
+- Clear Site Data is accepted → The data is deleted asynchronously, so products, customers and other records can still exist for a while after the call returns. After clearing, wait and check that the site has no products or other records before continuing (for example in an automated test).
+- Clear Site Data is called with cleanup_scope=all (the default) → All products, customers and related subscriptions are cleared from the site. Use cleanup_scope=customers when the product catalog must be kept.
+- Clear Site Data is called with cleanup_scope=customers → Only customers and their related subscriptions are cleared; products are left untouched. Expect the catalog to remain and recreate only customers and subscriptions after this clear.
+- Site data is cleared (the sentence follows the customers scope in both places and may cover both scopes) → The site's revenue is reset to 0. Do not expect revenue figures to survive a site data clear.
+- A site is being moved from test to production (live) mode → Clearing the site data is necessary before the gateway processes real money. Clear the site's test data before taking the site live.
+
 </dd>
 </dl>
 
@@ -13739,9 +15553,12 @@ try
 {
     await client.Sites.ClearSite(new ClearSiteRequest());
 }
-catch (ApiException<RawError> ex)
+catch (ApiException<ClearSiteError> ex)
 {
-    // TODO: Handle 'ex.Error' of type RawError
+    if (ex.Error.TryGetNoContent(out var error))
+    {
+        // TODO: Handle 'error' of type RawError
+    }
 }
 ```
 
@@ -13765,7 +15582,7 @@ catch (ApiException<RawError> ex)
 
 **OnSuccess**: No content
 
-**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[RawError](src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs)&gt;</code>
+**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[ClearSiteError](src/MaxioAdvancedBilling/Errors/ClearSiteError.cs)&gt;</code>
 
 </dd>
 </dl>
@@ -13787,6 +15604,11 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists public keys used for Maxio.js (formerly Chargify.js).
+
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -13868,6 +15690,10 @@ If the site has Relationship invoicing enabled, additional properties are return
 
 For more information, see [Who Pays & Customer Hierarchy](https://maxio.zendesk.com/hc/en-us/articles/24252185211533-Customer-Hierarchies-WhoPays).
 
+**Business rules**
+
+- The site has Relationship Invoicing enabled → The response carries extra properties (customer_hierarchy_enabled, whopays_enabled, whopays_default_payer); multi_frequency_enabled is present only when relationship invoicing is active. Treat the relationship-invoicing properties of the site as optional and expect them to be absent on other sites.
+
 </dd>
 </dl>
 
@@ -13932,6 +15758,18 @@ For more information, see [Design Your Catalog](https://docs.maxio.com/hc/en-us/
 Use this endpoint to activate an event-based component for a single subscription. Activating an event-based component causes billing for events when the subscription is renewed.
 
 Note: it is possible to stream events for a subscription at any time, regardless of component activation status. The activation status only determines if the subscription should be billed for event-based component usage at renewal.
+
+**Business rules**
+
+- billing_schedule.initial_billing_at is before the minimum allowed date for the subscription or component → the outcome is not stated. Send an initial_billing_at on or after the subscription's or component's minimum allowed date.
+- An event-based component has not been activated for the subscription → The subscription is not billed for that component's events at renewal; activation makes renewal bill the events. Activate each event-based component for a subscription before you expect its events to be billed.
+- custom_price.interval or custom_price.interval_unit is sent on a site without Multifrequency enabled → the outcome is not stated. Send custom_price interval fields only when the site has Multifrequency enabled.
+- billing_schedule.initial_billing_at is omitted or null → The component's billing aligns with the product schedule. Send initial_billing_at only when the component's billing must start on its own date.
+- renew_prepaid_allocation or rollover_prepaid_remainder is sent for a component that is not a prepaid usage component → the outcome is not stated. Send the prepaid renewal and rollover settings only for prepaid usage components.
+- custom_price.expiration_interval or expiration_interval_unit is sent without rollover enabled → the outcome is not stated. Send rollover expiration settings only together with rollover_prepaid_remainder=true.
+- custom_price.use_default_list_price is true → List price calculations keep using the default price point even though a custom price is supplied. Set use_default_list_price (or list_price_point_id) deliberately when overriding the customer price.
+- A subscription renews with an event-based component → Event usage is billed only if the component is activated for the subscription; events of a deactivated component are ignored at renewal, although events can be streamed at any time. Activate the event-based component for each subscription that should be billed for its events.
+- Events are streamed for a subscription whose event-based component is not activated → The events are accepted; activation only decides whether they are billed at renewal. Do not treat an accepted event as billable unless the component is activated for the subscription.
 
 </dd>
 </dl>
@@ -14033,6 +15871,39 @@ For information on prorated components and upgrade/downgrade schemes, see [Setti
 > **Note:** Proration uses the current price of the component as well as the current tax rates. Changes to either may cause the prorated charge/credit to be wrong.
 
 For more information, see the [Component Allocations](https://maxio.zendesk.com/hc/en-us/articles/24251883961485-Component-Allocations-Overview) product Documentation.
+
+**Business rules**
+
+- An allocation is made for a component that is not a Quantity, On/Off or Prepaid component (for example metered or event-based) → the outcome is not stated. Allocate only Quantity, On/Off and Prepaid components; report metered usage with Create Usage.
+- A decimal quantity (decimal_quantity, decimal_previous_quantity or a fractional quantity) is sent for a component without decimal allocations enabled → the outcome is not stated. Send whole-number quantities unless decimal allocations are enabled for the component.
+- An allocation for an On/Off component uses a quantity other than 1 or 0 → the outcome is not stated. Send quantity 1 to turn an On/Off component on and 0 to turn it off.
+- The allocation request carries no allocation change → Maxio answers 422 with "One or more allocation changes are required.". Send an allocation that changes the quantity (or other allocation values).
+- billing_schedule.initial_billing_at is before the minimum allowed date for the subscription or component → the outcome is not stated. Send an initial_billing_at on or after the subscription's or component's minimum allowed date.
+- A custom_price is sent for an On/Off component → the outcome is not stated. For On/Off components omit custom_price.pricing_scheme and send one price bracket starting at 1.
+- An upgrade allocation is made with accrue_charge false and the immediate charge fails → The charge is accrued until the next renewal; the allocation is not refused. Check the allocation's payment result instead of assuming an accrue_charge=false upgrade was paid.
+- initiate_dunning is true and the immediate component payment fails → Dunning is started for the subscription. Send initiate_dunning=true only when a failed allocation payment should put the subscription into dunning.
+- initiate_dunning is false or not sent and the immediate component payment fails → No dunning starts; the charges stay on the subscription to be paid at renewal. Follow up failed allocation payments yourself or send initiate_dunning=true.
+- An allocation is sent without price_point_id → The component's default price point is used. Send price_point_id (id or handle) when the allocation must be charged at a non-default price point.
+- proration_upgrade_scheme or proration_downgrade_scheme (deprecated) is not sent → The site setting is used. Use upgrade_charge/downgrade_credit instead of the deprecated proration schemes.
+- An allocation was not created mid-period → proration_upgrade_scheme and proration_downgrade_scheme are absent from the allocation. Treat the proration scheme fields as optional in allocation responses.
+- An allocation is returned → The allocation timestamp is in UTC, while other response timestamps use the site's time zone. Parse the allocation timestamp as UTC.
+- upgrade_charge, downgrade_credit or accrue_charge is sent for a Prepaid component → The fields are ignored; prepaid allocations always generate charges immediately without proration. Do not rely on proration or accrual settings for Prepaid component allocations.
+- A quantity-based allocation changes, an on/off component is toggled, or a prepaid allocation is purchased after signup → A component_allocation_change webhook fires (allocation_change on the enhanced Catalog experience). Handle component_allocation_change (and allocation_change) webhooks to track allocation changes.
+- A component that has feature catalog items attached is allocated to a subscription → The subscription is provisioned the component's entitlements as part of the change. Read entitlements after an allocation instead of assuming they are unchanged.
+- The site's requests are being throttled → Component allocations are treated as critical endpoints and prioritised over low-priority requests such as reports and exports. Do not move allocation calls into report or export jobs to get them through throttling; keep concurrency low.
+- custom_price.interval or custom_price.interval_unit is sent on a site without Multifrequency enabled → the outcome is not stated. Send custom_price interval fields only when the site has Multifrequency enabled.
+- billing_schedule.initial_billing_at is omitted or null → The component's billing aligns with the product schedule. Send initial_billing_at only when the component's billing must start on its own date.
+- renew_prepaid_allocation or rollover_prepaid_remainder is sent for a component that is not a prepaid usage component → the outcome is not stated. Send the prepaid renewal and rollover settings only for prepaid usage components.
+- custom_price.expiration_interval or expiration_interval_unit is sent without rollover enabled → the outcome is not stated. Send rollover expiration settings only together with rollover_prepaid_remainder=true.
+- custom_price.use_default_list_price is true → List price calculations keep using the default price point even though a custom price is supplied. Set use_default_list_price (or list_price_point_id) deliberately when overriding the customer price.
+- upgrade_charge or downgrade_credit is resolved for an allocation → The value set on the allocation wins, then the component-level default, then the top-level request value, then the site default. Set upgrade_charge/downgrade_credit on each allocation; a top-level value is overridden by a component default.
+- An allocation is an upgrade and upgrade_charge resolves to full, prorated or none → full adds a charge for the full price of the component; prorated adds a charge for the prorated price of the change; none adds no charge. Pick upgrade_charge for the charge you intend, and preview it first when unsure.
+- An allocation is a downgrade and downgrade_credit resolves to full, prorated or none → full adds a full-price credit for the amount owed; prorated adds a prorated credit; none adds nothing. Pick downgrade_credit for the credit you intend, and preview it first when unsure.
+- The component supports fractional quantities → quantity and previous_quantity are returned as strings instead of integers. Parse allocation quantities as either integers or decimal strings.
+- accrue_charge is not sent at the top level of the allocation call → The site-level default for accrue_charge is used. Send accrue_charge explicitly when the site default is not what you want.
+- A prorated allocation charge or credit is calculated → Proration uses the component's current price and current tax rates, so a changed price or tax rate can make the prorated amount wrong. Allocate after price or tax changes are settled, and verify prorated amounts with Preview Allocations.
+- An upgrade allocation is made with accrue_charge true → The charge accrues to the next renewal instead of being captured now. Send accrue_charge=false if the upgrade must be paid immediately.
+- A subscription's allocated quantity for a prepaid usage component must go down → Prepaid usage allocations are always additive; the quantity can only be reduced by deleting individual allocations. Reduce a prepaid usage component by deleting allocations one by one, not by allocating a lower quantity.
 
 </dd>
 </dl>
@@ -14160,6 +16031,38 @@ The charges and/or credits that are created will be rolled up into a single tota
 
 For more information, see the [Component Allocations](https://maxio.zendesk.com/hc/en-us/articles/24251883961485-Component-Allocations-Overview) product documentation.
 
+**Business rules**
+
+- A decimal quantity (decimal_quantity, decimal_previous_quantity or a fractional quantity) is sent for a component without decimal allocations enabled → the outcome is not stated. Send whole-number quantities unless decimal allocations are enabled for the component.
+- An allocation for an On/Off component uses a quantity other than 1 or 0 → the outcome is not stated. Send quantity 1 to turn an On/Off component on and 0 to turn it off.
+- billing_schedule.initial_billing_at is before the minimum allowed date for the subscription or component → the outcome is not stated. Send an initial_billing_at on or after the subscription's or component's minimum allowed date.
+- A custom_price is sent for an On/Off component → the outcome is not stated. For On/Off components omit custom_price.pricing_scheme and send one price bracket starting at 1.
+- An allocation in the allocations array has no component_id → the outcome is not stated. Send component_id on every allocation in the array.
+- An upgrade allocation is made with accrue_charge false and the immediate charge fails → The charge is accrued until the next renewal; the allocation is not refused. Check the allocation's payment result instead of assuming an accrue_charge=false upgrade was paid.
+- initiate_dunning is true and the immediate component payment fails → Dunning is started for the subscription. Send initiate_dunning=true only when a failed allocation payment should put the subscription into dunning.
+- initiate_dunning is false or not sent and the immediate component payment fails → No dunning starts; the charges stay on the subscription to be paid at renewal. Follow up failed allocation payments yourself or send initiate_dunning=true.
+- An allocation is sent without price_point_id → The component's default price point is used. Send price_point_id (id or handle) when the allocation must be charged at a non-default price point.
+- proration_upgrade_scheme or proration_downgrade_scheme (deprecated) is not sent → The site setting is used. Use upgrade_charge/downgrade_credit instead of the deprecated proration schemes.
+- An allocation was not created mid-period → proration_upgrade_scheme and proration_downgrade_scheme are absent from the allocation. Treat the proration scheme fields as optional in allocation responses.
+- An allocation is returned → The allocation timestamp is in UTC, while other response timestamps use the site's time zone. Parse the allocation timestamp as UTC.
+- A quantity-based allocation changes, an on/off component is toggled, or a prepaid allocation is purchased after signup → A component_allocation_change webhook fires (allocation_change on the enhanced Catalog experience). Handle component_allocation_change (and allocation_change) webhooks to track allocation changes.
+- A component that has feature catalog items attached is allocated to a subscription → The subscription is provisioned the component's entitlements as part of the change. Read entitlements after an allocation instead of assuming they are unchanged.
+- The site's requests are being throttled → Component allocations are treated as critical endpoints and prioritised over low-priority requests such as reports and exports. Do not move allocation calls into report or export jobs to get them through throttling; keep concurrency low.
+- custom_price.interval or custom_price.interval_unit is sent on a site without Multifrequency enabled → the outcome is not stated. Send custom_price interval fields only when the site has Multifrequency enabled.
+- billing_schedule.initial_billing_at is omitted or null → The component's billing aligns with the product schedule. Send initial_billing_at only when the component's billing must start on its own date.
+- renew_prepaid_allocation or rollover_prepaid_remainder is sent for a component that is not a prepaid usage component → the outcome is not stated. Send the prepaid renewal and rollover settings only for prepaid usage components.
+- custom_price.expiration_interval or expiration_interval_unit is sent without rollover enabled → the outcome is not stated. Send rollover expiration settings only together with rollover_prepaid_remainder=true.
+- custom_price.use_default_list_price is true → List price calculations keep using the default price point even though a custom price is supplied. Set use_default_list_price (or list_price_point_id) deliberately when overriding the customer price.
+- upgrade_charge or downgrade_credit is resolved for an allocation → The value set on the allocation wins, then the component-level default, then the top-level request value, then the site default. Set upgrade_charge/downgrade_credit on each allocation; a top-level value is overridden by a component default.
+- An allocation is an upgrade and upgrade_charge resolves to full, prorated or none → full adds a charge for the full price of the component; prorated adds a charge for the prorated price of the change; none adds no charge. Pick upgrade_charge for the charge you intend, and preview it first when unsure.
+- An allocation is a downgrade and downgrade_credit resolves to full, prorated or none → full adds a full-price credit for the amount owed; prorated adds a prorated credit; none adds nothing. Pick downgrade_credit for the credit you intend, and preview it first when unsure.
+- The component supports fractional quantities → quantity and previous_quantity are returned as strings instead of integers. Parse allocation quantities as either integers or decimal strings.
+- accrue_charge is not sent at the top level of the allocation call → The site-level default for accrue_charge is used. Send accrue_charge explicitly when the site default is not what you want.
+- A prorated allocation charge or credit is calculated → Proration uses the component's current price and current tax rates, so a changed price or tax rate can make the prorated amount wrong. Allocate after price or tax changes are settled, and verify prorated amounts with Preview Allocations.
+- An upgrade allocation is made with accrue_charge true → The charge accrues to the next renewal instead of being captured now. Send accrue_charge=false if the upgrade must be paid immediately.
+- Several allocations in one call produce charges and credits → Charges and credits are rolled up into one total, which decides whether the call is treated as an upgrade or a downgrade. Split allocations into separate calls if each needs its own upgrade/downgrade treatment.
+- payment_collection_method is not sent → The allocations use the subscription's payment collection method. Send payment_collection_method only to override the subscription's own method.
+
 </dd>
 </dl>
 
@@ -14242,6 +16145,18 @@ Note: this endpoint differs from the standard URL for this API in that `events` 
 
 A maximum of 1000 events can be published in a single request. A 422 will be returned if this limit is exceeded.
 
+**Business rules**
+
+- More than 1000 events are sent in one bulk request → Maxio answers 422. Send at most 1000 events per bulk request.
+- Events are streamed for a subscription whose event-based component is not activated → The events are accepted; activation only decides whether they are billed at renewal. Do not treat an accepted event as billable unless the component is activated for the subscription.
+- An event is sent without chargify.timestamp → chargify.timestamp is added and set to now; it decides which billing period the event is billed in. Send chargify.timestamp with the time the usage happened, especially for late or backfilled events.
+- An event payload includes chargify.id → The field is reserved and is overwritten with a unique id set by the server. Do not put your own id in chargify.id; use another field.
+- An event payload includes chargify.created_at → The field is reserved and is overwritten with the time the event is recorded. Do not set chargify.created_at; use chargify.timestamp for the event time.
+- An event repeats a chargify.uniqueness_token already used in the same stream → The duplicate event is silently ignored (no error). Set chargify.uniqueness_token on each event so retries are deduplicated, and do not expect an error for duplicates.
+- An event repeats a chargify.uniqueness_token first used more than 31 days earlier → The token has expired, so the event is not deduplicated against the earlier one. Do not rely on event uniqueness tokens for retries spanning more than 31 days.
+- The event identifies its subscription with a field other than the Subscription Identifier configured on the Event Stream (chargify.subscription_id or chargify.subscription_reference) → the outcome is not stated. Send chargify.subscription_id or chargify.subscription_reference to match the stream's configured Subscription Identifier.
+- store_uid is sent on a Maxio Metering site → store_uid has no effect; it applies only to Legacy Metering sites with their own Keen data-store. Send store_uid only on Legacy Metering sites that attached their own Keen project.
+
 </dd>
 </dl>
 
@@ -14258,9 +16173,12 @@ try
         ApiHandle = "some example string",
     });
 }
-catch (ApiException<RawError> ex)
+catch (ApiException<BulkRecordEventsError> ex)
 {
-    // TODO: Handle 'ex.Error' of type RawError
+    if (ex.Error.TryGetNoContent(out var error))
+    {
+        // TODO: Handle 'error' of type RawError
+    }
 }
 ```
 
@@ -14284,7 +16202,7 @@ catch (ApiException<RawError> ex)
 
 **OnSuccess**: No content
 
-**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[RawError](src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs)&gt;</code>
+**OnError**: <code>[ApiException](src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs)&lt;[BulkRecordEventsError](src/MaxioAdvancedBilling/Errors/BulkRecordEventsError.cs)&gt;</code>
 
 </dd>
 </dl>
@@ -14308,6 +16226,10 @@ catch (ApiException<RawError> ex)
 Resets all of a subscription's components to use the current default.
 
 **Note**: this will update the price point for all of the subscription's components, even ones that have not been allocated yet.
+
+**Business rules**
+
+- A subscription's component price points are reset → Every component on the subscription is moved to its current default price point, including components that have not been allocated yet. Use the bulk reset only when every component, allocated or not, should move to its default price point.
 
 </dd>
 </dl>
@@ -14377,6 +16299,11 @@ The `price_point` key can take either a:
 1. Price point id (integer)
 2. Price point handle (string)
 3. `"_default"` string, which will reset the price point to the component's current default price point.
+
+**Business rules**
+
+- A price point in the request does not belong to the component it is assigned to → Maxio answers 422 with "Price Point does not belong to Component". Assign each component only a price point of that same component.
+- A component's price_point is sent as "_default" → The component's price point is reset to the component's current default price point. Send "_default" to move a component back to its current default price point.
 
 </dd>
 </dl>
@@ -14505,6 +16432,27 @@ To reduce the quantity to `0`, POST the following payload:
 ```
 The `unit_balance` has a floor of `0`; negative unit balances are never allowed. For example, if the usage balance is 100 and you deduct 200 units, the unit balance would then be `0`, not `-100`.
 
+**Business rules**
+
+- billing_schedule.initial_billing_at is before the minimum allowed date for the subscription or component → the outcome is not stated. Send an initial_billing_at on or after the subscription's or component's minimum allowed date.
+- Usage is reported as many tiny reports (per minute or per event) or for all customers at once → Requests can be throttled or blocked. Batch usage into one report per customer per day and spread reports out over time.
+- The price_point_id sent with the usage cannot be found → Maxio answers 422 with "Price point: could not be found.". Send a price point that exists on the component.
+- A decimal usage quantity is sent for a component without fractional quantities enabled → the outcome is not stated. Send whole-number usage unless fractional quantities are enabled for the component.
+- component_id in the path is a component handle rather than the numeric id → the outcome is not stated. Prefix a component handle with handle: in the path; otherwise send the numeric id.
+- custom_price.interval or custom_price.interval_unit is sent on a site without Multifrequency enabled → the outcome is not stated. Send custom_price interval fields only when the site has Multifrequency enabled.
+- billing_schedule.initial_billing_at is omitted or null → The component's billing aligns with the product schedule. Send initial_billing_at only when the component's billing must start on its own date.
+- renew_prepaid_allocation or rollover_prepaid_remainder is sent for a component that is not a prepaid usage component → the outcome is not stated. Send the prepaid renewal and rollover settings only for prepaid usage components.
+- custom_price.expiration_interval or expiration_interval_unit is sent without rollover enabled → the outcome is not stated. Send rollover expiration settings only together with rollover_prepaid_remainder=true.
+- custom_price.use_default_list_price is true → List price calculations keep using the default price point even though a custom price is supplied. Set use_default_list_price (or list_price_point_id) deliberately when overriding the customer price.
+- subscription_id_or_reference is a numeric string that matches both an existing subscription id and an existing subscription reference → The subscription with that id is used, not the one with that reference. Pass the numeric subscription id, or avoid numeric-looking references that can collide with ids.
+- A usage report is retried after a timeout or ambiguous failure → Without a uniqueness_token the retry can double-count the usage; with one, a 409 only proves the first report arrived, not that it succeeded. Send a uniqueness_token with usage reports and, after a 409, check List Usages for that component and period before re-sending.
+- Usage is recorded for a component → The quantity is accumulated into the unit_balance of the subscription's component line item. Report usage increments, not running totals.
+- Usage is recorded without price_point_id → The component's default price point is used for the usage. Send price_point_id when usage must be recorded at a non-default price point.
+- Usage is recorded with a negative quantity → The quantity is deducted from the current usage balance. Send a negative quantity to reverse an earlier usage report.
+- A negative usage quantity is larger than the current unit balance → The unit balance stops at 0; it never goes negative (e.g. 100 minus 200 gives 0, not -100). Do not count on negative usage to carry a deficit forward.
+- Usage is reported for a metered component → A metered_usage webhook fires (not when the balance resets to 0 at renewal). Handle metered_usage webhooks to track reported usage.
+- Usage is recorded for a prepaid component → A prepaid_usage webhook fires; allocation changes fire component_allocation_change instead. Handle prepaid_usage webhooks for prepaid usage and component_allocation_change for prepaid allocations.
+
 </dd>
 </dl>
 
@@ -14578,6 +16526,11 @@ catch (ApiException<CreateUsageError> ex)
 <dd>
 
 Deactivates an event-based component for a single subscription. Deactivating the event-based component causes Advanced Billing to ignore related events at subscription renewal.
+
+**Business rules**
+
+- A subscription renews with an event-based component → Event usage is billed only if the component is activated for the subscription; events of a deactivated component are ignored at renewal, although events can be streamed at any time. Activate the event-based component for each subscription that should be billed for its events.
+- An event-based component is deactivated for a subscription → Related events are ignored at subscription renewal. Deactivate only when the subscription should stop being billed for those events.
 
 </dd>
 </dl>
@@ -14655,6 +16608,13 @@ By default, destroying an allocation will generate a service credit on the subsc
 2. `credit`: The allocation will be destroyed and the balances will be updated and a service credit will be generated. This is also the default behavior if the `credit_scheme` param is not passed.
 3. `refund`: The allocation will be destroyed and the balances will be updated and a refund will be issued along with a Credit Note.
 
+**Business rules**
+
+- A subscription's allocated quantity for a prepaid usage component must go down → Prepaid usage allocations are always additive; the quantity can only be reduced by deleting individual allocations. Reduce a prepaid usage component by deleting allocations one by one, not by allocating a lower quantity.
+- A prepaid usage allocation is deleted with credit_scheme credit or without credit_scheme → The allocation is destroyed, balances are updated and a service credit is generated on the subscription. Send credit_scheme none or refund if a service credit is not wanted.
+- A prepaid usage allocation is deleted with credit_scheme none → The allocation is destroyed and balances are updated, but no service credit or refund is created. Use credit_scheme none only when the customer should get nothing back.
+- A prepaid usage allocation is deleted with credit_scheme refund → The allocation is destroyed, balances are updated, and a refund is issued along with a Credit Note. Use credit_scheme refund when the customer must be refunded, and expect a credit note.
+
 </dd>
 </dl>
 
@@ -14729,6 +16689,17 @@ Lists the 50 most recent Allocations, ordered by most recent first.
 ## On/Off Components
 
 When a subscription's on/off component has been toggled to on (`1`) or off (`0`), usage will be logged in this response.
+
+**Business rules**
+
+- page is 0 → Maxio answers 422 with "invalid page: 0". Start paging allocations at page 1.
+- An allocation was not created mid-period → proration_upgrade_scheme and proration_downgrade_scheme are absent from the allocation. Treat the proration scheme fields as optional in allocation responses.
+- An allocation is returned → The allocation timestamp is in UTC, while other response timestamps use the site's time zone. Parse the allocation timestamp as UTC.
+- The component supports fractional quantities → quantity and previous_quantity are returned as strings instead of integers. Parse allocation quantities as either integers or decimal strings.
+- Allocations are listed for a subscription component → Only the 50 most recent allocations are returned, newest first. Page with page to see allocations older than the 50 most recent.
+- An on/off component on the subscription was toggled on (1) or off (0) → Each toggle is logged as an allocation in the list. Read on/off toggle history from List Allocations.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
 
 </dd>
 </dl>
@@ -14805,6 +16776,18 @@ Lists a subscription's applied components.
 
 When requesting to list components for a given subscription, if the subscription contains **archived** components they will be listed in the server response.
 
+**Business rules**
+
+- start_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp at or after midnight (12:00:00 AM) in the site's time zone on that date match. Express start_date in the site's time zone, or use start_datetime with an explicit offset.
+- end_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp up to and including 11:59:59 PM in the site's time zone on that date match. Express end_date in the site's time zone, or use end_datetime with an explicit offset.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- The subscription has archived components → Archived components are included in the list. Filter on archived_at yourself if you only want live components.
+- in_use is false or not sent → All components connected with the subscription are returned, not only those in use. Send in_use=true to get only the components currently in use.
+- price_point_ids=not_null is sent → Only component allocations that have a price point id are returned. Send price_point_ids=not_null to drop components without a price point.
+- include=historic_usages is sent → Historic usage is returned for event-based components only, covering the last ten billing periods. Expect at most ten past billing periods, and only for event-based components.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
+
 </dd>
 </dl>
 
@@ -14876,6 +16859,21 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Lists components applied to each subscription.
+
+**Business rules**
+
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- start_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp at or after midnight (12:00:00 AM) in the site's time zone on that date match. Express start_date in the site's time zone, or use start_datetime with an explicit offset.
+- end_date (YYYY-MM-DD) is sent with date_field → Records with a timestamp up to and including 11:59:59 PM in the site's time zone on that date match. Express end_date in the site's time zone, or use end_datetime with an explicit offset.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.
+- date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- price_point_ids=not_null is sent → Only component allocations that have a price point id are returned. Send price_point_ids=not_null to drop components without a price point.
+- include=historic_usages is sent → Historic usage is returned for event-based components only, covering the last ten billing periods. Expect at most ten past billing periods, and only for event-based components.
+- A filter[subscription] filter (states, date_field, start/end date or datetime) is sent without include=subscription → the outcome is not stated. Send include=subscription whenever you use a filter[subscription] filter.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
 
 </dd>
 </dl>
@@ -14965,6 +16963,18 @@ Note: The `since_date` and `until_date` attributes each default to midnight on t
 
 Use this endpoint to read the previously recorded components for a subscription.  You can now specify either the component id (integer) or the component handle prefixed by "handle:" to specify the unique identifier for the component you are working with.
 
+**Business rules**
+
+- Usages are listed for a quantity-based component → the outcome is not stated. List usages only for metered (and prepaid) components; read quantity-based components through allocations.
+- component_id in the path is a component handle rather than the numeric id → the outcome is not stated. Prefix a component handle with handle: in the path; otherwise send the numeric id.
+- subscription_id_or_reference is a numeric string that matches both an existing subscription id and an existing subscription reference → The subscription with that id is used, not the one with that reference. Pass the numeric subscription id, or avoid numeric-looking references that can collide with ids.
+- per_page is above 200 → per_page is changed to 200; no error is returned. Without per_page, 20 records are returned. Page with per_page of at most 200 and do not assume a larger page was honoured.
+- page points past the last page of results → An empty result set is returned. Stop paging when a page comes back empty; do not wait for an error.
+- since_id or max_id is sent → Both bounds are inclusive: records with an id greater than or equal to since_id and less than or equal to max_id are returned. When paging forward with since_id, start from the last seen id plus one to avoid repeating it.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- since_date or until_date is sent → Both default to midnight (12:00 AM) on the date given, so until_date excludes usage created later on that day. Set until_date to the day after the last day you want (e.g. since_date=2016-01-20&until_date=2016-01-21 for January 20).
+
 </dd>
 </dl>
 
@@ -15039,6 +17049,25 @@ Previews a potential subscription's **quantity-based** or **on/off** component a
 When the allocation uses multiple different types of `upgrade_charge`s or `downgrade_credit`s, the Allocation is viewed as an Allocation which uses "Fine-Grained Component Control". As a result, the response will not include `direction` and `proration` within the `allocation_preview`, but at the `line_items` and `allocations` level respectfully.
 
 See example below for Fine-Grained Component Control response.
+
+**Business rules**
+
+- A decimal quantity (decimal_quantity, decimal_previous_quantity or a fractional quantity) is sent for a component without decimal allocations enabled → the outcome is not stated. Send whole-number quantities unless decimal allocations are enabled for the component.
+- An allocation for an On/Off component uses a quantity other than 1 or 0 → the outcome is not stated. Send quantity 1 to turn an On/Off component on and 0 to turn it off.
+- billing_schedule.initial_billing_at is before the minimum allowed date for the subscription or component → the outcome is not stated. Send an initial_billing_at on or after the subscription's or component's minimum allowed date.
+- A custom_price is sent for an On/Off component → the outcome is not stated. For On/Off components omit custom_price.pricing_scheme and send one price bracket starting at 1.
+- An allocation preview is requested for a component that is not quantity-based or on/off → Maxio answers 422 with "Allocations can only be updated for quantity and on/off components.". Preview allocations only for quantity-based and on/off components.
+- effective_proration_date falls outside the subscription's current period → the outcome is not stated. Send an effective_proration_date within the current subscription period.
+- An allocation is sent without price_point_id → The component's default price point is used. Send price_point_id (id or handle) when the allocation must be charged at a non-default price point.
+- proration_upgrade_scheme or proration_downgrade_scheme (deprecated) is not sent → The site setting is used. Use upgrade_charge/downgrade_credit instead of the deprecated proration schemes.
+- custom_price.interval or custom_price.interval_unit is sent on a site without Multifrequency enabled → the outcome is not stated. Send custom_price interval fields only when the site has Multifrequency enabled.
+- billing_schedule.initial_billing_at is omitted or null → The component's billing aligns with the product schedule. Send initial_billing_at only when the component's billing must start on its own date.
+- renew_prepaid_allocation or rollover_prepaid_remainder is sent for a component that is not a prepaid usage component → the outcome is not stated. Send the prepaid renewal and rollover settings only for prepaid usage components.
+- custom_price.expiration_interval or expiration_interval_unit is sent without rollover enabled → the outcome is not stated. Send rollover expiration settings only together with rollover_prepaid_remainder=true.
+- custom_price.use_default_list_price is true → List price calculations keep using the default price point even though a custom price is supplied. Set use_default_list_price (or list_price_point_id) deliberately when overriding the customer price.
+- An allocation is an upgrade and upgrade_charge resolves to full, prorated or none → full adds a charge for the full price of the component; prorated adds a charge for the prorated price of the change; none adds no charge. Pick upgrade_charge for the charge you intend, and preview it first when unsure.
+- An allocation is a downgrade and downgrade_credit resolves to full, prorated or none → full adds a full-price credit for the amount owed; prorated adds a prorated credit; none adds nothing. Pick downgrade_credit for the credit you intend, and preview it first when unsure.
+- The previewed allocations use more than one kind of upgrade_charge or downgrade_credit (Fine-Grained Component Control) → direction and proration are not returned on allocation_preview but on each line item and allocation instead. Read direction and proration from line_items and allocations when several charge/credit types are used.
 
 </dd>
 </dl>
@@ -15124,6 +17153,10 @@ catch (ApiException<PreviewAllocationsError> ex)
 
 Returns information for a specific component on a subscription.
 
+**Business rules**
+
+- component_id in the path is a component handle rather than the numeric id → the outcome is not stated. Prefix a component handle with handle: in the path; otherwise send the numeric id.
+
 </dd>
 </dl>
 
@@ -15208,6 +17241,17 @@ Note: this endpoint differs from the standard URL for this API in that `events` 
 https://events.chargify.com/my-site-subdomain/events/my-stream-api-handle
 ```
 
+**Business rules**
+
+- Events are streamed for a subscription whose event-based component is not activated → The events are accepted; activation only decides whether they are billed at renewal. Do not treat an accepted event as billable unless the component is activated for the subscription.
+- An event is sent without chargify.timestamp → chargify.timestamp is added and set to now; it decides which billing period the event is billed in. Send chargify.timestamp with the time the usage happened, especially for late or backfilled events.
+- An event payload includes chargify.id → The field is reserved and is overwritten with a unique id set by the server. Do not put your own id in chargify.id; use another field.
+- An event payload includes chargify.created_at → The field is reserved and is overwritten with the time the event is recorded. Do not set chargify.created_at; use chargify.timestamp for the event time.
+- An event repeats a chargify.uniqueness_token already used in the same stream → The duplicate event is silently ignored (no error). Set chargify.uniqueness_token on each event so retries are deduplicated, and do not expect an error for duplicates.
+- An event repeats a chargify.uniqueness_token first used more than 31 days earlier → The token has expired, so the event is not deduplicated against the earlier one. Do not rely on event uniqueness tokens for retries spanning more than 31 days.
+- The event identifies its subscription with a field other than the Subscription Identifier configured on the Event Stream (chargify.subscription_id or chargify.subscription_reference) → the outcome is not stated. Send chargify.subscription_id or chargify.subscription_reference to match the stream's configured Subscription Identifier.
+- store_uid is sent on a Maxio Metering site → store_uid has no effect; it applies only to Legacy Metering sites with their own Keen data-store. Send store_uid only on Legacy Metering sites that attached their own Keen project.
+
 </dd>
 </dl>
 
@@ -15286,6 +17330,12 @@ A few limitations exist when changing an allocation's expiration date:
 - An expiration date can only be changed for an allocation that belongs to a price point with expiration interval options explicitly set.
 - An expiration date can be changed towards the future with no limitations.
 - An expiration date can be changed towards the past (essentially expiring it) up to the subscription's current period beginning date.
+
+**Business rules**
+
+- The allocation belongs to a price point without expiration interval options explicitly set → the outcome is not stated. Change expiration dates only for allocations on price points with explicit expiration interval options.
+- The new expires_at is earlier than the subscription's current period start date → Maxio answers 422 with "Expires at: must be greater than or equal to 2024-02-28". Move an expiration date into the past no further than the current period's start date.
+- expires_at is missing or not a valid date → Maxio answers 422 with "A valid expires_at date must be provided.". Always send a valid allocation.expires_at.
 
 </dd>
 </dl>
@@ -15366,6 +17416,10 @@ catch (ApiException<UpdatePrepaidUsageAllocationExpirationDateError> ex)
 
 Adds a prepayment for a subscription group. This endpoint requires an `amount`, `details`, `method`, and `memo`. On success, the prepayment will be added to the group's prepayment balance.
 
+**Business rules**
+
+- A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.
+
 </dd>
 </dl>
 
@@ -15432,6 +17486,10 @@ catch (ApiException<CreateSubscriptionGroupPrepaymentError> ex)
 <dd>
 
 Deducts service credit for a subscription group. Credit will be deducted from the group in the amount specified in the request body.
+
+**Business rules**
+
+- A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.
 
 </dd>
 </dl>
@@ -15507,6 +17565,11 @@ catch (ApiException<DeductSubscriptionGroupServiceCreditError> ex)
 
 Issues service credit for a subscription group. Credit will be added to the group in the amount specified in the request body. The credit will be applied to group member invoices as they are generated.
 
+**Business rules**
+
+- A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.
+- Service credit is issued to a subscription group → The credit is applied to group member invoices as they are generated. Expect group service credit to be consumed by upcoming member invoices automatically.
+
 </dd>
 </dl>
 
@@ -15581,6 +17644,13 @@ catch (ApiException<IssueSubscriptionGroupServiceCreditError> ex)
 
 Lists a subscription group's prepayments.
 
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- filter[start_date] is sent → Prepayments whose date_field timestamp is at or after midnight of that date in the site's time zone are returned. Give start_date as a calendar date in the site's time zone.
+- filter[end_date] is sent → Prepayments whose date_field timestamp is up to and including 11:59:59 PM of that date in the site's time zone are returned. Give end_date as a calendar date in the site's time zone; the whole day is included.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -15654,6 +17724,11 @@ Removes the delayed cancellation on a subscription group.
 
 Removing the delayed cancellation on a subscription group will ensure that the subscriptions do not get canceled at the end of the period. The request will reset the `cancel_at_end_of_period` flag to false on each member in the group.
 
+**Business rules**
+
+- cancelDelayedCancellationForGroup is called on a group with no pending delayed cancellation → Maxio answers 422 with "Subscriptions group does not have a pending delayed cancellation". Only remove a delayed cancellation that was scheduled; treat this 422 as already cleared.
+- cancelDelayedCancellationForGroup succeeds → cancel_at_end_of_period is reset to false on every member of the group. Expect every member's cancel_at_end_of_period to be cleared, not just the primary's.
+
 </dd>
 </dl>
 
@@ -15723,6 +17798,13 @@ catch (ApiException<CancelDelayedCancellationForGroupError> ex)
 Cancels all subscriptions within the specified group immediately. The group is identified by the `uid` that is passed in the URL. To successfully cancel the group, the primary subscription must be on automatic billing. The group members must be on automatic billing or prepaid.
 
 To cancel a subscription group while also charging for any unbilled usage on metered or prepaid components, the `charge_unbilled_usage=true` parameter must be included in the request.
+
+**Business rules**
+
+- cancelSubscriptionsInGroup is called while the group's primary subscription is not on automatic billing → Maxio answers 422 with "One or more subscriptions are not on automatic billing". Move the primary subscription to automatic collection before cancelling the group.
+- cancelSubscriptionsInGroup is called while a group member is on neither automatic billing nor prepaid → Maxio answers 422 with "One or more subscriptions are not on automatic billing". Make sure every member is on automatic or prepaid collection before cancelling the group.
+- cancelSubscriptionsInGroup succeeds → Every subscription in the group is canceled immediately. Use initiateDelayedCancellationForGroup instead when the group should run to the end of its period.
+- cancelSubscriptionsInGroup is called without charge_unbilled_usage=true while metered or prepaid components have unbilled usage → The unbilled usage is not charged at cancellation. Send charge_unbilled_usage=true to bill outstanding metered or prepaid usage when cancelling.
 
 </dd>
 </dl>
@@ -15794,6 +17876,12 @@ catch (ApiException<CancelSubscriptionsInGroupError> ex)
 Schedules all subscriptions within the specified group to be canceled at the end of their billing period. The group is identified by its uid passed in the URL.
 
 All subscriptions in the group must be on automatic billing in order to successfully cancel them, and the group must not be in a "past_due" state.
+
+**Business rules**
+
+- initiateDelayedCancellationForGroup is called while a subscription in the group is not on automatic billing → Maxio answers 422. Put every group member on automatic billing before scheduling a delayed cancellation.
+- initiateDelayedCancellationForGroup is called while the group is past_due → Maxio answers 422 with "Subscriptions group is in a past due state". Bring the group out of past_due before scheduling a delayed cancellation.
+- initiateDelayedCancellationForGroup succeeds → Every subscription in the group is scheduled to cancel at the end of its billing period. Expect members to stay active until each one's period ends.
 
 </dd>
 </dl>
@@ -15886,6 +17974,18 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- A group on calendar billing is reactivated within the current period without resume=true → Maxio answers 422. Send resume=true when reactivating a calendar-billing group inside its current period.
+- The reactivation payment requires 3D Secure authentication → Maxio answers 422. On a 422 with an action_link, send the customer to it to finish 3DS, then check the result.
+- A canceled subscription group is reactivated or resumed → Canceled invoices created after the start of the primary subscription's billing period are reopened and payment is attempted on them. Expect reopened invoices to be charged on reactivation.
+- A subscription group is reactivated (a new billing period), not resumed → New charges are assessed for the new billing period. Expect a new period charge when the group is reactivated rather than resumed.
+- A canceled group is reactivated within the primary subscription's current period → With resume=true the existing billing period is kept; without it a new billing period is started. Send resume=true to keep the current period when reactivating inside it.
+- resume_members is sent when reactivating within the primary subscription's current period → resume_members is ignored and all eligible members are resumed automatically. Do not rely on resume_members inside the current period; members are resumed anyway.
+- resume=true is sent when reactivating after the primary subscription's current period has ended → resume is ignored and the group is reactivated with a new billing period. Expect a new billing period, not a resume, once the primary's period has passed.
+- resume_members=true is sent when the primary subscription cannot be resumed within its current period but other members can → Eligible members keep their existing billing period while the primary starts a new one. Send resume_members=true to keep longer member periods (e.g. annual members under a monthly primary).
+- A calendar-billing group is reactivated with a new billing period → The new period is partial, from the reactivation date to the next calendar renewal date. Expect a partial first period for calendar-billing groups.
+
 </dd>
 </dl>
 
@@ -15973,6 +18073,16 @@ Rather than specifying a customer, the `target` parameter could instead simply h
 To create a new subscription into a subscription group, reference the following:
 [Create Subscription in a Subscription Group](https://developers.chargify.com/docs/api-docs/d571659cf0f24-create-subscription#subscription-in-a-subscription-group)
 
+**Business rules**
+
+- The site does not use the Relationship Billing and Customer Hierarchy features → the outcome is not stated. Enable Relationship Billing and Customer Hierarchies before adding subscriptions to or removing them from groups.
+- The subscription to add belongs neither to the target's customer record nor to the same customer hierarchy → the outcome is not stated. Only add a subscription to a target with the same customer or within the same customer hierarchy.
+- addSubscriptionToGroup targets a customer or subscription that is already part of a hierarchy → The subscription becomes a member of the target customer's subscription group. Expect the subscription to join the target's existing group and its payer.
+- addSubscriptionToGroup targets a customer or subscription that is not part of a subscription group → A new group is created with the subscription in it and the target customer as the responsible payer. Expect a new group, paid by the target customer, when the target is not grouped yet.
+- group.target.type is self, parent or eldest → The payer is the subscribing customer (self), its parent in the hierarchy (parent) or the root customer of the hierarchy (eldest). Pick the target type that names the intended payer; no id is needed for these types.
+- addSubscriptionToGroup is sent with group.billing (accrue, align_date, prorate) for an existing subscription → The billing attributes apply only to new subscriptions, so they do not apply here. Do not rely on group.billing when adding an existing subscription to a group.
+- group.target.id is sent while target type is self, parent or eldest → The id is ignored. Omit target.id when the target type is self, parent or eldest.
+
 </dd>
 </dl>
 
@@ -16047,6 +18157,11 @@ catch (ApiException<RawError> ex)
 
 Creates a subscription group with given members.
 
+**Business rules**
+
+- createSubscriptionGroup names a subscription that is already in a subscription group → Maxio answers 422 with "Subscription is already in group". Check findSubscriptionGroup for each subscription before grouping it.
+- member_ids contains an id that does not match a subscription → Maxio answers 422 with "members: not_found". Send only ids of existing subscriptions in member_ids.
+
 </dd>
 </dl>
 
@@ -16120,6 +18235,10 @@ catch (ApiException<CreateSubscriptionGroupError> ex)
 Deletes a subscription group.
  Only groups without members can be deleted.
 
+**Business rules**
+
+- deleteSubscriptionGroup is called on a group that still has members → the outcome is not stated. Remove all members (updateSubscriptionGroupMembers with an empty member_ids) before deleting a group.
+
 </dd>
 </dl>
 
@@ -16190,6 +18309,10 @@ catch (ApiException<DeleteSubscriptionGroupError> ex)
 Finds the subscription group associated with a subscription.
 
 If the subscription is not in a group, this endpoint returns an error.
+
+**Business rules**
+
+- findSubscriptionGroup is called with a subscription_id that is not in any group → Maxio answers 404. Treat a 404 from findSubscriptionGroup as 'not grouped', not only as a missing subscription.
 
 </dd>
 </dl>
@@ -16264,6 +18387,12 @@ Lists subscription groups for the site. The response is paginated and will retur
 
 Account balance information for the subscription groups is not returned by default. If this information is desired, the `include[]=account_balances` parameter must be provided with the request.
 
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- listSubscriptionGroups is called without include[]=account_balances → account_balances is left out of each group. Pass include[]=account_balances when group balances are needed.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -16336,6 +18465,10 @@ Returns subscription group details.
 
 Current billing amount for the subscription group is not returned by default. If this information is desired, the `include[]=current_billing_amount_in_cents` parameter must be provided with the request.
 
+**Business rules**
+
+- readSubscriptionGroup is called without include[]=current_billing_amount_in_cents → current_billing_amount_in_cents is left out of the response. Pass include[]=current_billing_amount_in_cents when the group's billing amount is needed.
+
 </dd>
 </dl>
 
@@ -16402,6 +18535,11 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Removes an existing subscription from a subscription group. For sites making use of the [Relationship Billing](https://maxio.zendesk.com/hc/en-us/articles/24252287829645-Advanced-Billing-Invoices-Overview) and [Customer Hierarchy](https://maxio.zendesk.com/hc/en-us/articles/24252185211533-Customer-Hierarchies-WhoPays#customer-hierarchies) features, it is possible to remove an existing subscription from a subscription group.
+
+**Business rules**
+
+- The site does not use the Relationship Billing and Customer Hierarchy features → the outcome is not stated. Enable Relationship Billing and Customer Hierarchies before adding subscriptions to or removing them from groups.
+- removeSubscriptionFromGroup is called on the group's primary subscription while other subscriptions remain in the group → Maxio answers 422 with "You can not remove primary subscription when there are others in group". Remove the other members first before removing the group's primary subscription.
 
 </dd>
 </dl>
@@ -16480,6 +18618,30 @@ Only one of the `subscriptions` can have `"primary": true` attribute set.
 When passing a product to a subscription you can use either `product_id` or `product_handle` or `offer_id`. You can also use `custom_price` instead.
 The subscription request examples below will be split into two sections.
 The first section, "Subscription Customization", will focus on passing different information with a subscription, such as components, calendar billing, and custom fields. These examples will presume you are using a secure chargify_token generated by Maxio.js (formerly Chargify.js).
+
+**Business rules**
+
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- The group signup gives none, or more than one, of payer_id, payer_reference and payer_attributes for the group's customer → Maxio answers 422. Send exactly one of payer_id, payer_reference or payer_attributes in a group signup.
+- credit_card_attributes in a group signup leave full_number, expiration_month or expiration_year blank → Maxio answers 422 with "Credit card number: cannot be blank.". Send full_number, expiration_month and expiration_year when passing raw card attributes.
+- bank_account_attributes in a group signup are for an ACH or GoCardless account and omit bank_name → Maxio answers 422. Send bank_name with ACH and GoCardless bank accounts.
+- bank_account_attributes omit bank_account_number for an ACH account, or for a GoCardless account with no bank_iban → Maxio answers 422. Send bank_account_number for ACH, and for GoCardless unless bank_iban is given.
+- bank_account_attributes for an ACH account omit bank_routing_number → Maxio answers 422. Send bank_routing_number for ACH bank accounts.
+- A subscription entry in a group signup sends a non-default currency while Multi-Currency is not enabled or that currency is not configured → the outcome is not stated. Enable Multi-Currency and configure the currency before sending a non-default currency; it cannot be changed later.
+- payment_collection_method is set to a value the site's invoicing architecture does not support (invoice/automatic on legacy Statements; remittance/automatic/prepaid on Relationship Invoicing) → the outcome is not stated. Choose payment_collection_method from the values valid for the site's architecture.
+- The group signup gives none, or more than one, of payment_profile_id, credit_card_attributes and bank_account_attributes for the group's payment profile → Maxio answers 422. Send exactly one of payment_profile_id, credit_card_attributes or bank_account_attributes in a group signup.
+- In a group signup, no subscription, or more than one, is marked primary: true → the outcome is not stated. Mark exactly one entry of subscriptions with primary: true.
+- An entry of subscriptions in a group signup names its product by none of product_id, product_handle or offer_id → Maxio answers 422. Give each subscription entry a product_id, a product_handle or an offer_id.
+- A subscription entry in a group signup passes a component (including one with a custom_price) without its component_id → Maxio answers 422. Include component_id on every component sent in a group signup, also when it carries a custom_price.
+- A subscription entry in a group signup names a product that is not one of the site's products → Maxio answers 422 with "Product must be among the Products for this Site". Use only product ids or handles that exist on this site; errors come back keyed by the entry's index in subscriptions.
+- A subscription entry in a group signup gives a product_price_point_id that does not belong to its product → Maxio answers 422 with "Product price point must belong to product.". Send only price points of the entry's own product.
+- The group signup's payment attributes carry a chargify_token the server cannot find → Maxio answers 422 with "Chargify token not found". Send a fresh, valid Maxio.js token and handle 'Chargify token not found' by re-tokenizing.
+- A group signup produces a balance to collect and no payment method is on file for it → Maxio answers 422 with "No payment method was on file for the $30.00 balance". Give the group a payment method when the signup will charge a balance.
+- A subscription group signup through the Subscription Group Signup endpoint succeeds or fails → subscription_group_signup_success or subscription_group_signup_failure fires. Subscribe to both group signup events when using group signups.
+- bank_account_attributes with a bank_routing_number are sent to a GoCardless gateway → The routing number is passed to GoCardless as bank_code. Put the GoCardless bank code in bank_routing_number.
+- A Subscription Group Signup request succeeds → A subscription_group_signup_success webhook is sent with the group and customer. Listen for subscription_group_signup_success rather than polling after a group signup.
+- A Subscription Group Signup request fails → A subscription_group_signup_failure webhook is sent with the submitted group attributes. Handle subscription_group_signup_failure webhooks as well as the 422 response.
+- A metafields key is sent that does not yet exist as a custom field on the site → The metafield is created on the fly for that key. Check metafield keys before sending; a misspelt key silently creates a new custom field.
 
 </dd>
 </dl>
@@ -16562,6 +18724,11 @@ catch (ApiException<SignupWithSubscriptionGroupError> ex)
 
 Updates subscription group members.
 `"member_ids"` should contain an array of both subscription IDs to set as group members and subscription IDs already present in the groups. Not including them will result in removing them from the subscription group. To clean up members, just leave the array empty.
+
+**Business rules**
+
+- member_ids contains an id that does not match a subscription → Maxio answers 422 with "members: not_found". Send only ids of existing subscriptions in member_ids.
+- updateSubscriptionGroupMembers is sent with a member_ids array that leaves out current members (an empty array leaves out all of them) → Every current member missing from member_ids is removed from the group. Send the full intended member list, including members already in the group.
 
 </dd>
 </dl>
@@ -16653,6 +18820,14 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- The prepayment charge requires 3D Secure authentication (SCA) → Maxio answers 422. On a 422 with an action_link, send the customer through the link to finish the 3DS flow.
+- A prepayment is created with method credit_card_on_file → The amount is charged to the default credit card payment profile and added to the prepayment balance. Use credit_card_on_file only when the customer's card should be charged now; other methods only record money received.
+- A prepayment is created with amount_in_cents → amount_in_cents is accepted. Send either amount or amount_in_cents for a prepayment.
+- A subscription's prepayment account balance changes (prepayment added, or used to pay an invoice) → A subscription_prepayment_account_balance_changed webhook is sent. Listen for subscription_prepayment_account_balance_changed to keep prepayment balances in sync.
+- A prepayment changes a prepaid subscription's prepayment balance → A prepaid_subscription_balance_change webhook is sent. Listen for prepaid_subscription_balance_change for prepaid subscriptions.
+
 </dd>
 </dl>
 
@@ -16732,6 +18907,12 @@ catch (ApiException<CreatePrepaymentError> ex)
 
 Deducts a service credit from the subscription in the specified amount. The credit amount being deducted must be equal to or less than the current credit balance.
 
+**Business rules**
+
+- The deduction amount is more than the subscription's current service credit balance → Maxio answers 422 with "Amount cannot exceed current service credit account balance.". Read the service credit balance and deduct no more than it.
+- A deduction amount of 0 or less is sent → Maxio answers 422 with "Amount must be greater than 0.". Send a deduction amount greater than 0.
+- A subscription's service credit account balance changes (credit given, deducted or used for payment) → A subscription_service_credit_account_balance_changed webhook is sent. Listen for subscription_service_credit_account_balance_changed to keep service credit balances in sync.
+
 </dd>
 </dl>
 
@@ -16804,6 +18985,12 @@ catch (ApiException<DeductServiceCreditError> ex)
 
 Adds a service credit to the subscription in the specified amount. The credit is subsequently applied to the next generated invoice.
 
+**Business rules**
+
+- A service credit amount of 0 or less is sent → Maxio answers 422 with "Amount must be greater than 0". Send a service credit amount greater than 0.
+- A service credit is issued → The credit is applied to the next generated invoice. Expect the next invoice's due amount to be reduced by the service credit.
+- A subscription's service credit account balance changes (credit given, deducted or used for payment) → A subscription_service_credit_account_balance_changed webhook is sent. Listen for subscription_service_credit_account_balance_changed to keep service credit balances in sync.
+
 </dd>
 </dl>
 
@@ -16873,6 +19060,15 @@ catch (ApiException<IssueServiceCreditError> ex)
 <dd>
 
 Lists a subscription's prepayments.
+
+**Business rules**
+
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- Prepayments are filtered with filter[start_date] and/or filter[end_date] → start_date starts at midnight and end_date runs to 11:59:59 PM, both in the site's time zone. Convert date bounds to the site's time zone before filtering prepayments.
+- filter[start_date] is sent → Prepayments whose date_field timestamp is at or after midnight of that date in the site's time zone are returned. Give start_date as a calendar date in the site's time zone.
+- filter[end_date] is sent → Prepayments whose date_field timestamp is up to and including 11:59:59 PM of that date in the site's time zone are returned. Give end_date as a calendar date in the site's time zone; the whole day is included.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
 
 </dd>
 </dl>
@@ -16945,6 +19141,14 @@ catch (ApiException<ListPrepaymentsError> ex)
 
 Lists a subscription's service credits.
 
+**Business rules**
+
+- Service credits are listed for a subscription that has no credit invoice account → Maxio answers 422 with "Credit invoice account not found for subscription". Treat this 422 as no service credit history for the subscription.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200, or no per_page → per_page defaults to 20 and any value over 200 is changed to 200 without an error. Page with per_page of 200 or less and keep requesting pages until one comes back short.
+- A service credit entry is returned → invoice_uid is present only on debit entries. Expect invoice_uid only on debit entries.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+
 </dd>
 </dl>
 
@@ -17016,6 +19220,10 @@ catch (ApiException<ListServiceCreditsError> ex)
 
 Returns the `balance_in_cents` of the Subscription's Pending Discount, Service Credit, and Prepayment accounts, as well as the sum of the Subscription's open, payable invoices.
 
+**Business rules**
+
+- A subscription's account balances are read → Balances are in cents; open_invoices and pending_invoices are sums of the subscription's open and pending payable invoices. Divide the balances by 100 for currency amounts and treat the invoice balances as computed sums.
+
 </dd>
 </dl>
 
@@ -17083,6 +19291,15 @@ catch (ApiException<RawError> ex)
 Refunds a prepayment applied to a subscription, either fully or partially. The `prepayment_id` will be the account transaction ID of the original payment. The prepayment must have some amount remaining in order to be refunded.
 
 The amount may be passed either as a decimal, with `amount`, or an integer in cents, with `amount_in_cents`.
+
+**Business rules**
+
+- A prepayment with no amount remaining is refunded → the outcome is not stated. Refund only prepayments with a remaining amount.
+- A refund of a prepayment made through a payment profile is sent without the external flag → the outcome is not stated. Always send external on prepayment refunds; it may be omitted only for external prepayments.
+- The refund amount is more than the prepayment amount → Maxio answers 422 with "Refund amount exceeds prepayment amount". Refund no more than the prepayment's remaining amount.
+- A prepayment refund amount of 0 or less is sent → Maxio answers 422 with "Amount: must be greater than 0.". Send a refund amount greater than 0.
+- A subscription's prepayment account balance changes (prepayment added, or used to pay an invoice) → A subscription_prepayment_account_balance_changed webhook is sent. Listen for subscription_prepayment_account_balance_changed to keep prepayment balances in sync.
+- A prepayment refund is sent with only one of amount or amount_in_cents → The refund is accepted; the other amount field is not required. Send the refund amount once, either as amount (decimal) or amount_in_cents (integer).
 
 </dd>
 </dl>
@@ -17163,6 +19380,11 @@ Notes allow you to record information about a particular Subscription in a free 
 If you have structured data such as birth date, color, etc., consider using [Metadata]($e/Custom%20Fields/createMetadata) instead.
 
 For more information, see [Adding Notes](https://docs.maxio.com/hc/en-us/articles/24251654953997-Understanding-the-Subscription-Summary-Page#billing-portal-status:~:text=documentation%20for%20more.-,Adding%20Notes,-Notes%20are%20optional) in the product documentation.
+
+**Business rules**
+
+- The note body is blank → Maxio answers 422 with "Body: cannot be blank.". Send a non-empty note body.
+- A note is created or updated on a subscription → The note is internal only and is never exposed to the customer. Do not use notes to communicate with customers.
 
 </dd>
 </dl>
@@ -17303,6 +19525,14 @@ catch (ApiException<RawError> ex)
 
 Retrieves a list of notes associated with a subscription. The response will be an array of Notes.
 
+**Business rules**
+
+- page is below 1 (for example -1) → Maxio answers 422 with "invalid page: -1". Start paging at page 1.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- per_page is omitted or above 200 → 20 records per page by default; values over 200 are changed to 200. Page through results and do not expect more than 200 records per page.
+- The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+
 </dd>
 </dl>
 
@@ -17441,6 +19671,11 @@ catch (ApiException<RawError> ex)
 
 Updates a note for a subscription.
 
+**Business rules**
+
+- The note body is blank → Maxio answers 422 with "Body: cannot be blank.". Send a non-empty note body.
+- A note is created or updated on a subscription → The note is internal only and is never exposed to the customer. Do not use notes to communicate with customers.
+
 </dd>
 </dl>
 
@@ -17539,6 +19774,25 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- A payment taken by the call requires 3D Secure authentication under Strong Customer Authentication → Maxio answers 422 with "action_link". Treat a 422 carrying an action_link as a 3DS challenge: send the customer to the link and complete the post-authentication flow.
+- The subscription is not active or trialing (trial_ended is still accepted for backwards compatibility but not recommended) → the outcome is not stated. Migrate only active or trialing subscriptions; for trial_ended, cancel, change the product and reactivate.
+- The migration leaves a balance to pay and no credit card is on file → Maxio answers 422 with "No credit card was on file for the $200.00 balance". Attach a payment method before a migration that creates a payment due.
+- A prorated migration is requested for a subscription that is not eligible for one → Maxio answers 422 with "This subscription is not eligible for a prorated migration". Retry without proration (preserve_period false) when this 422 is returned.
+- The migration targets the subscription's current product → The migration fails. Check that the target product differs from the current one before migrating.
+- The migration names neither product_id nor product_handle → the outcome is not stated. Send product_id or product_handle in the migration object.
+- A migration changes the subscription's billing date → No billing_date_change webhook is sent for migrations. Read billing dates from the migration response or subscription_product_change, not billing_date_change.
+- No price point identifier is passed → The subscription is moved to the target product's default price point. Pass product_price_point_id or product_price_point_handle for a non-default price point.
+- The target product is in another product family → Components are not migrated. Re-create needed component allocations after a cross-family migration.
+- The target product is in a new product family → Coupons cannot migrate, even with include_coupons true. Re-apply valid coupons after a cross-family migration.
+- include_trial is sent while preserve_period is set → include_trial is ignored. Do not combine include_trial with preserve_period.
+- preserve_period is false or omitted → The billing period is reset to today and the full price of the new product is charged. Send preserve_period true to keep the billing date and charge a prorated amount instead.
+- preserve_period is true → The billing period does not change and a prorated charge is issued for the new product. Expect a prorated charge when preserving the period.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+- A subscription's product (or product version) changes successfully → A subscription_product_change webhook is sent. Handle subscription_product_change for product changes, migrations and version changes.
+
 </dd>
 </dl>
 
@@ -17624,6 +19878,20 @@ It is also possible to preview the migration for a date in the future, as long a
 
 This will calculate the prorated adjustment, charge, payment and credit applied values assuming the migration is done at that date in the future as opposed to right now.
 
+**Business rules**
+
+- The migration names neither product_id nor product_handle → the outcome is not stated. Send product_id or product_handle in the migration object.
+- The subscription is not active → Maxio answers 422 with "Subscription must be active". Preview migrations only for active subscriptions.
+- proration_date is outside the subscription's current billing period → the outcome is not stated. Pick a proration_date within the current billing period.
+- No price point identifier is passed → The subscription is moved to the target product's default price point. Pass product_price_point_id or product_price_point_handle for a non-default price point.
+- The target product is in another product family → Components are not migrated. Re-create needed component allocations after a cross-family migration.
+- The target product is in a new product family → Coupons cannot migrate, even with include_coupons true. Re-apply valid coupons after a cross-family migration.
+- include_trial is sent while preserve_period is set → include_trial is ignored. Do not combine include_trial with preserve_period.
+- preserve_period is false or omitted → The billing period is reset to today and the full price of the new product is charged. Send preserve_period true to keep the billing date and charge a prorated amount instead.
+- preserve_period is true → The billing period does not change and a prorated charge is issued for the new product. Expect a prorated charge when preserving the period.
+- proration_date is given → Prorated adjustment, charge, payment due and credit applied are calculated as if the migration happened at that future date instead of now. Pass the planned migration date to get matching preview amounts.
+- The subscription has allocated components → The preview preserves the period, matching the actual migration (since 2022-12-07). Expect preview amounts for subscriptions with allocations to match the real migration.
+
 </dd>
 </dl>
 
@@ -17695,6 +19963,10 @@ catch (ApiException<PreviewSubscriptionProductMigrationError> ex)
 
 Cancels a scheduled renewal configuration.
 
+**Business rules**
+
+- A scheduled renewal configuration is canceled → Its status becomes canceled. Create a new configuration if the renewal is needed again after canceling.
+
 </dd>
 </dl>
 
@@ -17761,6 +20033,12 @@ catch (ApiException<CancelScheduledRenewalConfigurationError> ex)
 <dd>
 
 Creates a scheduled renewal configuration for a subscription. The scheduled renewal is based on the subscription’s current product and component setup.
+
+**Business rules**
+
+- contract_id or create_new_contract is sent on a site without Contracts enabled → the outcome is not stated. Send contract fields only when Contracts are enabled for the site.
+- A scheduled renewal configuration is created → It is built from the subscription's current product and component setup. Adjust the configuration's items afterwards if the renewal should differ from the current setup.
+- create_new_contract is true on a site with Contracts enabled → A new contract is created for the scheduled renewal. Use contract_id instead to reuse an existing contract and avoid creating extra ones.
 
 </dd>
 </dl>
@@ -17843,6 +20121,14 @@ catch (ApiException<CreateScheduledRenewalConfigurationError> ex)
 Adds product and component line items to the scheduled renewal.
 
 If your site has list vs sales pricing enabled, accepts renewal_configuration_item.custom_price.list_price_point_id, validates and persists it; omitted value follows existing/default behavior; with list vs sales pricing disabled, parameter is ignored (no validation/behavioral impact). This functionality is supported in the API, but is not currently supported in SDKs.
+
+**Business rules**
+
+- With list vs sales pricing enabled, list_price_point_id names a price point that does not exist → Maxio answers 422 with "list_price_point_id not found". Send an existing list price point id.
+- With list vs sales pricing enabled, list_price_point_id names a custom (subscription-specific) price point → Maxio answers 422 with "list_price_point_id must reference a non-custom product price point". Point list_price_point_id at a catalog (non-custom) price point.
+- With list vs sales pricing enabled, list_price_point_id belongs to a different product or component than the item → Maxio answers 422 with "list_price_point_id must belong to the same product". Use a list price point of the same product or component as the item.
+- A component item's custom_price for an on/off component has more than one price bracket starting at 1 → the outcome is not stated. Send a single price bracket starting at 1 for on/off components.
+- renewal_configuration_item.custom_price.list_price_point_id is sent on a site with list vs sales pricing disabled → The parameter is ignored, with no validation or behavioral impact. Rely on list_price_point_id only when list vs sales pricing is enabled.
 
 </dd>
 </dl>
@@ -18266,6 +20552,10 @@ catch (ApiException<ScheduleScheduledRenewalLockInError> ex)
 
 Restores a scheduled renewal configuration to an editable state.
 
+**Business rules**
+
+- A scheduled renewal configuration is unpublished → It returns to an editable state (status draft). Unpublish a scheduled renewal before editing it, then schedule it again.
+
 </dd>
 </dl>
 
@@ -18332,6 +20622,11 @@ catch (ApiException<UnpublishScheduledRenewalConfigurationError> ex)
 <dd>
 
 Updates an existing configuration.
+
+**Business rules**
+
+- contract_id or create_new_contract is sent on a site without Contracts enabled → the outcome is not stated. Send contract fields only when Contracts are enabled for the site.
+- create_new_contract is true on a site with Contracts enabled → A new contract is created for the scheduled renewal. Use contract_id instead to reuse an existing contract and avoid creating extra ones.
 
 </dd>
 </dl>
@@ -18414,6 +20709,14 @@ catch (ApiException<UpdateScheduledRenewalConfigurationError> ex)
 Updates an existing configuration item’s pricing and quantity.
 
 If you site has list vs sales pricing enabled, accepts renewal_configuration_item.custom_price.list_price_point_id, validates and persists it; omitted value follows existing/default behavior; with list vs sales pricing disabled, parameter is ignored (no validation/behavioral impact). This functionality is supported in the API, but is not currently supported in SDKs.
+
+**Business rules**
+
+- With list vs sales pricing enabled, list_price_point_id names a price point that does not exist → Maxio answers 422 with "list_price_point_id not found". Send an existing list price point id.
+- With list vs sales pricing enabled, list_price_point_id names a custom (subscription-specific) price point → Maxio answers 422 with "list_price_point_id must reference a non-custom product price point". Point list_price_point_id at a catalog (non-custom) price point.
+- With list vs sales pricing enabled, list_price_point_id belongs to a different product or component than the item → Maxio answers 422 with "list_price_point_id must belong to the same product". Use a list price point of the same product or component as the item.
+- A component item's custom_price for an on/off component has more than one price bracket starting at 1 → the outcome is not stated. Send a single price bracket starting at 1 for on/off components.
+- renewal_configuration_item.custom_price.list_price_point_id is sent on a site with list vs sales pricing disabled → The parameter is ignored, with no validation or behavioral impact. Rely on list_price_point_id only when list vs sales pricing is enabled.
 
 </dd>
 </dl>
@@ -18506,6 +20809,13 @@ Removes the delayed cancellation from a subscription, ensuring it is not cancele
 
 This endpoint is idempotent. If the subscription was not set to cancel in the future, removing the delayed cancellation has no effect and the call will be successful.
 
+**Business rules**
+
+- A delayed cancellation is set on a subscription → The subscription is canceled at the end of the current billing period, unless the delayed cancellation is removed first. Remove the delayed cancellation before the period ends if the customer stays.
+- A delayed cancellation is removed → cancel_at_end_of_period is reset to false and the subscription is not canceled at period end. Expect cancel_at_end_of_period false after removing the delayed cancellation.
+- The subscription was not set to cancel in the future → The call has no effect and still succeeds. Safely retry this call; success does not prove a cancellation was pending.
+- A subscription is set to cancel at the end of the period, or a pending cancellation is cleared → A pending_cancellation_change webhook is sent. Track pending_cancellation_change to know when a delayed cancellation is set or removed.
+
 </dd>
 </dl>
 
@@ -18575,6 +20885,12 @@ catch (ApiException<CancelDelayedCancellationError> ex)
 
 Cancels the active dunning process for a subscription and sets it to active.
 
+**Business rules**
+
+- The subscription is not eligible to have its dunning canceled → Maxio answers 422 with "This subscription is not eligible to have its dunning canceled.". Cancel dunning only for subscriptions currently in dunning.
+- Dunning is canceled for a subscription in an active dunning process → The dunning process stops and the subscription is set to active. Expect the subscription to become active after canceling dunning, even with an unpaid balance.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+
 </dd>
 </dl>
 
@@ -18641,6 +20957,20 @@ catch (ApiException<CancelDunningError> ex)
 
 Cancels the Subscription. The Delete method sets the Subscription state to `canceled`.
 To cancel the subscription immediately, omit any schedule parameters from the request. To use the schedule options, the Schedule Subscription Cancellation feature must be enabled on your site.
+
+**Business rules**
+
+- cancel_at_end_of_period, scheduled_cancellation_at or refund_prepayment_account_balance is sent while the Schedule Subscription Cancellation feature is not enabled on the site → the outcome is not stated. Use the schedule options only on sites with Schedule Subscription Cancellation enabled.
+- The subscription is already canceled → Maxio answers 422 with "The subscription is already canceled". Check the state before canceling and treat this 422 as already done.
+- reason_code is longer than 255 characters → Maxio answers 422 with "reason_code size cannot be greater than 255". Keep reason_code at 255 characters or fewer.
+- cancellation_message is longer than 65535 characters → Maxio answers 422 with "cancellation_message size cannot be greater than 65535". Keep cancellation_message at 65535 characters or fewer.
+- A delayed cancellation is set on a subscription → The subscription is canceled at the end of the current billing period, unless the delayed cancellation is removed first. Remove the delayed cancellation before the period ends if the customer stays.
+- A cancel request carries no schedule parameters → The subscription is canceled immediately and its state set to canceled. Omit cancel_at_end_of_period and scheduled_cancellation_at only when an immediate cancel is wanted.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- cancel_at_end_of_period is true → The subscription is canceled at the end of the current period instead of immediately (a delayed cancellation). Keep serving the customer until the period ends after a delayed cancellation.
+- scheduled_cancellation_at is sent for a prepaid subscription → The scheduled-date option does not apply to prepaid subscriptions. Do not schedule a cancellation date for prepaid subscriptions.
+- A prepaid subscription is canceled without refund_prepayment_account_balance set to false → The remaining prepaid balance is refunded as part of cancellation (default true). Send refund_prepayment_account_balance false to keep the prepaid balance unrefunded.
+- A subscription is set to cancel at the end of the period, or a pending cancellation is cleared → A pending_cancellation_change webhook is sent. Track pending_cancellation_change to know when a delayed cancellation is set or removed.
 
 </dd>
 </dl>
@@ -18710,6 +21040,16 @@ catch (ApiException<CancelSubscriptionError> ex)
 <dd>
 
 Cancels a subscription at the end of the current billing period based on the subscription's current product. You cannot set `cancel_at_end_of_period` at subscription creation, or if the subscription is past due.
+
+**Business rules**
+
+- The subscription is already canceled → Maxio answers 422 with "The subscription is already canceled". Check the state before canceling and treat this 422 as already done.
+- reason_code is longer than 255 characters → Maxio answers 422 with "reason_code size cannot be greater than 255". Keep reason_code at 255 characters or fewer.
+- cancellation_message is longer than 65535 characters → Maxio answers 422 with "cancellation_message size cannot be greater than 65535". Keep cancellation_message at 65535 characters or fewer.
+- The subscription is past due → the outcome is not stated. Settle the past-due balance (or cancel immediately) instead of scheduling a delayed cancellation.
+- A delayed cancellation is set on a subscription → The subscription is canceled at the end of the current billing period, unless the delayed cancellation is removed first. Remove the delayed cancellation before the period ends if the customer stays.
+- A subscription is set to cancel at the end of the period, or a pending cancellation is cleared → A pending_cancellation_change webhook is sent. Track pending_cancellation_change to know when a delayed cancellation is set or removed.
+- A delayed cancellation is initiated → The subscription cancels at the end of the current billing period, based on its current product. Expect service to continue until the current period ends.
 
 </dd>
 </dl>
@@ -18783,6 +21123,14 @@ Places the subscription on hold, preventing it from renewing.
 ## Limitations
 
 You may not place a subscription on hold if the `next_billing_at` date is within 24 hours.
+
+**Business rules**
+
+- The subscription's next_billing_at is within 24 hours → the outcome is not stated. Place subscriptions on hold more than 24 hours before their next billing date.
+- The subscription is not eligible to be put on hold → Maxio answers 422 with "This subscription is not eligible to be put on hold.". Handle this 422 by leaving the subscription active and telling the user it cannot be paused now.
+- A subscription is on hold → It does not renew, and it resumes automatically on automatically_resume_at when that date is set. Set or clear automatically_resume_at to control when a held subscription resumes.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- A subscription is placed on hold → It goes on hold and does not renew while on hold. Expect no renewals until the subscription is resumed.
 
 </dd>
 </dl>
@@ -18877,6 +21225,15 @@ Optionally, **you can provide your own custom quantities** for any component to 
 ## Preview Behavior
 
 Sending a `POST` request to this endpoint returns preview data without modifying the subscription. This method previews data, but does not log any changes against a subscription.
+
+**Business rules**
+
+- A component in the body is referenced by a handle that does not exist → Maxio answers 422 with "Couldn't find Component by handle:unknown". Reference existing components by id or handle: prefix.
+- A renewal preview is requested without a components body → Components are billed at their quantities as of the call; end-of-period usage is not predicted, so metered or events-based usage may be lower than at renewal. Treat the preview as a lower bound for usage-based components, or pass predicted quantities.
+- Component definitions are sent in the request body → They replace the subscription's actual components and quantities; the preview contains only those components plus product base fees. List every component that should appear in the preview when sending components.
+- A renewal preview is POSTed → The subscription is not modified and no changes are logged against it. Call the preview freely; it changes nothing.
+- The subscription has free components with a recorded quantity above 0 → They are returned as line items (since 2021-11-18; before, only components costing more than 0 were returned). Expect zero-amount component line items in renewal previews.
+- The site uses Avalara and the subscription's address is in one of its taxable regions → uncalculated_taxes is true: additional taxes will be calculated at renewal and are not in the preview totals. Check uncalculated_taxes before showing preview totals as final.
 
 </dd>
 </dl>
@@ -19124,6 +21481,27 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- A payment taken by the call requires 3D Secure authentication under Strong Customer Authentication → Maxio answers 422 with "action_link". Treat a 422 carrying an action_link as a 3DS challenge: send the customer to the link and complete the post-authentication flow.
+- The subscription is not Canceled, Unpaid or Trial Ended → Maxio answers 422 with "Cannot reactivate a subscription that is not marked "Canceled", "Unpaid", or "Trial Ended".". Reactivate only canceled, unpaid or trial-ended subscriptions; resume on-hold ones instead.
+- The reactivation payment is declined by the gateway → Maxio answers 422. Show the returned decline message and collect a new payment method.
+- Reactivation needs a payment and no payment profile is on file → Maxio answers 422 with "No payment method was on file for the X balance". Attach a payment method before reactivating a subscription that will owe a balance.
+- resume[require_resume] is true and the subscription is not resumable → Maxio answers 422 with "Request was 'resume only', but this subscription cannot be resumed.". Use require_resume only when a new billing period must not be started; handle the 422.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- A calendar-billing subscription is reactivated → calendar_billing.reactivation_charge decides the charge: prorated (default) completes the period, immediate charges full price now, delayed charges full price at the next renewal; it has no effect on non-calendar subscriptions. Choose reactivation_charge for calendar-billing subscriptions.
+- resume is true for a resumable trial_ended subscription that was canceled mid-trial with trial time left → The subscription returns to trialing and its next billing date does not change. Expect trialing, not active, when resuming a subscription canceled mid-trial.
+- resume is true for a resumable trial_ended subscription → It transitions to active, the next billing date is unchanged, and product-related charges are collected. Expect product charges to be collected when resuming a trial-ended subscription.
+- A subscription is reactivated successfully → It is returned in the active or trialing state with canceled_at and cancellation_message cleared. Expect canceled_at and cancellation_message to be empty after reactivation.
+- resume is true → If reactivated within the billing period it was canceled in, the period is resumed and the billing date unchanged; otherwise it is reactivated with a new billing period. Check the returned billing dates; resume: true may still start a new period.
+- resume is false or omitted → The subscription is reactivated with a new billing period even if it could have been resumed. Send resume: true to keep the original billing period when possible.
+- resume.forgive_balance is true → The existing balance is cleared before the resume attempt; if the subscription cannot be resumed the balance stays as it was. Do not assume the balance was forgiven unless the resume succeeded.
+- preserve_balance is true → The existing balance is not cleared; reactivation charges are added on top (for example a $20 product plus a $20 dunning balance gives $40 of charges). Without it the balance is cleared/reset. Set preserve_balance only when the customer should pay the old balance on reactivation.
+- The product has a trial and include_trial is not true → The trial is ignored and the subscription goes active; with include_trial true it goes trialing. Send include_trial true to restart the product's trial on reactivation.
+- use_credits_and_prepayments is not false → Service credits and prepayments are applied by default to the reactivation invoice. Send use_credits_and_prepayments false to keep credits and prepayments untouched.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+
 </dd>
 </dl>
 
@@ -19202,6 +21580,16 @@ catch (ApiException<ReactivateSubscriptionError> ex)
 
 Resumes a paused (on-hold) subscription. If the normal next renewal date has not passed, the subscription will return to active and will renew on that date.  Otherwise, it will behave like a reactivation, setting the billing date to 'now' and charging the subscriber.
 
+**Business rules**
+
+- The subscription is not on hold → Maxio answers 422 with "Only subscriptions that are on hold can be resumed.". Resume only on-hold subscriptions; use reactivate for canceled ones.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- An on-hold subscription is resumed before its normal next renewal date has passed → It returns to active and renews on that original date. Expect no immediate charge when resuming before the renewal date.
+- An on-hold subscription is resumed after its normal next renewal date has passed → It behaves like a reactivation: the billing date is set to now and the subscriber is charged. Expect an immediate charge and a new billing date when resuming after the renewal date.
+- calendar_billing['resumption_charge'] is sent for a subscription that is not on calendar billing → The setting applies only to calendar billing subscriptions (default prorated). Send resumption_charge only for calendar billing subscriptions.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+
 </dd>
 </dl>
 
@@ -19277,6 +21665,15 @@ When a payment requires 3DS Authentication to adhere to Strong Customer Authenti
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
 
+**Business rules**
+
+- A payment taken by the call requires 3D Secure authentication under Strong Customer Authentication → Maxio answers 422 with "action_link". Treat a 422 carrying an action_link as a 3DS challenge: send the customer to the link and complete the post-authentication flow.
+- The subscription is not past due → the outcome is not stated. Call retry only for past-due subscriptions with a balance due.
+- The immediate retry to collect the past-due balance does not succeed → Maxio answers 422 with "base: subscription retry was unsuccessful". On this 422 keep the subscription in dunning and ask the customer for a working payment method.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+
 </dd>
 </dl>
 
@@ -19351,6 +21748,13 @@ To update a subscription's resume date, use this method to change or update the 
 ### Remove the resume date
 
 Alternatively, you can change the `automatically_resume_at` to `null` if you would like the subscription to not have a resume date.
+
+**Business rules**
+
+- The subscription is not currently on hold → Maxio answers 422 with "Subscription is not currently on hold.". Change the automatic resume date only for on-hold subscriptions.
+- automatically_resume_at is less than 24 hours in the future → Maxio answers 422 with "Automatic resume date: must be at least 24 hours in the future.". Set automatically_resume_at at least 24 hours ahead.
+- A subscription is on hold → It does not renew, and it resumes automatically on automatically_resume_at when that date is set. Set or clear automatically_resume_at to control when a held subscription resumes.
+- automatically_resume_at is sent as null → The subscription no longer has a resume date and stays on hold until resumed manually. Send null only when the subscription should stay on hold indefinitely.
 
 </dd>
 </dl>
@@ -19469,6 +21873,20 @@ The default activation failure behavior can be configured per activation attempt
 For more information about the behavior of trialing subscriptions, see [Trialing Subscriptions](https://maxio.zendesk.com/hc/en-us/articles/24252155721869-Trialing-Subscriptions).
 When the `revert_on_failure` parameter is set to `true`, the subscription's state remains Trialing; the invoice from activation is voided, and any prepayments and credits applied to the invoice are returned to the subscription.
 
+**Business rules**
+
+- The subscription is neither awaiting signup nor trialing → the outcome is not stated. Activate only awaiting-signup or trialing subscriptions.
+- The site is not on the Relationship Invoicing architecture → the outcome is not stated. Use activation only on Relationship Invoicing sites.
+- The subscription belongs to a subscription group → It cannot be activated immediately. Do not immediately activate grouped subscriptions.
+- Activation fails (for example the payment fails) with revert_on_failure true → Maxio answers 400 with "Purchase Declined. The subscription is now in the 'awaiting_signup' state.". On a 400 from activation, keep the subscription's previous state and retry after fixing payment.
+- Activation fails (for example the payment fails) with revert_on_failure false → Activation continues into an end-of-life state: trialing subscriptions go to trial ended (no-obligation trial), past due (trial with obligation) or canceled (no dunning strategy or cancel-immediately strategy); awaiting signup subscriptions are always canceled. Send revert_on_failure true unless a failed activation should end the subscription.
+- revert_on_failure is omitted or null → The site's Subscription Activation Settings value is used (default true). Send revert_on_failure explicitly rather than relying on the site setting.
+- Activation of a trialing subscription fails with revert_on_failure true → The subscription stays Trialing, the activation invoice is voided, and prepayments and credits applied to it are returned to the subscription. Expect a voided activation invoice after a reverted trial activation.
+- An awaiting-signup subscription is activated successfully → It moves to Trialing when the product has a trial, otherwise to Active. Expect trialing rather than active after activation when the product has a trial.
+- The call changes the subscription's state → A subscription_state_change webhook is sent with previous_state and state. Update cached subscription state from subscription_state_change events.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+
 </dd>
 </dl>
 
@@ -19545,6 +21963,13 @@ An existing subscription can accommodate multiple discounts/coupon codes. This i
 Passing in a coupon code as a query parameter will add the code to the subscription, completely replacing all existing coupon codes on the subscription.
 
 For this reason, using this query parameter on this endpoint has been deprecated in favor of using the request body parameters as described below. When passing in request body parameters, the list of coupon codes will simply be added to any existing list of codes on the subscription.
+
+**Business rules**
+
+- A coupon is added that is not stackable, or the subscription already has a non-stackable coupon → Maxio answers 422 with "That coupon is not stackable". Combine several coupons on a subscription only when every coupon is stackable.
+- A coupon code that does not exist is applied → Maxio answers 422 with "Coupon code could not be found.". Apply only existing coupon codes.
+- The coupon code is passed in the deprecated code query parameter → All existing coupon codes on the subscription are replaced by this code. Pass codes in the request body; avoid the code query parameter.
+- Coupon codes are passed in the request body codes array → The codes are added to the existing list of coupons on the subscription. Remove unwanted coupons separately; body codes do not replace existing ones.
 
 </dd>
 </dl>
@@ -19678,6 +22103,108 @@ Note that collecting and sending raw card details in production requires [PCI co
 When a payment requires 3DS Authentication to adhere to Strong Customer Authentication (SCA), the request enters a post-authentication flow where a 422 Unprocessable Entity status is returned with an action_link that will direct the customer through 3DS Authentication. 
 
 See the [3D Secure Post-Authentication Flow](https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow) article in the product documentation to learn how to manage the redirect flow.
+
+**Business rules**
+
+- The subscription body names neither product_handle nor product_id, uses no offer_id, and is not a components-only subscription under the new Catalog experience → the outcome is not stated. Identify the product with product_handle or product_id (or pass offer_id) unless building a components-only subscription on a Catalog-experience site.
+- A subscription is to be sold for a product that has not been created → the outcome is not stated. Create and configure the product before creating subscriptions to it.
+- A subscription is created in a customer hierarchy with group.target self → the outcome is not stated. Include a valid payment method in the subscription parameters.
+- The card cannot be successfully charged for the charges due at creation → The subscription is not created. Handle a failed signup charge as a failed creation and collect a working payment method before retrying.
+- payment_profile_id does not name an existing card or bank account belonging to an existing customer → the outcome is not stated. Use payment_profile_id only for a stored profile of an existing customer; otherwise send payment_profile_attributes.
+- A Maxio.js chargify_token is sent together with other payment profile attributes → the outcome is not stated. Send chargify_token as the only attribute of payment_profile_attributes.
+- Card attributes are sent without expiration_month or expiration_year and the signup is not a Subscription Import via vault_token → the outcome is not stated. Send expiration_month and expiration_year with raw card details; they may be omitted only when importing via vault_token.
+- On a site with the new Catalog experience, a subscription is sent without product_id or product_handle and has no active component with a positive allocated_quantity, a positive unit_balance, enabled: true, or a configured metered component → the outcome is not stated. Only omit the product on a Catalog-experience site, and then include at least one active qualifying component.
+- The product configuration or gateway settings require billing address fields (street, city, state, country, zip) and they are missing → the outcome is not stated. Check product and gateway settings and send the billing address fields they require.
+- The gateway settings require a CVV and none is sent → the outcome is not stated. Send cvv when the gateway requires it.
+- An ACH subscription is created with a billing_country other than US → the outcome is not stated. Use US as the billing country for ACH subscriptions.
+- The site's gateway is Square, no payment_method_nonce is sent, and the signup is not an import with vault_token and customer_vault_token → the outcome is not stated. Send the Square payment_method_nonce unless importing with vault_token and customer_vault_token.
+- gateway_handle is sent on a site without the MultiGateway feature → the outcome is not stated. Send gateway_handle only on MultiGateway-enabled sites.
+- A subscription is created with ACH and bank_name, bank_routing_number or bank_account_number is missing → Maxio answers 422 with "Bank routing number: cannot be blank.". Send bank_name, bank_routing_number and bank_account_number for ACH signups.
+- A subscription is created with GoCardless without bank_name, or with neither bank_account_number nor bank_iban → the outcome is not stated. For GoCardless send bank_name and either local bank details (bank_account_number) or an IBAN.
+- A subscription is created with Maxio Payments without agreement_acceptance (including terms_url) → the outcome is not stated. Send agreement_acceptance with terms_url when the site uses Maxio Payments.
+- agreement_acceptance is sent without ip_address → the outcome is not stated. Include the customer's ip_address whenever agreement_acceptance is sent.
+- agreement_acceptance is sent with neither terms_url nor privacy_policy_url → the outcome is not stated. Include terms_url or privacy_policy_url in agreement_acceptance.
+- ach_agreement is sent without all of agreement_terms, authorizer_first_name, authorizer_last_name and ip_address → the outcome is not stated. Send all four ACH agreement fields together whenever ach_agreement is present.
+- A referral code (ref) is supplied that is not valid → Subscription creation fails. Validate the referral code first (validateReferralCode) or omit ref.
+- A non-default currency is passed while Multi-Currency is disabled or the currency is not configured on the site → the outcome is not stated. Pass currency only when Multi-Currency is enabled and that currency is configured.
+- The app tries to change the currency of an existing subscription → the outcome is not stated. Choose the subscription currency at signup; it cannot be changed afterwards.
+- calendar_billing is sent together with next_billing_at → the outcome is not stated. Send either calendar_billing or next_billing_at, not both.
+- The request gives none of customer_id, customer_reference or customer_attributes → the outcome is not stated. Identify an existing customer with customer_id or customer_reference, or pass customer_attributes to create one.
+- snap_day is not a day from 1 to 28 or 'end' → the outcome is not stated. Send snap_day as 1 to 28 or 'end'.
+- payment_collection_method is not valid for the site's architecture (statements: automatic or invoice; Relationship Invoicing: automatic, remittance or prepaid) → the outcome is not stated. Pick the collection method from the set allowed by the site's invoicing architecture.
+- previous_billing_at is sent without next_billing_at → the outcome is not stated. Send next_billing_at whenever previous_billing_at is used.
+- net_terms is outside 0 to 180 days → the outcome is not stated. Send net_terms between 0 (due immediately) and 180.
+- branding_theme_id is sent on a site without Branding Themes enabled → the outcome is not stated. Send branding_theme_id only when Branding Themes are enabled for the site.
+- custom_price.list_price_point_id is sent on a site with list pricing enabled and the value is invalid → the outcome is not stated. Send a valid list price point id when list pricing is enabled.
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- A component custom_price sets interval or interval_unit on a site without Multifrequency → the outcome is not stated. Set component custom price intervals only on Multifrequency-enabled sites.
+- A custom_price for an on/off component includes a pricing_scheme or more than one price bracket starting at 1 → the outcome is not stated. For on/off components omit pricing_scheme and send one price bracket starting at 1.
+- customer_attributes are passed to create a customer without first_name, last_name or email → the outcome is not stated. Include first_name, last_name and email whenever creating a customer through customer_attributes.
+- group parameters are sent on a site without Relationship Billing and Customer Hierarchy / subscription groups → the outcome is not stated. Send group parameters only on Relationship Billing sites with Customer Hierarchy enabled.
+- group.target is self and no valid payment method is given in the subscription parameters → the outcome is not stated. Send a valid payment method with a self-paid hierarchy subscription.
+- The product's options require payment information (a paid product or one with a billable component) and the request carries no payment method → the outcome is not stated. Send a payment method (payment_profile_id, payment profile/credit card or bank account attributes) for paid products or products with billable components.
+- cancel_at_end_of_period is set to true at subscription creation (the announcement names the case where next_billing_at is also present) → Maxio answers 422. Create the subscription first, then schedule a delayed cancellation separately.
+- A payment taken by the call requires 3D Secure authentication under Strong Customer Authentication → Maxio answers 422 with "action_link". Treat a 422 carrying an action_link as a 3DS challenge: send the customer to the link and complete the post-authentication flow.
+- payment_collection_method is set to a value the site's invoicing architecture does not support (invoice/automatic on legacy Statements; remittance/automatic/prepaid on Relationship Invoicing) → the outcome is not stated. Choose payment_collection_method from the values valid for the site's architecture.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- current_vault is sent with a value that does not match a gateway configured for the site, such as stripe instead of stripe_connect → The value is not currently validated against the site's gateways; that validation was briefly applied, reverted, and is to be re-introduced. Send the current_vault value that matches the site's configured gateway so the request keeps working when validation returns.
+- next_billing_at is not provided → Any trial and/or initial charges are assessed and charged at the time of subscription creation. Expect the payment method to be charged immediately at creation when next_billing_at is omitted.
+- A subscription becomes active → A Self-Service Page is created automatically for the subscription so the customer can manage payment methods. Use the subscription's self-service page for customer payment-method updates where suitable.
+- group parameters are sent to create a subscription inside a customer hierarchy → Creating subscriptions within a customer hierarchy is available only on sites using the Relationship Billing and Customer Hierarchy features. Send customer-hierarchy group parameters only on sites with Relationship Billing and Customer Hierarchy.
+- group.target names a customer that is already part of a customer hierarchy → The new subscription becomes a member of that customer hierarchy. Target the right customer, since the subscription joins that customer's hierarchy.
+- group.target names a customer that is not part of a customer hierarchy → A new customer hierarchy is created containing the target customer and the new subscription, with the target as responsible payer for all subscriptions in it. Expect a new hierarchy, paid by the target customer, when targeting a customer outside any hierarchy.
+- group.target is self → The subscription is paid for by the subscribing customer, whether that customer is new, in a hierarchy or outside one. Use target self when the subscribing customer pays for the subscription.
+- group parameters are sent to create a subscription inside a subscription group → Grouping at signup is available for sites using relationship billing. Send subscription-group parameters only on relationship billing sites.
+- group.target names a subscription that is already part of a subscription group → The new subscription becomes a member of that group. Target the right subscription, since the new one joins its group.
+- group.target names a subscription that is not part of a subscription group → A new group is created containing both subscriptions, with the target as the group's primary subscription. Expect a new subscription group with the target as primary when targeting an ungrouped subscription.
+- group.billing.accrue is set for a subscription created in a hierarchy or group → Payment capture is deferred and charges accrue until the next assessment date. Set accrue only when the first charge should wait for the next assessment.
+- group.billing.align_date is set together with prorate → The new subscription's billing date is aligned with the target and its charges are prorated to the target subscription's billing period. Send prorate only together with align_date.
+- initial_billing_at is set to a future date/time → The subscription is created in the Awaiting Signup state instead of Active or Trialing. Expect state awaiting_signup when a future initial_billing_at is given; omit it to activate immediately.
+- defer_signup is true → The subscription is created in the Awaiting Signup Date state with no known first billing date. Later update the subscription with initial_billing_at once the first billing date is known.
+- A delayed subscription is created successfully in an awaiting signup state → A delayed_subscription_creation_success webhook is sent. Subscribe to delayed_subscription_creation_success to learn about delayed signups.
+- Creating a delayed subscription fails → A delayed_subscription_creation_failure webhook is sent. Subscribe to delayed_subscription_creation_failure and act on failed delayed signups.
+- first_name or last_name is omitted from the payment profile attributes → The name on the card or bank account is taken from the customer attributes. Send the cardholder's names explicitly when they differ from the customer's names.
+- A card stored in Authorize.Net is imported without last_four → No masked card number can be built, and refunds in Authorize.Net need the last 4 digits. Send last_four when importing Authorize.Net card profiles so refunds stay possible.
+- A subscription has no associated product (built from components on a site with the new Catalog experience) → product, product_price_point_id and product_price_point_type are returned as null; component details are returned instead. Handle null product and product price point fields in subscription responses.
+- ach_agreement is passed → Proof of the authorized ACH agreement terms is persisted. Send the exact agreement terms the customer authorized, since they are stored as proof.
+- agreement_terms are passed and the feature is enabled → An email with a copy of the ACH terms is sent to the customer. Expect the customer to receive an email copy of the ACH terms.
+- expiration_tracks_next_billing_change is true, next_billing_at is present and the subscription expires → expires_at shifts by the same amount as the change between the old and new next billing dates. Expect expires_at to move with next billing date changes when this flag is set.
+- A calendar-billing subscription is created without calendar_billing_first_charge → The default 'prorated' applies: the prorated product price is charged immediately ('immediate' charges full price now, 'delayed' charges full price at the first renewal). Set calendar_billing_first_charge explicitly if a prorated immediate charge is not wanted.
+- previous_billing_at in the past is passed on an import → current_period_starts_at is set from it, and activated_at too unless activated_at is passed explicitly. Pass activated_at explicitly if it should differ from previous_billing_at.
+- import_mrr is true but next_billing_at is missing or not in the future → import_mrr is not honored; the subscription's MRR is not added to MRR analytics immediately. Pair import_mrr with a future next_billing_at.
+- dunning_communication_delay_enabled is true → No dunning email or SMS is sent to the customer between 9PM and 8AM in dunning_communication_delay_time_zone. Set dunning_communication_delay_time_zone to the customer's zone when enabling the delay.
+- skip_billing_manifest_taxes is sent to Create Subscription → The attribute is valid only for the Subscription Preview endpoint. Send skip_billing_manifest_taxes only to previewSubscription.
+- receives_invoice_emails is omitted → Defaults to true: the subscription receives its related emails. Send receives_invoice_emails false to suppress those emails.
+- The request passes customer_attributes → A new customer is created along with the subscription. Pass customer_id or customer_reference instead of customer_attributes when the customer already exists, to avoid creating a duplicate customer.
+- branding_theme_id is set on the subscription → The subscription-level Branding Theme replaces the customer's default theme for subscription-related documents and communications that use subscription theming. Expect subscription documents and emails to use the subscription's theme rather than the customer's.
+- branding_theme_id is set on create or update → branding_theme_id is not returned in the subscription response. Store the assigned branding theme on your side; do not expect to read it back from the response.
+- A subscription uses custom pricing as the sales price and no list price is given for an item → The list price defaults to the sales price, so no implicit discount is shown on invoices or reports. Provide a list price when an implicit discount should appear.
+- custom_price.list_price_point_id is sent on a site with list pricing disabled → The input is ignored and list price fields are omitted from responses. Do not rely on list_price_point_id unless list pricing is enabled for the site.
+- renew_prepaid_allocation or rollover_prepaid_remainder is set in a component custom_price for a component that is not a prepaid usage component → The settings apply only to prepaid usage components. Set renewal and rollover options only for prepaid usage components.
+- expiration_interval or expiration_interval_unit is set in a component custom_price without rollover enabled → Rollover expiration settings apply only when rollover is enabled. Enable rollover_prepaid_remainder before setting rollover expiration.
+- A signup component sets a quantity field that does not match its kind (enabled for on/off, unit_balance for metered and events-based, allocated_quantity for quantity-based) → Each quantity field is used only for its own component kind. Use enabled, unit_balance or allocated_quantity according to the component's kind.
+- group.target names a customer that is not part of a hierarchy → A new customer hierarchy is created with the target customer as responsible payer for all its subscriptions; if the target is already in a hierarchy, the subscription joins it. Expect the target customer to become the payer of the new hierarchy.
+- A subscription is created in a customer hierarchy that has no payment method yet, and a payment method is passed → The passed payment method becomes the default for the whole customer hierarchy, regardless of the responsible payer. Pass the hierarchy's intended default payment method on its first subscription.
+- group.target names a subscription that is not part of a group → A new subscription group is created with the target as primary subscription; if the target is already grouped, the new subscription joins that group. Expect the target subscription to become the primary of a new group.
+- group.target.id is sent while target type is self, parent or eldest → The id is ignored. Omit target.id when the target type is self, parent or eldest.
+- group.billing.prorate is true while align_date is not true → The prorate value is ignored. Set align_date true whenever prorate is true.
+- group.billing.accrue is true for a new grouped or hierarchy subscription → Payment capture is deferred and charges accrue until the next assessment date. Expect no immediate charge when accrue is set.
+- group.billing.align_date is true → The new subscription's billing date is aligned with the primary/target subscription's billing date. Expect the new subscription's billing date to follow the group's primary subscription.
+- group.billing.align_date and prorate are both true → Charges for the new subscription are prorated according to the target subscription's billing period. Expect a prorated first charge when aligning and prorating.
+- metafields (subscription or customer level) use a key with no existing metafield on the site → The metafield is created on the fly for that key. Use exact, consistent metafield keys; a typo creates a new custom field.
+- Custom field values are added at signup → A custom_field_value_change webhook is sent. Expect custom_field_value_change events for metafields sent at signup.
+- A subscription is created successfully → A signup_success webhook is sent, typically with a payment_success webhook when a payment was needed to start the subscription. Handle both signup_success and payment_success for one signup without double-provisioning.
+- A signup fails to begin, usually because of a payment gateway failure → A signup_failure webhook is sent; it is not sent for input validation errors. Do not expect signup_failure for validation errors; handle those from the API response.
+- A signup_success webhook is delivered → The payload does not include component allocations or reason_code. Read the subscription or its components through the API when those details are needed after signup.
+- Component allocations are set during subscription creation → No component_allocation_change webhook is sent for them. Take initial allocations from the signup, not from component_allocation_change events.
+- A billing address is sent without payment profile (credit card) information → The billing address is not stored, because it is kept on the payment profile. Send billing address fields inside the payment profile / credit card attributes.
+- A subscription to a taxable product lacks a full valid billing or shipping address with ISO-format state and country → The subscriber is not eligible to be taxed (the address is not valid for tax locale). Send a full address with ISO 3166 state codes and 2-letter country codes for taxable subscriptions.
+- The customer's vat_number is sent with the country code prefix → Taxes are assessed on the purchase despite the VAT number. Strip the country code from vat_number before sending it.
+- surcharging is omitted from customer_attributes on a site where surcharging control is enabled → Surcharging defaults to true for the customer; on other sites the value is not applied. Send surcharging false to exempt a customer where surcharging control is enabled.
+- next_billing_at is set to a future date/time → No trial or initial charges are applied and no payment is captured at creation; the first payment is captured near next_billing_at at the product's prices. Expect no signup charge when importing with a future next_billing_at; the first charge happens at that date.
+- The call attempts a payment (signup, retry after failure, reactivation, resumption or migration charge) → A payment_success or payment_failure webhook is sent for every payment attempted. Handle payment_success and payment_failure events caused by these calls.
+- The payment is made by ACH/eCheck or Direct Debit → A payment reported as successful may fail later. Do not treat payment_success for ACH or Direct Debit as final; watch for later failure events.
+- A metafields key is sent that does not yet exist as a custom field on the site → The metafield is created on the fly for that key. Check metafield keys before sending; a misspelt key silently creates a new custom field.
 
 </dd>
 </dl>
@@ -19846,6 +22373,27 @@ Use the query strings below to search for a subscription using the criteria avai
 
 Self-Service Page token for the subscriptions is not returned by default. If this information is desired, the include[]=self_service_page_token parameter must be provided with the request.
 
+**Business rules**
+
+- product_price_point_id is supplied without the product filter → the outcome is not stated. Send the product filter whenever filtering by product_price_point_id.
+- A subscription has no associated product (built from components on a site with the new Catalog experience) → product, product_price_point_id and product_price_point_type are returned as null; component details are returned instead. Handle null product and product price point fields in subscription responses.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- per_page is omitted or above 200 → 20 records per page by default; values over 200 are changed to 200. Page through results and do not expect more than 200 records per page.
+- include[]=self_service_page_token is not sent → self_service_page_token is not returned. Send include[]=self_service_page_token when the Self-Service Page token is needed.
+- Subscriptions are read in XML and a date or integer field has no value → The nil element carries no type attribute (for example <trial-started-at nil="true"/>). Parse XML nil elements without relying on a type attribute.
+- The state filter is used → It accepts a comma-separated list of states. Pass several states as one comma-separated state value.
+- The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.
+- The product filter is given a product handle → Handles are not supported; only a product ID or exact product name is matched. Filter by product ID or exact product name, never by handle.
+- The coupon filter is given a coupon code instead of the coupon's numeric id → The coupon code cannot be used in this filter. Use the numeric coupon id with coupon, or use the coupon_code filter for codes.
+- start_date filters the date_field → Matches timestamps at or after midnight (12:00:00 AM) in the site's time zone on that date. Convert date boundaries to the site's time zone, not UTC.
+- end_date filters the date_field → Matches timestamps up to and including 11:59:59 PM in the site's time zone on that date. Treat end_date as inclusive of the whole day in the site's time zone.
+- start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include an explicit time zone in start_datetime and end_datetime.
+- start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.
+- current_billing_amount_in_cents is wanted from an operation other than readSubscription → The field (balance plus estimated renewal amount) is returned only by readSubscription, as it is compute intensive. Read the single subscription to get current_billing_amount_in_cents.
+- Coupon details are wanted on a subscription → The coupons array is returned only by Read Subscription and only with include[]=coupons. Call readSubscription with include[]=coupons to get coupon data.
+- Referrals are enabled on the site → Every subscription response includes a referral_code the customer can share. Read referral_code from the subscription when referrals are enabled.
+
 </dd>
 </dl>
 
@@ -19932,6 +22480,16 @@ When passing `current_period_starts_at` some validations are made:
 
 If unpermitted parameters are sent, a 400 HTTP response is sent along with a string giving the reason for the problem.
 
+**Business rules**
+
+- current_period_starts_at is passed for a subscription that is already billed (has statements or invoices) → the outcome is not stated. Override current_period_starts_at only on unbilled subscriptions (created with a future initial billing date).
+- current_period_starts_at is not before the current date/time → the outcome is not stated. Send a current_period_starts_at in the past.
+- Parameters other than activated_at, canceled_at, cancellation_message, expires_at and current_period_starts_at are sent → Maxio answers 400. Send only the overridable fields.
+- expires_at is overridden on a site with Multi-frequency enabled → the outcome is not stated. Use Update Subscription to change the term end on Multi-frequency sites.
+- Fields are overridden → No other attribute changes; for example adding an expiration date does not change the next assessment date. Update dependent fields (such as billing dates) yourself through other endpoints.
+- Historical dates such as activation or cancellation are overridden → Historical events are not backfilled (for example in the Events API); only static data changes. Do not expect events to be created for overridden historical dates.
+- An existing subscription's expiration date is changed → An expiration_date_change webhook is sent. Handle expiration_date_change after changing expires_at.
+
 </dd>
 </dl>
 
@@ -19960,9 +22518,9 @@ try
 }
 catch (ApiException<OverrideSubscriptionError> ex)
 {
-    if (ex.Error.TryGetSingleErrorResponse1(out var error))
+    if (ex.Error.TryGetNoContent(out var error))
     {
-        // TODO: Handle 'error' of type SingleErrorResponse1
+        // TODO: Handle 'error' of type RawError
     }
 }
 ```
@@ -20049,6 +22607,19 @@ You can pass shipping and billing addresses and still decide not to calculate ta
 
 If you'd like to calculate subscriptions that do not include tax, you can leave off the billing information.
 
+**Business rules**
+
+- The subscription body names neither product_handle nor product_id, uses no offer_id, and is not a components-only subscription under the new Catalog experience → the outcome is not stated. Identify the product with product_handle or product_id (or pass offer_id) unless building a components-only subscription on a Catalog-experience site.
+- On a site with the new Catalog experience, a subscription is sent without product_id or product_handle and has no active component with a positive allocated_quantity, a positive unit_balance, enabled: true, or a configured metered component → the outcome is not stated. Only omit the product on a Catalog-experience site, and then include at least one active qualifying component.
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- payment_collection_method is set to a value the site's invoicing architecture does not support (invoice/automatic on legacy Statements; remittance/automatic/prepaid on Relationship Invoicing) → the outcome is not stated. Choose payment_collection_method from the values valid for the site's architecture.
+- A subscription has no associated product (built from components on a site with the new Catalog experience) → product, product_price_point_id and product_price_point_type are returned as null; component details are returned instead. Handle null product and product price point fields in subscription responses.
+- group.target.id is sent while target type is self, parent or eldest → The id is ignored. Omit target.id when the target type is self, parent or eldest.
+- A subscription body is POSTed to the preview endpoint → No subscription is created; the response is a prediction only. Call createSubscription separately to actually create the subscription.
+- Taxes are not configured, the purchase has no taxable product or component, or the payload lacks a full billing or shipping address → Taxes are not previewed. Send a full billing or shipping address for a taxable product on a tax-configured site to preview taxes.
+- skip_billing_manifest_taxes is true in a preview → Tax calculation is skipped for the current and next billing manifests even if addresses are sent. Leave skip_billing_manifest_taxes unset (default false) when the preview must include taxes.
+- A metafields key is sent that does not yet exist as a custom field on the site → The metafield is created on the fly for that key. Check metafield keys before sending; a misspelt key silently creates a new custom field.
+
 </dd>
 </dl>
 
@@ -20125,6 +22696,13 @@ If you need to remove subscriptions from a live site, contact support to discuss
 ### Delete customer and payment profile
 
 The query params will be: `?ack={customer_id}&cascade[]=customer&cascade[]=payment_profile`
+
+**Business rules**
+
+- A purge is requested on a site that is not in test mode → the outcome is not stated. Purge only on test-mode sites; contact support to remove subscriptions from a live site.
+- The ack query parameter is not the subscription's customer ID → the outcome is not stated. Confirm the purge by passing the subscription's customer ID as ack.
+- cascade[]=customer and/or cascade[]=payment_profile is passed → The customer record and/or payment profiles are deleted with the subscription. Pass cascade values only when the customer or payment profiles should also be deleted.
+- A subscription and its customer are deleted together → No customer_delete webhook is sent; it fires only when the customer is deleted on its own. Clean up the customer locally after a cascading purge instead of waiting for customer_delete.
 
 </dd>
 </dl>
@@ -20203,6 +22781,16 @@ If you have the new [Catalog experience](page:help/announcements/2026-announceme
 
 Self-Service Page token for the subscription is not returned by default. If this information is desired, the include[]=self_service_page_token parameter must be provided with the request.
 
+**Business rules**
+
+- A subscription has no associated product (built from components on a site with the new Catalog experience) → product, product_price_point_id and product_price_point_type are returned as null; component details are returned instead. Handle null product and product price point fields in subscription responses.
+- include[]=self_service_page_token is not sent → self_service_page_token is not returned. Send include[]=self_service_page_token when the Self-Service Page token is needed.
+- Subscriptions are read in XML and a date or integer field has no value → The nil element carries no type attribute (for example <trial-started-at nil="true"/>). Parse XML nil elements without relying on a type attribute.
+- current_billing_amount_in_cents is wanted from an operation other than readSubscription → The field (balance plus estimated renewal amount) is returned only by readSubscription, as it is compute intensive. Read the single subscription to get current_billing_amount_in_cents.
+- Referrals are enabled for the site → Every subscription response includes a referral_code. Read referral_code only on sites with referrals enabled and treat it as absent otherwise.
+- Coupon details are wanted on a subscription → The coupons array is returned only by Read Subscription and only with include[]=coupons. Call readSubscription with include[]=coupons to get coupon data.
+- Referrals are enabled on the site → Every subscription response includes a referral_code the customer can share. Read referral_code from the subscription when referrals are enabled.
+
 </dd>
 </dl>
 
@@ -20272,6 +22860,10 @@ Removes a coupon from an existing subscription.
 
 For more information on the expected behavior of removing a coupon from a subscription, see [Coupons and Subscriptions](https://maxio.zendesk.com/hc/en-us/articles/24261259337101-Coupons-and-Subscriptions#removing-a-coupon).
 
+**Business rules**
+
+- No coupon is applied to the subscription → Maxio answers 422 with "There's no coupon applied to this subscription". Remove a coupon only from a subscription that has one applied.
+
 </dd>
 </dl>
 
@@ -20340,6 +22932,10 @@ catch (ApiException<RemoveCouponFromSubscriptionError> ex)
 <dd>
 
 Updates a subscription's prepaid configuration.
+
+**Business rules**
+
+- The subscription's payment collection method is not prepaid → Maxio answers 422 with "Subscription payment method must be Prepaid". Update prepaid configuration only for subscriptions on prepaid collection.
 
 </dd>
 </dl>
@@ -20471,6 +23067,49 @@ For a subscription using Calendar Billing, setting the next billing date is a bi
 
 If you have the new [Catalog experience](page:help/announcements/2026-announcements#new-catalog-experience-and-terminology) enabled, some subscriptions may not have an associated product. For subscriptions without an associated product, `product`, `product_price_point_id`, and `product_price_point_type` are returned as `null`.
 
+**Business rules**
+
+- The app tries to change the currency of an existing subscription → the outcome is not stated. Choose the subscription currency at signup; it cannot be changed afterwards.
+- snap_day is not a day from 1 to 28 or 'end' → the outcome is not stated. Send snap_day as 1 to 28 or 'end'.
+- payment_collection_method is not valid for the site's architecture (statements: automatic or invoice; Relationship Invoicing: automatic, remittance or prepaid) → the outcome is not stated. Pick the collection method from the set allowed by the site's invoicing architecture.
+- branding_theme_id is sent on a site without Branding Themes enabled → the outcome is not stated. Send branding_theme_id only when Branding Themes are enabled for the site.
+- A custom_price would give the subscription more than 30 custom price points → the outcome is not stated. Keep each subscription at 30 custom price points or fewer.
+- A component custom_price sets interval or interval_unit on a site without Multifrequency → the outcome is not stated. Set component custom price intervals only on Multifrequency-enabled sites.
+- A custom_price for an on/off component includes a pricing_scheme or more than one price bracket starting at 1 → the outcome is not stated. For on/off components omit pricing_scheme and send one price bracket starting at 1.
+- The payment profile of a customer who pays taxes is updated → the outcome is not stated. Send complete address information when updating the payment profile of a taxed customer.
+- A partial card update is sent for a card on Authorize.Net → the outcome is not stated. Update Authorize.Net cards through the Payment Profile endpoint instead.
+- snap_day is sent for a subscription whose product is not eligible for calendar billing → the outcome is not stated. Send snap_day only for subscriptions on calendar-billing-eligible products.
+- payment_collection_method is set to 'invoice' while the subscription is past due → Maxio answers 422 with "Payment collection method cannot be set to 'invoice' when the subscription is past due". Resolve the past-due balance before switching to invoice collection.
+- expires_at is set on a subscription on calendar billing → Maxio answers 422 with "'expires_at' cannot be set for subscriptions on calendar billing". Do not set expires_at on calendar-billing subscriptions.
+- Only the card's expiration date is changed on a gateway that does not allow it → the outcome is not stated. Check that the gateway supports expiration-date updates before relying on them.
+- payment_collection_method is switched to prepaid on a subscription holding any active wallet (manual or provisioned) → the outcome is not stated. Close the subscription's active wallets before switching it to prepaid collection.
+- The payment profile of a customer who pays taxes is updated without complete address information → the outcome is not stated. Send the complete billing address when updating a taxed customer's payment profile.
+- The product change names a product that is not from the same site as the subscription → the outcome is not stated. Change only to a different product on the subscription's own site.
+- A delayed product change (product_change_delayed=true) is set on a subscription → The product change happens automatically at the next renewal date, with no proration; setting next_product_id to an empty string cancels it. Expect the new product only from the next renewal and cancel with an empty next_product_id if needed.
+- A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.
+- A subscription has no associated product (built from components on a site with the new Catalog experience) → product, product_price_point_id and product_price_point_type are returned as null; component details are returned instead. Handle null product and product price point fields in subscription responses.
+- dunning_communication_delay_enabled is true → No dunning email or SMS is sent to the customer between 9PM and 8AM in dunning_communication_delay_time_zone. Set dunning_communication_delay_time_zone to the customer's zone when enabling the delay.
+- branding_theme_id is set on the subscription → The subscription-level Branding Theme replaces the customer's default theme for subscription-related documents and communications that use subscription theming. Expect subscription documents and emails to use the subscription's theme rather than the customer's.
+- branding_theme_id is set on create or update → branding_theme_id is not returned in the subscription response. Store the assigned branding theme on your side; do not expect to read it back from the response.
+- renew_prepaid_allocation or rollover_prepaid_remainder is set in a component custom_price for a component that is not a prepaid usage component → The settings apply only to prepaid usage components. Set renewal and rollover options only for prepaid usage components.
+- expiration_interval or expiration_interval_unit is set in a component custom_price without rollover enabled → Rollover expiration settings apply only when rollover is enabled. Enable rollover_prepaid_remainder before setting rollover expiration.
+- next_billing_at is an invalid calendar date (for example February 30) → The date rolls over automatically (February 30 becomes March 2 in a non-leap year). Validate dates before sending; an impossible date is not rejected.
+- next_billing_at is changed → After that date is processed, later billing dates follow the product's period from it. Expect the new date to become the anchor of future billing dates.
+- next_billing_at is changed → The response has no next_billing_at; the new date shows as current_period_ends_at. Verify the change through current_period_ends_at.
+- The billing date is changed explicitly through the API → A billing_date_change webhook is sent (not for normal renewals or migrations). Use billing_date_change only for explicit billing date edits.
+- The product of a subscription with a snap_day is changed → The subscription keeps the original snap_day until the next billing cycle, when snap_day is reset to null. Do not read the old snap_day right after a product change as the lasting value.
+- An existing subscription's expiration date is changed → An expiration_date_change webhook is sent. Handle expiration_date_change after changing expires_at.
+- A future initial_billing_at is sent for a subscription in the Awaiting Signup Date state → The subscription moves to Awaiting Signup with that initial billing date. Set initial_billing_at once the first billing date of a deferred signup is known.
+- defer_signup is true for a subscription in the Awaiting Signup state → The subscription moves back to Awaiting Signup Date with no scheduled first billing date. Use defer_signup when the first billing date becomes unknown again.
+- branding_theme_id is sent as null or an empty value → The subscription-level Branding Theme is cleared and the customer's default applies. Send null or empty branding_theme_id only when the subscription theme should be removed.
+- The active credit-card payment profile is changed, including partial card or billing address updates → A subscription_card_update webhook is sent. Handle subscription_card_update after card updates.
+- The product is changed (product_handle or product_id set to another product) without product_change_delayed → The product changes now, but the new payment amount is calculated and charged at the normal start of the next period (no prorated upgrade or downgrade). Use migrateSubscriptionProduct when a prorated or immediate charge is needed.
+- A product change is sent without product_price_point_id or product_price_point_handle → The new product's default price point is used. Pass the price point explicitly when the default price point is not wanted.
+- A product change is sent with product_change_delayed true → The change is scheduled for the next renewal date and no proration applies. Expect the product to change only at the next renewal.
+- next_product_id is set to an empty string on a subscription with a delayed product change → The scheduled delayed product change is canceled. Send next_product_id as an empty string to cancel a delayed product change.
+- A delayed product change is scheduled → A subscription_product_change_scheduled webhook fires as soon as the change is scheduled. Use subscription_product_change_scheduled to react before the renewal.
+- A subscription's product (or product version) changes successfully → A subscription_product_change webhook is sent. Handle subscription_product_change for product changes, migrations and version changes.
+
 </dd>
 </dl>
 
@@ -20560,6 +23199,38 @@ An adjustment corrects the ledger, so it works on the grant's recorded remainder
 
 `expected_remaining` and `expected_source_corrections` are optional optimistic-concurrency checks; see their field descriptions. Use them when the correction's `amount` was derived from a value read earlier that might have moved since.
 
+**Business rules**
+
+- A grant, debit, purchase or adjustment is attempted on an archived wallet → Archiving blocks further grants, debits, purchases and adjustments, but reads and list results are unaffected. Do not write to archived wallets; they remain readable.
+- A wallet amount (initial_balance, conversion_rate, transaction or adjustment amount, purchase quantity) is sent as a JSON number with a decimal point → Maxio answers 422. Send fractional wallet amounts as decimal strings (a whole JSON integer is also accepted).
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A wallet amount is sent with more than 8 fractional digits → Maxio answers 422. Round wallet amounts to at most 8 decimal places before sending.
+- createWalletAdjustment is sent with an amount of zero → Maxio answers 422. Send a non-zero signed amount.
+- An overdraft correction exceeds the overdraft the wallet still owes (for example after a later grant repaid it) → Maxio answers 422 with "Adjustment exceeds the wallet's outstanding overdraft". Once a later grant has repaid the overdraft, correct that grant's balance instead.
+- expected_remaining is sent and no longer matches the grant's current posted_remaining → Maxio answers 409 with "The grant balance changed since this correction was prepared. Reload and try again.". On 409, reload the wallet, re-derive the amount and retry.
+- expected_remaining is filled from a grant's remaining (not posted_remaining) on a metered wallet with pending usage → Maxio answers 409. Send the grant's posted_remaining as expected_remaining, never remaining.
+- expected_remaining or expected_source_corrections is sent as an empty string → Maxio answers 422. Leave these fields out entirely to skip the check; never send them empty.
+- expected_source_corrections is sent with source_transaction_id and no longer matches the sum of corrections posted against that entry → Maxio answers 409. Send the entry's source_corrections_total as last read, and on 409 reload and retry.
+- A negative adjustment would take the grant's posted_remaining below zero → Maxio answers 422 with "Adjustment exceeds the grant's remaining balance". Bound negative adjustments by the grant's posted_remaining; the server rejects rather than clamps.
+- A positive adjustment would credit the grant past its original amount → Maxio answers 422. Bound positive adjustments by the grant's original minus its posted_remaining.
+- createWalletAdjustment omits grant_id, or names a grant not on this wallet, while source_transaction_id does not name an overdraft entry → Maxio answers 422. Send the grant_id of a grant on this wallet unless correcting an overdraft entry.
+- createWalletAdjustment sends a grant_id while source_transaction_id names an overdraft entry → Maxio answers 422. Omit grant_id when correcting an overdraft entry.
+- source_transaction_id names a row that is not on this wallet or is not of kind debit → Maxio answers 422. Point source_transaction_id only at debit rows of the same wallet; correct grants and adjustments with a further adjustment.
+- An overdraft correction (no grant_id) is sent with a negative amount → Maxio answers 422 with "Overdraft usage can only be corrected downward". Send overdraft corrections as positive credits only.
+- An overdraft correction exceeds the usage the overdraft entry still records → Maxio answers 422 with "Adjustment exceeds the usage this entry still records". Bound an overdraft correction by the entry's amount net of its source_corrections_total.
+- A grant, debit, adjustment, purchase (or its preview) or update is sent for an archived wallet → Maxio answers 422 with "Wallet is archived". Check the wallet's status before writing to it; archived wallets accept no further writes.
+- A wallet amount is sent as a JSON number with a decimal point → Maxio answers 422. Send wallet amounts as decimal strings such as "150.0".
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- expected_remaining is sent with a different number of decimal places than posted_remaining → It is compared numerically, so "100" and "100.00000000" both match 100. Send expected_remaining in any decimal formatting; only its value matters.
+- expected_source_corrections is sent without source_transaction_id → It is ignored. Send expected_source_corrections only together with source_transaction_id.
+- An adjustment corrects an earlier ledger row → The earlier row is never edited; a new adjustment row is written (reason in its memo) and the debit's source_corrections_total sums the corrections. Net source_corrections_total out of a debit's amount to get its corrected quantity.
+- source_transaction_id names a debit row that is attributed to a grant → It is recorded for audit only: it does not change how amount is applied, and several adjustments may name the same row. Do not rely on source_transaction_id to limit or route a grant correction.
+- A wallet's balance changes → Append-only ledger rows are written; rows are never modified and corrections are always new rows. Reconstruct wallet history from ledger rows and never expect an earlier row to change.
+- A ledger row carries a kind the app does not know → More kinds beyond grant, debit, adjustment, initial_balance and expiration are expected over time. Treat a ledger row's kind as an open string and do not fail on unknown kinds.
+
 </dd>
 </dl>
 
@@ -20642,6 +23313,20 @@ catch (ApiException<CreateWalletAdjustmentError> ex)
 
 Archives the Wallet Product. Refuses when an active Feature's `wallet_behavior` still points at it, or when it's used in a scheduled renewal. This protects Feature-provisioned wallets, but not a wallet created manually against this product: a manual wallet can be left denominated by an archived Wallet Product, and [Create Wallet Purchase]($e/Wallet%20Purchases/createWalletPurchase) doesn't check whether the billing product is archived before pricing and charging a purchase against it.
 
+**Business rules**
+
+- archiveWalletProduct is called while an active Feature's wallet_behavior still points at the product → Maxio answers 422 with "Wallet product is in use by one or more features". Remove the product from every active Feature's wallet_behavior before archiving it.
+- archiveWalletProduct is called while the product is used in a scheduled renewal → Maxio answers 422. Remove the product from scheduled renewals before archiving it.
+- archiveWalletProduct is called on a product that is already archived → Maxio answers 422. Treat this 422 as already archived.
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- archiveWalletProduct is called while manually created wallets are denominated by the product → The archive succeeds and those manual wallets stay on the archived product. Check for manual wallets on the product before archiving it.
+- A Wallet Product is returned → The full Component field set comes back under a wallet_product root, with kind wallet_product and the product-family fields null. Parse Wallet Products as Components under the wallet_product key.
+
 </dd>
 </dl>
 
@@ -20710,6 +23395,23 @@ catch (ApiException<ArchiveWalletProductError> ex)
 <dd>
 
 Creates a Wallet Product: a billing product with no product family, meant to denominate wallets and to be purchased through [Create Wallet Purchase]($e/Wallet%20Purchases/createWalletPurchase). It's a Component under the hood, so it returns the full Component field set, and can optionally be priced with one or more price points in the same call.
+
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- createWalletProduct is sent with product_family_id → Maxio answers 422 with "Product family cannot be set on a wallet product". Never send product_family_id for a Wallet Product.
+- Any price point in price_point or price_points fails validation → Maxio answers 422. Fix every price point and resend the whole request; nothing was created.
+- A Wallet Product price point is sent without a name → Maxio answers 422 with "Name: cannot be blank.". Give every price point a name, and map 'Name: cannot be blank.' to the price point, not the product.
+- A Wallet Product price point has pricing_scheme per_unit and no unit_price → Maxio answers 422. Send unit_price for per_unit price points.
+- A Wallet Product price point has a pricing_scheme other than per_unit and no prices → Maxio answers 422. Send prices brackets for stairstep, volume and tiered price points.
+- A Wallet Product price point sends interval on a site without Multifrequency enabled → Maxio answers 422. Enable Multifrequency before setting a price point interval.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- createWalletProduct is sent with both price_point and price_points → price_point is ignored and price_points is used. Send either price_point or price_points, not both.
+- createWalletProduct creates several price points through price_points → The first price point created becomes the Wallet Product's default. Put the intended default price point first in price_points.
+- A Wallet Product is returned → The full Component field set comes back under a wallet_product root, with kind wallet_product and the product-family fields null. Parse Wallet Products as Components under the wallet_product key.
 
 </dd>
 </dl>
@@ -20793,6 +23495,23 @@ catch (ApiException<CreateWalletProductError> ex)
 
 Lists the Wallet Products on your site.
 
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- listWalletProducts is called without page and without per_page → The full matching set is returned in one response; sending either turns on pagination at 20 per page, up to 200. Send page or per_page to paginate Wallet Products.
+- listWalletProducts is called with include_archived and also status → include_archived is ignored and status decides; without either, archived products are left out. Use status=all or status=archived rather than include_archived when combining filters.
+- listWalletProducts is called with an unrecognized status value → status falls back to active instead of returning 422. Validate status yourself; a typo silently returns only active products.
+- listWalletProducts is called with q → Products whose name, handle or unit name contains q, case-insensitively, are returned. Expect q to match handles and unit names as well as names.
+- listWalletProducts is called with an unrecognized sort_by value → Results are sorted by name. Send only name, unit_name or updated_at as sort_by.
+- listWalletProducts is called with a sort_direction other than desc → It is treated as asc. Send exactly desc for descending order.
+- listWalletProducts returns archived_count with a status other than archived → archived_count is 0 whenever total_count is non-zero; only when total_count is 0 is it the number of archived products matching q (ignoring status). Use archived_count only as an empty-state hint, not as a running total.
+
 </dd>
 </dl>
 
@@ -20863,6 +23582,16 @@ catch (ApiException<ListWalletProductsError> ex)
 
 Returns the Wallet Product.
 
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A Wallet Product is returned → The full Component field set comes back under a wallet_product root, with kind wallet_product and the product-family fields null. Parse Wallet Products as Components under the wallet_product key.
+
 </dd>
 </dl>
 
@@ -20931,6 +23660,17 @@ catch (ApiException<ReadWalletProductError> ex)
 <dd>
 
 Returns everything drawing on this Wallet Product: the wallet templates billing through it, split into ones using its default price point and ones overriding it, plus a sample of up to 50 of the active wallets actually created from them. A wallet template can appear more than once in `wallet_templates`/`price_point_overrides`, once per Feature and owning plan/component sharing it, so these arrays aren't one row per template.
+
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- readWalletProductUsage is called for a Wallet Product with many active wallets → active_wallets.sample holds at most 50 wallets, the most recently created first; total gives the full count. Use active_wallets.total for counts; the sample is capped at 50.
+- A wallet template is shared by several Features or owning plans/components → It appears once per Feature and owner in wallet_templates or price_point_overrides, so the arrays are not one row per template. Deduplicate wallet templates yourself before counting them.
 
 </dd>
 </dl>
@@ -21001,6 +23741,17 @@ catch (ApiException<ReadWalletProductUsageError> ex)
 
 Restores an archived Wallet Product.
 
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- unarchiveWalletProduct is called on a product that is not archived → Maxio answers 422. Treat this 422 as already active.
+- A Wallet Product is returned → The full Component field set comes back under a wallet_product root, with kind wallet_product and the product-family fields null. Parse Wallet Products as Components under the wallet_product key.
+
 </dd>
 </dl>
 
@@ -21069,6 +23820,18 @@ catch (ApiException<UnarchiveWalletProductError> ex)
 <dd>
 
 Updates the Wallet Product's catalog-facing fields. Omitted fields are left unchanged. Unlike [Create Wallet Product]($e/Wallet%20Products/createWalletProduct), this does not accept `unit_name`, `handle`, `price_point`, or `price_points`; see the request schema for which fields are actually mutable.
+
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A Wallet Product is returned → The full Component field set comes back under a wallet_product root, with kind wallet_product and the product-family fields null. Parse Wallet Products as Components under the wallet_product key.
+- updateWalletProduct is sent with unit_name, handle, price_point or price_points → Maxio answers 200. Change only name, description, taxable, tax_code, accounting_code and item_category on update.
+- updateWalletProduct leaves some mutable fields out of the body → Omitted fields keep their current values. Send only the fields you want to change.
 
 </dd>
 </dl>
@@ -21145,6 +23908,37 @@ Purchases prepaid units for the wallet and charges the subscription's payment me
 
 How "charged" works depends on the subscription's collection method. For card/automatic collection, the payment is attempted immediately; a decline writes nothing to the wallet, and the call fails with a `422` naming the gateway's decline reason. For invoice-billed (remittance) subscriptions, there's no immediate charge to decline: an invoice is drafted, the wallet is credited right away, and the invoice is issued afterward. If issuing the invoice fails at that point, the invoice is left in draft state and reported for follow-up, but the call still returns `201` and the units already credited are **not** rolled back. See [Preview Wallet Purchase]($e/Wallet%20Purchases/previewWalletPurchase) to quote a price before charging anything.
 
+**Business rules**
+
+- A grant, debit, purchase or adjustment is attempted on an archived wallet → Archiving blocks further grants, debits, purchases and adjustments, but reads and list results are unaffected. Do not write to archived wallets; they remain readable.
+- A wallet amount (initial_balance, conversion_rate, transaction or adjustment amount, purchase quantity) is sent as a JSON number with a decimal point → Maxio answers 422. Send fractional wallet amounts as decimal strings (a whole JSON integer is also accepted).
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A wallet amount is sent with more than 8 fractional digits → Maxio answers 422. Round wallet amounts to at most 8 decimal places before sending.
+- The immediate payment for an automatic-collection wallet purchase is declined → Maxio answers 422 with "Payment for this purchase was declined: insufficient funds". Show the gateway's decline reason and let the customer retry; no units were added.
+- The invoice for a wallet purchase cannot be created at all → Maxio answers 422 with "The invoice for this purchase could not be created". Treat purchase_invoice_failed as nothing charged and nothing credited, and retry later.
+- A wallet purchase's payment settled but the units could not be credited to the wallet → Maxio answers 422 with "Purchase was paid but the units could not be credited: abc123". On purchase_paid_but_uncredited, take the invoice uid from the end of the message and reconcile; do not charge again.
+- A wallet purchase or preview names no price point and the wallet has none set → Maxio answers 422. Send price_point_id when the wallet has no default price point.
+- A wallet purchase or preview names a price_point_id that does not belong to the wallet's billing product → Maxio answers 422. Use a price point of the wallet's own Wallet Product.
+- A wallet purchase or preview uses an archived, custom or otherwise unusable price point → Maxio answers 422. Purchase only at an active, non-custom price point.
+- A wallet purchase or preview uses a price point that has no price in the subscription's currency → Maxio answers 422. Give the price point a price in every currency your subscriptions use.
+- A wallet purchase or preview sends a quantity that is malformed, 0 or less, or out of range → Maxio answers 422. Send quantity as a positive decimal string.
+- A wallet purchase or preview is made on a wallet whose billing product is not a Wallet Product (a wallet created before Wallet Products became required) → Maxio answers 422. Move legacy wallets onto a new wallet backed by a Wallet Product before selling units.
+- A grant, debit, adjustment, purchase (or its preview) or update is sent for an archived wallet → Maxio answers 422 with "Wallet is archived". Check the wallet's status before writing to it; archived wallets accept no further writes.
+- A wallet amount is sent as a JSON number with a decimal point → Maxio answers 422. Send wallet amounts as decimal strings such as "150.0".
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A wallet purchase or preview is sent without price_point_id → The wallet's own price_point_id is used. Pass price_point_id only to buy at a different price point of the wallet's product.
+- A wallet purchase is made for an invoice-billed (remittance) subscription → An invoice is drafted, the wallet is credited right away, and the invoice is issued afterwards; no immediate charge happens. Collect remittance purchase invoices through your normal invoicing follow-up.
+- Issuing the invoice for a remittance wallet purchase fails after the wallet was credited → Maxio answers 201. Watch for draft purchase invoices after a 201 on remittance subscriptions.
+- A wallet purchase is made into an overdrawn wallet → The units repay the overdraft first; the grant is still created, with original equal to the quantity and remaining 0 if the debt absorbed it all. Expect a purchase into an overdrawn wallet to raise the balance by less than the quantity bought.
+- A wallet purchase is made on a manual wallet whose Wallet Product has been archived → The purchase is not blocked; it is priced and charged against the archived product. Check the Wallet Product's archived state yourself before selling units.
+- A wallet purchase succeeds → A grant of origin purchase is written whose expiry follows the funding entitlement's grant expiration policy, or is null when the wallet has no funding entitlement or its entitlements disagree. Read expires_at on the purchase result rather than assuming purchased units never expire.
+- A wallet purchase is made for a subscription on card/automatic collection → An invoice is created and the subscription's payment method is charged immediately; the wallet is credited once payment succeeds. Expect an immediate charge and an invoice_uid on automatic-collection purchases.
+- A wallet is funded (manual grant, purchase, recurring refill or allowance increase) while its balance is negative → The overdraft is repaid first (a grant row with grant_id null) and the new grant gets only what is left, possibly 0; the grant is still created with its full original. Expect a top-up into an overdrawn wallet to show less remaining than the amount sent.
+- A wallet's balance changes → Append-only ledger rows are written; rows are never modified and corrections are always new rows. Reconstruct wallet history from ledger rows and never expect an earlier row to change.
+
 </dd>
 </dl>
 
@@ -21214,6 +24008,26 @@ catch (ApiException<CreateWalletPurchaseError> ex)
 <dd>
 
 Quotes the price for a purchase at the given quantity and price point, without charging the payment method or writing to the wallet. Takes the same parameters as [Create Wallet Purchase]($e/Wallet%20Purchases/createWalletPurchase).
+
+**Business rules**
+
+- A wallet amount (initial_balance, conversion_rate, transaction or adjustment amount, purchase quantity) is sent as a JSON number with a decimal point → Maxio answers 422. Send fractional wallet amounts as decimal strings (a whole JSON integer is also accepted).
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A wallet amount is sent with more than 8 fractional digits → Maxio answers 422. Round wallet amounts to at most 8 decimal places before sending.
+- A wallet purchase or preview names no price point and the wallet has none set → Maxio answers 422. Send price_point_id when the wallet has no default price point.
+- A wallet purchase or preview names a price_point_id that does not belong to the wallet's billing product → Maxio answers 422. Use a price point of the wallet's own Wallet Product.
+- A wallet purchase or preview uses an archived, custom or otherwise unusable price point → Maxio answers 422. Purchase only at an active, non-custom price point.
+- A wallet purchase or preview uses a price point that has no price in the subscription's currency → Maxio answers 422. Give the price point a price in every currency your subscriptions use.
+- A wallet purchase or preview sends a quantity that is malformed, 0 or less, or out of range → Maxio answers 422. Send quantity as a positive decimal string.
+- A wallet purchase or preview is made on a wallet whose billing product is not a Wallet Product (a wallet created before Wallet Products became required) → Maxio answers 422. Move legacy wallets onto a new wallet backed by a Wallet Product before selling units.
+- A grant, debit, adjustment, purchase (or its preview) or update is sent for an archived wallet → Maxio answers 422 with "Wallet is archived". Check the wallet's status before writing to it; archived wallets accept no further writes.
+- A wallet amount is sent as a JSON number with a decimal point → Maxio answers 422. Send wallet amounts as decimal strings such as "150.0".
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A wallet purchase or preview is sent without price_point_id → The wallet's own price_point_id is used. Pass price_point_id only to buy at a different price point of the wallet's product.
+- A wallet purchase is previewed → The quote's currency is the subscription's currency; nothing is charged and nothing is written to the wallet. Use previewWalletPurchase to show a price before calling createWalletPurchase.
 
 </dd>
 </dl>
@@ -21295,6 +24109,39 @@ Grants units to the wallet, or debits units from it, depending on `kind`. `amoun
 - Under the wallet's default `hard_stop_overflow: discard`, the drain is capped at the available balance. For a metered wallet, that cap is the live metered balance, not the stored one, so a debit can drain less than its stored balance would suggest, or even drain nothing at all (`201` with `drained_amount: "0.0"`) if live usage has already consumed what the ledger hadn't caught up to yet. A debit against a wallet whose *stored* balance is already zero or negative (`discard` only ever reaches zero) returns `422 "Wallet is depleted"`. Before that failure is returned, this call still expires any grants that were already overdue, so a `422` response can still leave new `kind: expiration` rows written.
 - Under `hard_stop_overflow: allow_negative`, the full amount is deducted. The excess past the wallet's grants is booked as one overdraft row with `grant_id: null`, `rejected_amount` is always `"0.0"`, and the balance goes negative.
 
+**Business rules**
+
+- A grant, debit, purchase or adjustment is attempted on an archived wallet → Archiving blocks further grants, debits, purchases and adjustments, but reads and list results are unaffected. Do not write to archived wallets; they remain readable.
+- A wallet amount (initial_balance, conversion_rate, transaction or adjustment amount, purchase quantity) is sent as a JSON number with a decimal point → Maxio answers 422. Send fractional wallet amounts as decimal strings (a whole JSON integer is also accepted).
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A wallet amount is sent with more than 8 fractional digits → Maxio answers 422. Round wallet amounts to at most 8 decimal places before sending.
+- An expiry (initial_balance_expires_at on createWallet, expires_at on a grant) is malformed or not in the future → Maxio answers 422. Send expiry dates in the future as YYYY-MM-DD or a full timestamp.
+- An expiry date names a calendar day that does not exist, such as 2027-02-30 → Maxio answers 422. Validate expiry dates as real calendar days before sending.
+- A grant, debit, adjustment, purchase (or its preview) or update is sent for an archived wallet → Maxio answers 422 with "Wallet is archived". Check the wallet's status before writing to it; archived wallets accept no further writes.
+- A wallet amount is sent as a JSON number with a decimal point → Maxio answers 422. Send wallet amounts as decimal strings such as "150.0".
+- A kind: debit is posted to a metered wallet and live usage cannot be read in time → Maxio answers 503. Retry the debit later on 503; it is not returned for grants.
+- For a metered wallet, usage is read but settling it against the ledger fails → Maxio answers 500. Re-read the wallet and ledger before retrying after a 500 on a metered wallet.
+- createWalletTransaction is sent with an amount of 0 or less → Maxio answers 422. Always send amount positive; kind decides whether it is added or removed.
+- createWalletTransaction sends expires_at with kind: debit → Maxio answers 422. Send expires_at only on grants.
+- A kind: debit is posted to a discard wallet whose stored balance is already zero or below → Maxio answers 422 with "Wallet is depleted". Handle wallet_depleted as 'no units left' rather than as a malformed request.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- An expiry (initial_balance_expires_at or a grant's expires_at) is sent as a bare calendar date → It is resolved to the end of that day in the site's time zone. Send a full timestamp if the grant must expire at a time other than end of day in the site's time zone.
+- A kind: debit larger than the available balance is posted to a wallet with hard_stop_overflow: allow_negative → The full amount is deducted; the excess is booked as one overdraft row with grant_id null, rejected_amount is 0.0 and the balance goes negative. Watch for negative balances on allow_negative wallets.
+- A debit drains several grants or goes negative → One ledger row is written per grant drained, plus an overdraft row if the balance goes negative. Expect several ledger rows from a single debit call.
+- A wallet is funded (manual grant, purchase, recurring refill or allowance increase) while its balance is negative → The overdraft is repaid first (a grant row with grant_id null) and the new grant gets only what is left, possibly 0; the grant is still created with its full original. Expect a top-up into an overdrawn wallet to show less remaining than the amount sent.
+- A debit is made against a wallet with several open grants → Grants are drained earliest-expiration-first. Expect debits to consume the soonest-expiring grants first.
+- A kind: grant is created without a memo → The grant's name is set to Grant #<id>; otherwise it is the memo. Send a memo to give the grant a readable name.
+- A kind: grant is posted while the wallet's balance is negative → The overdraft is repaid first (a grant row with grant_id null), then the grant is created with original equal to the full amount and remaining, and its row amount, equal to what is left (possibly 0). Expect two rows and a grant whose remaining is below original when topping up an overdrawn wallet.
+- A kind: debit is posted → Grants are drained earliest-expiration-first (evergreen grants last), writing one debit row per grant touched. Expect several ledger rows from one debit and read them all.
+- A kind: debit is posted while some grants are past their expires_at but not yet written off → Those grants are expired first (kind: expiration rows), even if the debit then fails with 422 wallet_depleted. Re-read the ledger after a failed debit; it may contain new expiration rows.
+- A kind: debit larger than the available balance is posted to a wallet with hard_stop_overflow: discard → Maxio answers 201. Read drained_amount and rejected_amount on every debit; a 201 does not mean the full amount was taken.
+- A kind: debit is posted to a metered discard wallet whose live usage has already consumed part or all of the stored balance → Maxio answers 201. Do not assume a stored-balance check predicts how much a debit on a metered wallet will drain.
+- A wallet's balance changes → Append-only ledger rows are written; rows are never modified and corrections are always new rows. Reconstruct wallet history from ledger rows and never expect an earlier row to change.
+- A ledger row carries a kind the app does not know → More kinds beyond grant, debit, adjustment, initial_balance and expiration are expected over time. Treat a ledger row's kind as an open string and do not fail on unknown kinds.
+
 </dd>
 </dl>
 
@@ -21367,6 +24214,22 @@ catch (ApiException<CreateWalletTransactionError> ex)
 <dd>
 
 Lists the wallet's append-only ledger, newest first, paginated.
+
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A wallet has been archived → Nothing on it is destroyed or clawed back; it stays readable, listed and its ledger available, but nothing on it can be spent. Keep reading archived wallets for history; do not expect their balance to be usable.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- listWalletTransactions is called → Ledger rows are returned newest first. Reverse the order yourself if you need the ledger oldest first.
+- A wallet's balance changes → Append-only ledger rows are written; rows are never modified and corrections are always new rows. Reconstruct wallet history from ledger rows and never expect an earlier row to change.
+- A wallet's ledger is listed → Rows are returned newest first. Reverse the order when you rebuild balance history from the oldest row.
+- A ledger row's balance_after is compared with the wallet's balance → balance_after is the posted balance after that row, so it can differ from balance on a metered wallet with pending usage. Reconcile balance_after against posted_balance, not balance.
+- A ledger row carries a kind the app does not know → More kinds beyond grant, debit, adjustment, initial_balance and expiration are expected over time. Treat a ledger row's kind as an open string and do not fail on unknown kinds.
 
 </dd>
 </dl>
@@ -21443,6 +24306,24 @@ catch (ApiException<ListWalletTransactionsError> ex)
 
 Archives the wallet: blocks further grants, debits, adjustments, and purchases (each returns `422`), stops any metered drawdown, and stops recurring funding (its schedule is deactivated with reason `wallet_archived`, not removed), while reads and the ledger stay available. Nothing already on the wallet is destroyed or clawed back, but nothing on it can be spent either, by any path, once archived. Idempotent: archiving an already-archived wallet returns the same `200`. There is no restore endpoint.
 
+**Business rules**
+
+- A grant, debit, purchase or adjustment is attempted on an archived wallet → Archiving blocks further grants, debits, purchases and adjustments, but reads and list results are unaffected. Do not write to archived wallets; they remain readable.
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A wallet is archived → Metered drawdown stops and any recurring funding schedule is deactivated with reason wallet_archived (not removed). Expect recurring_funding to show status stopped with reason wallet_archived after archiving.
+- A wallet has been archived → Nothing on it is destroyed or clawed back; it stays readable, listed and its ledger available, but nothing on it can be spent. Keep reading archived wallets for history; do not expect their balance to be usable.
+- archiveWallet is called on a wallet that is already archived → Maxio answers 200. Retry archiveWallet freely; it is idempotent.
+- A wallet is archived → There is no restore endpoint, so the archive cannot be undone through the API. Archive a wallet only when it will never be used again.
+- A wallet with recurring funding is archived → Recurring funding stops with reason wallet_archived. Do not archive a wallet that should keep receiving refills.
+- A wallet is returned by any operation other than readWallet, including a metered wallet → balance equals posted_balance (the stored figure as of the last ledger write), grants' remaining equal posted_remaining, and the metered_* fields are null. Call readWallet when a live metered balance is needed.
+- A wallet's grants are returned → Every grant, including spent and expired ones, is listed in drain order: soonest-expiring first, evergreen grants last. Filter spent or expired grants yourself; do not assume the array holds only open grants.
+- A wallet paired with a meter is returned → Only Read Wallet computes a live balance, and only for an active wallet on a site with metered consumption enabled; every other response reports the stored balance (balance equal to posted_balance) with the metered_* fields null. Call Read Wallet when you need the live metered balance and reconcile against posted_balance.
+- A wallet response carries a depletion_policy the app does not know → New depletion_policy values are expected over time; hard_stop is the only one today. Treat depletion_policy as an open string and do not fail on unknown values.
+
 </dd>
 </dl>
 
@@ -21510,6 +24391,49 @@ catch (ApiException<ArchiveWalletError> ex)
 Creates a wallet owned by a subscription and denominated by a [Wallet Product]($e/Wallet%20Products/createWalletProduct): only a Wallet Product can denominate a wallet, not an ordinary component. The Wallet Product must be active; it never belongs to a product family, so there's no family check against the subscription. It's **immutable for the life of the wallet**; there's no way to repoint an existing wallet at a different one.
 
 This endpoint always creates a `manual` wallet. To provision a wallet automatically from a usage-limit entitlement instead, configure `wallet_behavior` on the Feature behind that entitlement (see [the Wallets concept guide](page:introduction/basic-concepts/wallets#provisioning-a-wallet-from-a-feature)) rather than sending `entitlement_id` here.
+
+**Business rules**
+
+- A wallet amount (initial_balance, conversion_rate, transaction or adjustment amount, purchase quantity) is sent as a JSON number with a decimal point → Maxio answers 422. Send fractional wallet amounts as decimal strings (a whole JSON integer is also accepted).
+- createWallet sends a price_point_id that is archived, is a subscription-specific custom price point, or does not belong to the Wallet Product → Maxio answers 422. Pick an active, non-custom price point of the same Wallet Product.
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- meter_id or conversion_rate is sent on a site without metered wallet consumption enabled → Maxio answers 403 with "403 Forbidden". Send meter_id and conversion_rate only when metered wallet consumption is enabled for the site.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A wallet is created for a prepaid subscription → Maxio answers 422. Do not create wallets for prepaid subscriptions.
+- createWallet sends a depletion_policy other than hard_stop → Maxio answers 422. Send hard_stop or leave depletion_policy out.
+- createWallet pairs a meter that is not a sum or count meter → Maxio answers 422. Pair only sum or count meters.
+- createWallet sends meter_id or conversion_rate on a site without metered wallet consumption enabled → Maxio answers 403 with "403 Forbidden". Enable metered wallet consumption before pairing wallets with meters.
+- createWallet sends a conversion_rate that is not greater than 0, is 10^16 or more, or has more than 8 fractional digits → Maxio answers 422. Send conversion_rate as a decimal string above 0 and below 10^16 with at most 8 decimals.
+- createWallet pairs a meter whose stream bills by subscription reference with a subscription that has no reference → Maxio answers 422. Set a reference on the subscription before pairing a meter that bills by subscription reference.
+- A wallet amount is sent with more than 8 fractional digits → Maxio answers 422. Round wallet amounts to at most 8 decimal places before sending.
+- createWallet sends a negative initial_balance or one of 10^16 or more → Maxio answers 422. Send initial_balance as a non-negative decimal string below 10^16.
+- createWallet sends initial_balance_expires_at without a non-zero initial_balance → Maxio answers 422. Send initial_balance_expires_at only together with a non-zero initial_balance.
+- An expiry (initial_balance_expires_at on createWallet, expires_at on a grant) is malformed or not in the future → Maxio answers 422. Send expiry dates in the future as YYYY-MM-DD or a full timestamp.
+- An expiry date names a calendar day that does not exist, such as 2027-02-30 → Maxio answers 422. Validate expiry dates as real calendar days before sending.
+- createWallet names a wallet_product_id that does not resolve to a Wallet Product on this site (including an ordinary component) → Maxio answers 404 with "Wallet product not found". Create a Wallet Product first and pass its id; ordinary components cannot denominate a wallet.
+- createWallet names an archived Wallet Product → Maxio answers 422 with "Wallet product is archived". Unarchive the Wallet Product or pick an active one.
+- A Wallet Product is referenced by its handle without the handle: prefix (wallet_product_id on createWallet, or the id path parameter) → Maxio answers 404. Reference Wallet Products by numeric id or as handle:<handle>.
+- createWallet is sent with entitlement_id → Maxio answers 422 with "Recurring funding comes from a wallet-backed feature, not from this endpoint". Never send entitlement_id; configure wallet_behavior on the feature template for funded wallets.
+- createWallet names a subscription on prepaid collection → Maxio answers 422 with "Wallets are not available on prepaid subscriptions". Do not create wallets for prepaid subscriptions.
+- createWallet names a subscription that does not exist or belongs to another site → Maxio answers 404. Pass a subscription id from the same site as the API key.
+- createWallet sends a meter_id that is not a merchant-owned meter on this site (a system-maintained shadow meter included) → Maxio answers 404. Pair wallets only with your own meters on this site.
+- A wallet amount is sent as a JSON number with a decimal point → Maxio answers 422. Send wallet amounts as decimal strings such as "150.0".
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- Anything other than a wallet's name would be changed after creation, including its Wallet Product → the outcome is not stated. Set the Wallet Product and settings correctly at creation; change only name with Update Wallet.
+- createWallet is sent without price_point_id → The wallet takes the Wallet Product's default price point, or null if the product has none; it cannot be changed later. Pass price_point_id at creation if purchases should use a non-default price point.
+- createWallet is sent without depletion_policy → depletion_policy is set to hard_stop. Leave depletion_policy out unless you need to state it.
+- createWallet is sent without hard_stop_overflow → hard_stop_overflow is set to discard, so debits past zero are capped and the excess rejected. Send hard_stop_overflow=allow_negative at creation if the wallet may go into overdraft.
+- createWallet pairs a meter_id without a conversion_rate → conversion_rate is set to 1.0 and cannot be changed later; without meter_id the rate has no meaning. Send conversion_rate at creation if one meter unit is not one wallet unit.
+- createWallet is sent with a non-zero initial_balance → An initial-balance grant and a matching initial_balance ledger row are written; the balance is free and appears on no invoice. Use initial_balance only for free opening credit; use createWalletPurchase for paid units.
+- createWallet is sent with initial_balance omitted or exactly 0 → A zero-balance wallet with no grants is created; this is not an error. Omit initial_balance for an empty wallet.
+- An expiry (initial_balance_expires_at or a grant's expires_at) is sent as a bare calendar date → It is resolved to the end of that day in the site's time zone. Send a full timestamp if the grant must expire at a time other than end of day in the site's time zone.
+- A wallet name is sent with surrounding spaces, blank, or (on update) null → Surrounding spaces are stripped; a blank value is stored as null, and on update a blank or null clears the name. Send null or blank only when you mean to clear the wallet name.
+- A wallet is returned by any operation other than readWallet, including a metered wallet → balance equals posted_balance (the stored figure as of the last ledger write), grants' remaining equal posted_remaining, and the metered_* fields are null. Call readWallet when a live metered balance is needed.
+- A wallet's grants are returned → Every grant, including spent and expired ones, is listed in drain order: soonest-expiring first, evergreen grants last. Filter spent or expired grants yourself; do not assume the array holds only open grants.
+- A wallet paired with a meter is returned → Only Read Wallet computes a live balance, and only for an active wallet on a site with metered consumption enabled; every other response reports the stored balance (balance equal to posted_balance) with the metered_* fields null. Call Read Wallet when you need the live metered balance and reconcile against posted_balance.
+- A wallet response carries a depletion_policy the app does not know → New depletion_policy values are expected over time; hard_stop is the only one today. Treat depletion_policy as an open string and do not fail on unknown values.
 
 </dd>
 </dl>
@@ -21580,6 +24504,26 @@ catch (ApiException<CreateWalletError> ex)
 
 Lists the wallets on your site, in creation order, paginated. Without `subscription_id`, returns every wallet on the site. The API key is the tenancy boundary; `subscription_id` only narrows the result set further. Archived wallets are included unless you filter them out with `status=active`.
 
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- listWallets is called with a status value other than active or archived → Maxio answers 422 with "Status must be one of: active, archived". Send only active or archived as status.
+- A wallet has been archived → Nothing on it is destroyed or clawed back; it stays readable, listed and its ledger available, but nothing on it can be spent. Keep reading archived wallets for history; do not expect their balance to be usable.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- listWallets is called → Wallets are returned in creation order. Do not expect any other ordering from listWallets.
+- listWallets is called without subscription_id → Every wallet on the site is returned; the API key is the tenancy boundary and subscription_id only narrows it. Pass subscription_id to list one subscription's wallets.
+- listWallets is called without status=active → Archived wallets are included in the results. Pass status=active to leave archived wallets out.
+- A wallet is returned by any operation other than readWallet, including a metered wallet → balance equals posted_balance (the stored figure as of the last ledger write), grants' remaining equal posted_remaining, and the metered_* fields are null. Call readWallet when a live metered balance is needed.
+- A wallet's grants are returned → Every grant, including spent and expired ones, is listed in drain order: soonest-expiring first, evergreen grants last. Filter spent or expired grants yourself; do not assume the array holds only open grants.
+- A wallet paired with a meter is returned → Only Read Wallet computes a live balance, and only for an active wallet on a site with metered consumption enabled; every other response reports the stored balance (balance equal to posted_balance) with the metered_* fields null. Call Read Wallet when you need the live metered balance and reconcile against posted_balance.
+- A wallet's grants are returned → Grants are listed in drain order (soonest-expiring first, evergreen grants last) and spent or expired grants stay in the array. Filter spent and expired grants yourself when you only need open ones.
+- A wallet response carries a depletion_policy the app does not know → New depletion_policy values are expected over time; hard_stop is the only one today. Treat depletion_policy as an open string and do not fail on unknown values.
+
 </dd>
 </dl>
 
@@ -21646,6 +24590,24 @@ catch (ApiException<ListWalletsError> ex)
 
 Returns the wallet's balance and grant breakdown. For an active, metered wallet on a site with metered consumption enabled, this is the only operation that computes a live balance from meter usage; see the wallet resource's `metered_*` fields. It is also the only operation where `balance` can differ from `posted_balance`, and a grant's `remaining` from its `posted_remaining`: the pending usage is drawn from the grants in drain order, so the grants' `remaining` add up to `balance`. Readable regardless of status. Archiving a wallet doesn't affect reads.
 
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- A wallet has been archived → Nothing on it is destroyed or clawed back; it stays readable, listed and its ledger available, but nothing on it can be spent. Keep reading archived wallets for history; do not expect their balance to be usable.
+- A wallet's grants are returned → Every grant, including spent and expired ones, is listed in drain order: soonest-expiring first, evergreen grants last. Filter spent or expired grants yourself; do not assume the array holds only open grants.
+- A wallet paired with a meter is returned → Only Read Wallet computes a live balance, and only for an active wallet on a site with metered consumption enabled; every other response reports the stored balance (balance equal to posted_balance) with the metered_* fields null. Call Read Wallet when you need the live metered balance and reconcile against posted_balance.
+- Live metered usage cannot be read fresh when a metered wallet is read → metered_stale is true and balance falls back to the last known snapshot, while posted_balance stays exact. Check metered_stale and wait metered_recheck_after_seconds before reading again.
+- A wallet's grants are returned → Grants are listed in drain order (soonest-expiring first, evergreen grants last) and spent or expired grants stay in the array. Filter spent and expired grants yourself when you only need open ones.
+- A wallet response carries a depletion_policy the app does not know → New depletion_policy values are expected over time; hard_stop is the only one today. Treat depletion_policy as an open string and do not fail on unknown values.
+- readWallet is called for an active, metered wallet on a site with metered consumption enabled → balance and grants' remaining include usage not yet posted to the ledger (through metered_through_at), so balance can be below posted_balance; this is the only operation that computes it. Enforce against balance from readWallet, and reconcile the ledger against posted_balance.
+- readWallet cannot read a metered wallet's live usage fresh → metered_stale is true and balance falls back to the last known snapshot, while posted_balance stays exact. Check metered_stale before trusting balance as live.
+- readWallet returns a live metered balance → metered_recheck_after_seconds says how long to wait before reading again to see usage past metered_through_at. Wait metered_recheck_after_seconds before re-reading a metered wallet's balance.
+- readWallet is called for an archived metered wallet → The stored balance is reported; no live metered balance is computed. Do not expect live metered figures from an archived wallet.
+
 </dd>
 </dl>
 
@@ -21711,6 +24673,23 @@ catch (ApiException<ReadWalletError> ex)
 <dd>
 
 Updates the wallet's editable attributes. Only `name` is editable; any other attribute in the body is ignored. Send only the attributes to change.
+
+**Business rules**
+
+- A wallet endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Have the Wallets feature enabled for the site and handle a plain-text 403 body.
+- A wallet endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with errors (human-readable messages) and code (a stable machine-readable reason); record validation failures use validation_failed. Branch on the error code, not on the message text.
+- A grant, debit, adjustment, purchase (or its preview) or update is sent for an archived wallet → Maxio answers 422 with "Wallet is archived". Check the wallet's status before writing to it; archived wallets accept no further writes.
+- Any wallet, wallet transaction, adjustment, purchase or Wallet Product endpoint is called on a site without the Wallets feature enabled → Maxio answers 403 with "403 Forbidden". Enable Wallets for the site, and do not parse a 403 body from these endpoints as JSON.
+- A wallet or Wallet Product endpoint returns 404, 409, 422, 500 or 503 → The body is JSON with an errors array of messages that may be reworded and a stable machine-readable code. Branch on the code field, never on the message text.
+- A wallet or Wallet Product request fails a record validation rule → code is validation_failed rather than a field-specific code. Treat validation_failed as a generic validation failure and read errors for detail.
+- Anything other than a wallet's name would be changed after creation, including its Wallet Product → the outcome is not stated. Set the Wallet Product and settings correctly at creation; change only name with Update Wallet.
+- updateWallet is sent with no editable attribute in the body → Maxio answers 422. Include name in every updateWallet body.
+- A wallet name is sent with surrounding spaces, blank, or (on update) null → Surrounding spaces are stripped; a blank value is stored as null, and on update a blank or null clears the name. Send null or blank only when you mean to clear the wallet name.
+- A wallet is returned by any operation other than readWallet, including a metered wallet → balance equals posted_balance (the stored figure as of the last ledger write), grants' remaining equal posted_remaining, and the metered_* fields are null. Call readWallet when a live metered balance is needed.
+- A wallet's grants are returned → Every grant, including spent and expired ones, is listed in drain order: soonest-expiring first, evergreen grants last. Filter spent or expired grants yourself; do not assume the array holds only open grants.
+- A wallet paired with a meter is returned → Only Read Wallet computes a live balance, and only for an active wallet on a site with metered consumption enabled; every other response reports the stored balance (balance equal to posted_balance) with the metered_* fields null. Call Read Wallet when you need the live metered balance and reconcile against posted_balance.
+- A wallet response carries a depletion_policy the app does not know → New depletion_policy values are expected over time; hard_stop is the only one today. Treat depletion_policy as an open string and do not fail on unknown values.
+- updateWallet is sent with attributes other than name (wallet product, meter, conversion rate, price point and so on) → Every attribute other than name is ignored; those are fixed for the life of the wallet. Create a new wallet when anything other than the name must change.
 
 </dd>
 </dl>
@@ -21786,6 +24765,13 @@ catch (ApiException<UpdateWalletError> ex)
 
 Creates an endpoint and assigns a list of webhook subscriptions (events) to it.
 See the [Webhooks Reference](page:introduction/webhooks/webhooks-reference#events) page for available events.
+
+**Business rules**
+
+- An endpoint is created with a URL whose scheme is not http or https → Maxio answers 422 with "URL: invalid, only http and https supported". Give endpoint URLs an http or https scheme.
+- A webhook endpoint URL uses plain HTTP while the site is in live mode → the outcome is not stated. Use an HTTPS endpoint URL before taking the site live.
+- A site already has the maximum number of webhook endpoints allowed by its merchant limits → the outcome is not stated. Check the site's endpoint limit (Merchant Limits) before adding endpoints and reuse existing ones.
+- A webhook endpoint is hosted on a port other than 80 or 443 → Ports other than 80 and 443 are not supported. Host webhook endpoints on port 80 or 443.
 
 </dd>
 </dl>
@@ -21866,6 +24852,10 @@ catch (ApiException<CreateEndpointError> ex)
 <dd>
 
 Enables webhooks for your site.
+
+**Business rules**
+
+- Enable Webhooks is called with webhooks_enabled → Webhook sending is switched on (or off) for the whole site, not for one endpoint. Remember that this switch is site-wide and affects every configured endpoint.
 
 </dd>
 </dl>
@@ -21986,6 +24976,15 @@ catch (ApiException<RawError> ex)
 
 Retrieves a list of webhooks.  You can pass query parameters if you want to filter webhooks. See the [Webhooks](page:introduction/webhooks/webhooks) documentation for more information.
 
+**Business rules**
+
+- A webhook is retried or replayed → The webhook keeps the same id across retries and replays, so the same event can arrive more than once with one id. Record processed webhook ids and skip ones already handled.
+- A webhook that failed earlier is retried or resent and then accepted → last_error and last_error_at are cleared. Do not rely on last_error to keep the history of failed attempts.
+- A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.
+- A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.
+- List Webhooks is called with since_date and/or until_date → The dates (YYYY-MM-DD) filter on the webhook created_at date and both bounds are inclusive. Send since_date and until_date as YYYY-MM-DD and treat both bounds as inclusive.
+- Webhook data is older than the site's webhook data retention limit → Advanced Billing stores webhook data only for a limited time (see Merchant Limits). Do not rely on old webhooks being available to list or replay; keep your own record of what you need.
+
 </dd>
 </dl>
 
@@ -22048,6 +25047,16 @@ catch (ApiException<RawError> ex)
 <dd>
 
 Replays webhooks. Posting to this endpoint does not immediately resend the webhooks. They are added to a queue and sent as soon as possible, depending on available system resources. You can submit an array of up to 1000 webhook IDs in the replay request.
+
+**Business rules**
+
+- A replay request lists more than 1000 webhook IDs → the outcome is not stated. Send at most 1000 webhook IDs per replay request and split larger sets.
+- A webhook is retried or replayed → The webhook keeps the same id across retries and replays, so the same event can arrive more than once with one id. Record processed webhook ids and skip ones already handled.
+- Webhook data is older than the site's webhook data retention limit → Advanced Billing stores webhook data only for a limited time (see Merchant Limits). Do not rely on old webhooks being available to list or replay; keep your own record of what you need.
+- Replay Webhooks is accepted → The webhooks are not resent immediately; they are queued and sent as soon as system resources allow. Do not expect replayed webhooks to arrive at once; watch last_sent_at or your endpoint instead of the replay response.
+- A webhook is explicitly replayed by the merchant → The webhook's accepted_at is cleared until the endpoint accepts it again. Do not treat a null accepted_at on a replayed webhook as a past delivery failure.
+- Paused webhooks reference an endpoint that has been deleted from Advanced Billing → Those paused webhooks cannot be resent and are effectively discarded. Replay or resend paused webhooks before deleting their endpoint.
+- Webhooks are replayed while the automatic retries for them may still be running → The same webhook can be delivered more than once (the replay and a retry). Track processed webhook IDs and replay only once last_sent_at is well outside the automatic retry intervals.
 
 </dd>
 </dl>
@@ -22118,6 +25127,14 @@ Updates an Endpoint. You can change the `url` of your endpoint or the list of `w
 Always send a complete list of events to which you want to subscribe. Sending a PUT request for an existing endpoint with an empty list of `webhook_subscriptions` will unsubscribe all events.
 
 If you want to unsubscribe from a specific event, send a list of `webhook_subscriptions` without the specific event key.
+
+**Business rules**
+
+- A webhook endpoint URL uses plain HTTP while the site is in live mode → the outcome is not stated. Use an HTTPS endpoint URL before taking the site live.
+- Update Endpoint names an event key that is not a valid webhook event → Maxio answers 422 with "Event key is not valid - foobar". Use only event keys from the Webhooks Reference event list.
+- A webhook endpoint is hosted on a port other than 80 or 443 → Ports other than 80 and 443 are not supported. Host webhook endpoints on port 80 or 443.
+- Update Endpoint is called with a webhook_subscriptions list → The list replaces the endpoint's subscribed events; any event left out is unsubscribed. Always send the complete list of events the endpoint should stay subscribed to.
+- Update Endpoint is called with an empty webhook_subscriptions list → The endpoint is unsubscribed from all events. Never send an empty webhook_subscriptions list unless you mean to unsubscribe every event.
 
 </dd>
 </dl>

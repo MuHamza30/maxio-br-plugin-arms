@@ -46,6 +46,12 @@ public sealed class Coupons
     /// Archives a coupon, making it unavailable for future use while remaining active on existing subscriptions.
     /// Archiving makes that Coupon unavailable for future use, but allows it to remain attached and functional on existing Subscriptions that are using it.
     /// The <c>archived_at</c> date and time will be assigned.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A coupon is archived → The coupon becomes unavailable for future use but stays attached and working on existing subscriptions; archived_at is set. Remove the coupon from existing subscriptions separately if its discount must stop.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> ArchiveCoupon(ArchiveCouponRequest request,
         RequestOptions? requestOptions = null,
@@ -82,6 +88,23 @@ public sealed class Coupons
     /// <para>
     /// See <see href="https://maxio.zendesk.com/hc/en-us/articles/24261259337101-Coupons-and-Subscriptions">Apply Coupons to Subscriptions</see> for information on applying a coupon to a subscription in the Advanced Billing UI.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A new coupon is created without name, code or description → the outcome is not stated. Send name, code and description when creating a coupon.</description></item>
+    ///   <item><description>The coupon code contains characters other than uppercase letters, digits and % @ + - _  → the outcome is not stated. Build coupon codes from uppercase letters, digits and the allowed special characters only.</description></item>
+    ///   <item><description>A new coupon is created with neither percentage nor amount_in_cents → the outcome is not stated. Send percentage for a percentage coupon or amount_in_cents for a flat amount coupon.</description></item>
+    ///   <item><description>percentage and amount_in_cents are both sent → the outcome is not stated. Send only one of percentage and amount_in_cents.</description></item>
+    ///   <item><description>allow_negative_balance is set to true together with restricted_products or restricted_components → the outcome is not stated. Do not combine allow_negative_balance with product or component restrictions.</description></item>
+    ///   <item><description>end_date is in the past → Maxio answers 422 with "Expiration Date cannot be in the past". Send an end_date of today or later, or none.</description></item>
+    ///   <item><description>The coupon amount is negative → Maxio answers 422 with "Amount: must be greater than or equal to $0.00.". Send a coupon amount of zero or more.</description></item>
+    ///   <item><description>name, code or description is longer than 255 characters → the outcome is not stated. Keep coupon name, code and description to 255 characters or fewer.</description></item>
+    ///   <item><description>compounding_strategy is set on a coupon that is not stackable → compounding_strategy applies only to stackable coupons. Set stackable true when the compounding strategy matters.</description></item>
+    ///   <item><description>A stackable percentage coupon is combined with other discounts → With compound the percentage is taken from the price remaining after prior discounts; with full-price it is taken from the original item price. Choose compound or full-price deliberately and compute expected totals the same way.</description></item>
+    ///   <item><description>allow_negative_balance is true and the discount exceeds the amount billed → The discount is not limited; the excess becomes credit that carries forward to the next billing. Set allow_negative_balance only when unused discount should carry forward as credit.</description></item>
+    ///   <item><description>A coupon has an end_date → After the end of that day the code is invalid for new signups; recurring discounts started before the date keep recurring after it. Do not use end_date to stop discounts already running; it only blocks new signups.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> CreateCoupon(CreateCouponRequest request,
         RequestOptions? requestOptions = null,
@@ -149,6 +172,13 @@ public sealed class Coupons
     /// <para>
     /// For more information on coupon codes and applying coupons to subscriptions, see <see href="https://maxio.zendesk.com/hc/en-us/articles/24261208729229-Coupon-Codes">Coupon Codes</see> and <see href="https://maxio.zendesk.com/hc/en-us/articles/24261259337101-Coupons-and-Subscriptions">Coupons and Subscriptions</see>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A subcode is sent with lowercase letters → The lowercase letters are capitalized before the subcode is created. Store and compare subcodes in uppercase.</description></item>
+    ///   <item><description>A subcode in the list is not valid (contains spaces or disallowed characters) → That subcode is not created and is reported among the invalid codes in the response; the rest are processed. Check invalid_codes in the response instead of assuming every subcode was created.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponSubcodesResponse> CreateCouponSubcodes(CreateCouponSubcodesRequest request,
         RequestOptions? requestOptions = null,
@@ -179,6 +209,13 @@ public sealed class Coupons
     /// <para>
     /// Currency pricing for coupons must mirror the setup of the primary coupon pricing - if the primary coupon is percentage based, you will not be able to define pricing in non-primary currencies.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Currency prices are sent for a percentage-based coupon → Maxio answers 422 with "Cannot create prices for a percentage-based coupon.". Set currency prices only on amount-based coupons.</description></item>
+    ///   <item><description>A currency price is sent for a currency not defined at the site level → Maxio answers 422 with "Currency must be defined on the site level.". Define the currency on the site before setting coupon prices in it.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponCurrencyResponse> CreateOrUpdateCouponCurrencyPrices(CreateOrUpdateCouponCurrencyPricesRequest request,
         RequestOptions? requestOptions = null,
@@ -230,6 +267,12 @@ public sealed class Coupons
     /// <para>
     /// Or if the coupon subcode is 20%OFF, the URL to delete this coupon subcode would be: @https://&lt;subdomain&gt;.chargify.com/coupons/567/codes/20%25OFF.&lt;format&gt;.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The subcode in the URL path contains one of the special characters % @ + - _ or . without percent-encoding → the outcome is not stated. Percent-encode % @ + - _ and . in the subcode path segment (for example 20%OFF as 20%25OFF).</description></item>
+    /// </list>
     /// </example>
     /// </remarks>
     public Task DeleteCouponSubcode(DeleteCouponSubcodeRequest request,
@@ -261,6 +304,13 @@ public sealed class Coupons
     /// <para>
     /// If you have more than one product family and if the coupon you are trying to find does not belong to the default product family in your site, you need to specify (either in the URL or as a query string param) the <c>product_family_id</c>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The site has more than one product family and the coupon is not in the default (first-created, unarchived) product family, and no product family is given → the outcome is not stated. Pass product_family_id (or the product family in the URL, by id or handle:&lt;handle&gt;) when the coupon may be outside the default family.</description></item>
+    ///   <item><description>currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> FindCoupon(FindCouponRequest request,
         RequestOptions? requestOptions = null,
@@ -292,6 +342,15 @@ public sealed class Coupons
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists the subcodes attached to a coupon.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.</description></item>
+    ///   <item><description>page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponSubcodes> ListCouponSubcodes(ListCouponSubcodesRequest request,
         RequestOptions? requestOptions = null,
@@ -319,6 +378,21 @@ public sealed class Coupons
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists coupons for a site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Coupons are listed for the site → Coupons from all product families are returned, not only the default product family. Page through the results, and use the product-family coupon list when you need one family only.</description></item>
+    ///   <item><description>currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.</description></item>
+    ///   <item><description>filter[use_site_exchange_rate] is sent → true returns only coupons priced from the site's current exchange rates (on-the-fly currency_prices); false returns only coupons with manually defined amounts per currency (stored currency_prices). Omit the filter to get both kinds of coupons.</description></item>
+    ///   <item><description>start_date or end_date (date only) is sent to filter by date_field → start_date matches records at or after midnight and end_date matches records up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.</description></item>
+    ///   <item><description>per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.</description></item>
+    ///   <item><description>page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.</description></item>
+    ///   <item><description>date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<CouponResponse>> ListCoupons(ListCouponsRequest request,
         RequestOptions? requestOptions = null,
@@ -351,6 +425,20 @@ public sealed class Coupons
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists coupons for a specific product family in a site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.</description></item>
+    ///   <item><description>filter[use_site_exchange_rate] is sent → true returns only coupons priced from the site's current exchange rates (on-the-fly currency_prices); false returns only coupons with manually defined amounts per currency (stored currency_prices). Omit the filter to get both kinds of coupons.</description></item>
+    ///   <item><description>start_date or end_date (date only) is sent to filter by date_field → start_date matches records at or after midnight and end_date matches records up to and including 11:59:59 PM, both in the site's time zone. Convert date filters to the site's time zone, or use start_datetime/end_datetime with an explicit offset.</description></item>
+    ///   <item><description>per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.</description></item>
+    ///   <item><description>page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>start_datetime or end_datetime is sent without a time zone → The site's time zone is used. Include a UTC offset in start_datetime/end_datetime when the site's time zone is not the one you mean.</description></item>
+    ///   <item><description>date_field is sent with a value other than created_at or updated_at → The value is ignored and the date filters are not applied; matching records are returned unfiltered by date. Send a supported date_field value and check that the date filter was applied.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>start_datetime is sent with start_date, or end_datetime with end_date → The datetime parameter is used instead of the date parameter. Send only one of each date/datetime pair.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<CouponResponse>> ListCouponsForProductFamily(ListCouponsForProductFamilyRequest request,
         RequestOptions? requestOptions = null,
@@ -389,6 +477,13 @@ public sealed class Coupons
     /// <para>
     /// If the coupon is set to <c>use_site_exchange_rate: true</c>, it returns pricing based on the current exchange rate. If the flag is set to false, it returns all of the defined prices for each currency.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>currency_prices=true is sent on a site with multiple currencies defined → Each coupon includes an array of currency price data; without the parameter it is not returned. Send currency_prices=true when you need per-currency coupon amounts.</description></item>
+    ///   <item><description>A coupon is read → With use_site_exchange_rate true the pricing is based on the current exchange rate; with false all defined prices for each currency are returned. Expect exchange-rate coupon prices to change between reads.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> ReadCoupon(ReadCouponRequest request,
         RequestOptions? requestOptions = null,
@@ -453,6 +548,23 @@ public sealed class Coupons
     /// You can restrict a coupon to only apply to specific products / components by optionally passing in hashes of <c>restricted_products</c> and/or <c>restricted_components</c> in the format:
     /// <c>{ "&lt;product/component_id&gt;": boolean_value }</c>
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The coupon code contains characters other than uppercase letters, digits and % @ + - _  → the outcome is not stated. Build coupon codes from uppercase letters, digits and the allowed special characters only.</description></item>
+    ///   <item><description>percentage and amount_in_cents are both sent → the outcome is not stated. Send only one of percentage and amount_in_cents.</description></item>
+    ///   <item><description>allow_negative_balance is set to true together with restricted_products or restricted_components → the outcome is not stated. Do not combine allow_negative_balance with product or component restrictions.</description></item>
+    ///   <item><description>end_date is in the past → Maxio answers 422 with "Expiration Date cannot be in the past". Send an end_date of today or later, or none.</description></item>
+    ///   <item><description>The coupon amount is negative → Maxio answers 422 with "Amount: must be greater than or equal to $0.00.". Send a coupon amount of zero or more.</description></item>
+    ///   <item><description>name, code or description is longer than 255 characters → the outcome is not stated. Keep coupon name, code and description to 255 characters or fewer.</description></item>
+    ///   <item><description>The coupon code is changed to a code another coupon already uses → Maxio answers 422 with "Code: must be unique - that value has been taken.". Use a coupon code no other coupon on the site has.</description></item>
+    ///   <item><description>The code is changed on a coupon that belongs to one or more active offers → Maxio answers 422 with "Code cannot be changed because coupon belongs to one or more active offers: offer-1". Archive or remove the coupon from active offers before changing its code, or leave the code unchanged.</description></item>
+    ///   <item><description>compounding_strategy is set on a coupon that is not stackable → compounding_strategy applies only to stackable coupons. Set stackable true when the compounding strategy matters.</description></item>
+    ///   <item><description>A stackable percentage coupon is combined with other discounts → With compound the percentage is taken from the price remaining after prior discounts; with full-price it is taken from the original item price. Choose compound or full-price deliberately and compute expected totals the same way.</description></item>
+    ///   <item><description>allow_negative_balance is true and the discount exceeds the amount billed → The discount is not limited; the excess becomes credit that carries forward to the next billing. Set allow_negative_balance only when unused discount should carry forward as credit.</description></item>
+    ///   <item><description>A coupon has an end_date → After the end of that day the code is invalid for new signups; recurring discounts started before the date keep recurring after it. Do not use end_date to stop discounts already running; it only blocks new signups.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> UpdateCoupon(UpdateCouponRequest request,
         RequestOptions? requestOptions = null,
@@ -497,6 +609,14 @@ public sealed class Coupons
     /// <list type="bullet">
     ///   <item><description>Any subcodes not created because they are invalid.</description></item>
     /// </list>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A subcode in the list is not valid (contains spaces or disallowed characters) → That subcode is not created and is reported among the invalid codes in the response; the rest are processed. Check invalid_codes in the response instead of assuming every subcode was created.</description></item>
+    ///   <item><description>A list of subcodes is sent to update a coupon's subcodes → All current subcodes of the coupon are deleted first and replaced with the list sent. Send the complete list of subcodes to keep; use create to add subcodes without removing others.</description></item>
+    ///   <item><description>A subcode in the list already exists → That subcode is not created and is reported in the response as already existing. Read the duplicate list in the response to see which subcodes were not created.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponSubcodesResponse> UpdateCouponSubcodes(UpdateCouponSubcodesRequest request,
         RequestOptions? requestOptions = null,
@@ -539,6 +659,13 @@ public sealed class Coupons
     /// <code>
     /// https://&lt;subdomain&gt;.chargify.com/coupons/validate.&lt;format&gt;?code=&lt;coupon_code&gt;&amp;product_family_id=&lt;id&gt;
     /// </code>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The site has more than one product family and the coupon is not in the default (first-created, unarchived) product family, and no product family is given → the outcome is not stated. Pass product_family_id (or the product family in the URL, by id or handle:&lt;handle&gt;) when the coupon may be outside the default family.</description></item>
+    ///   <item><description>The coupon code being validated is not found → Maxio answers 404 with "Coupon code could not be found.". Show the customer an invalid-code message on 404 rather than treating it as a failure of the service.</description></item>
+    /// </list>
     /// </remarks>
     public Task<CouponResponse> ValidateCoupon(ValidateCouponRequest request,
         RequestOptions? requestOptions = null,

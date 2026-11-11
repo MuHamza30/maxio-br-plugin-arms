@@ -39,6 +39,12 @@ public sealed class SubscriptionGroupInvoiceAccount
     /// <exception cref="ApiException{TError}"> of <see cref="CreateSubscriptionGroupPrepaymentError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Adds a prepayment for a subscription group. This endpoint requires an <c>amount</c>, <c>details</c>, <c>method</c>, and <c>memo</c>. On success, the prepayment will be added to the group's prepayment balance.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SubscriptionGroupPrepaymentResponse> CreateSubscriptionGroupPrepayment(CreateSubscriptionGroupPrepaymentRequest request,
         RequestOptions? requestOptions = null,
@@ -66,6 +72,12 @@ public sealed class SubscriptionGroupInvoiceAccount
     /// <exception cref="ApiException{TError}"> of <see cref="DeductSubscriptionGroupServiceCreditError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Deducts service credit for a subscription group. Credit will be deducted from the group in the amount specified in the request body.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ServiceCredit> DeductSubscriptionGroupServiceCredit(DeductSubscriptionGroupServiceCreditRequest request,
         RequestOptions? requestOptions = null,
@@ -93,6 +105,13 @@ public sealed class SubscriptionGroupInvoiceAccount
     /// <exception cref="ApiException{TError}"> of <see cref="IssueSubscriptionGroupServiceCreditError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Issues service credit for a subscription group. Credit will be added to the group in the amount specified in the request body. The credit will be applied to group member invoices as they are generated.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A group prepayment, service credit or service-credit deduction is sent with an amount of 0 or less → Maxio answers 422 with "Amount must be greater than 0". Send an amount greater than 0.</description></item>
+    ///   <item><description>Service credit is issued to a subscription group → The credit is applied to group member invoices as they are generated. Expect group service credit to be consumed by upcoming member invoices automatically.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ServiceCreditResponse> IssueSubscriptionGroupServiceCredit(IssueSubscriptionGroupServiceCreditRequest request,
         RequestOptions? requestOptions = null,
@@ -120,6 +139,15 @@ public sealed class SubscriptionGroupInvoiceAccount
     /// <exception cref="ApiException{TError}"> of <see cref="ListPrepaymentsForSubscriptionGroupError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists a subscription group's prepayments.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>filter[start_date] is sent → Prepayments whose date_field timestamp is at or after midnight of that date in the site's time zone are returned. Give start_date as a calendar date in the site's time zone.</description></item>
+    ///   <item><description>filter[end_date] is sent → Prepayments whose date_field timestamp is up to and including 11:59:59 PM of that date in the site's time zone are returned. Give end_date as a calendar date in the site's time zone; the whole day is included.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ListSubscriptionGroupPrepaymentResponse> ListPrepaymentsForSubscriptionGroup(ListPrepaymentsForSubscriptionGroupRequest request,
         RequestOptions? requestOptions = null,

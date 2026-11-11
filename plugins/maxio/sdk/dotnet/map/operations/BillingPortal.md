@@ -63,10 +63,12 @@ Accessor: `client.BillingPortal` · Source: `src/MaxioAdvancedBilling/Api/Billin
 - **Signature**: `RevokeBillingPortalAccess(RevokeBillingPortalAccessRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
   - required: `CustomerId`
 - **Returns**: `RevokedInvitation`
-- **Error**: `ApiException<RawError>` — **Case B**
+- **Error**: `ApiException<RevokeBillingPortalAccessError>` — **Case A (typed)**
+- **Error accessors**: `TryGetNoContent(out RawError)` [422] · `TryGetRawError(out RawError)` [fallback]
 
 | Type | Source |
 | --- | --- |
 | `RevokeBillingPortalAccessRequest` | `src/MaxioAdvancedBilling/Requests/BillingPortal/RevokeBillingPortalAccessRequest.cs` |
 | `RevokedInvitation` | `src/MaxioAdvancedBilling/Models/RevokedInvitation.cs` |
+| `RevokeBillingPortalAccessError` | `src/MaxioAdvancedBilling/Errors/RevokeBillingPortalAccessError.cs` |
 

@@ -54,6 +54,23 @@ public sealed class SalesCommissions
     /// <para>
     /// &gt; Note: The request is at seller level, it means <c>&lt;&lt;subdomain&gt;&gt;</c> variable will be replaced by <c>app</c>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.</description></item>
+    ///   <item><description>Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.</description></item>
+    ///   <item><description>A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.</description></item>
+    ///   <item><description>A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.</description></item>
+    ///   <item><description>The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.</description></item>
+    ///   <item><description>The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.</description></item>
+    ///   <item><description>A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.</description></item>
+    ///   <item><description>The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.</description></item>
+    ///   <item><description>The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.</description></item>
+    ///   <item><description>The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<SaleRepSettings>> ListSalesCommissionSettings(ListSalesCommissionSettingsRequest request,
         RequestOptions? requestOptions = null,
@@ -97,6 +114,23 @@ public sealed class SalesCommissions
     /// <para>
     /// &gt; Note: The request is at seller level, it means <c>&lt;&lt;subdomain&gt;&gt;</c> variable will be replaced by <c>app</c>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.</description></item>
+    ///   <item><description>Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.</description></item>
+    ///   <item><description>A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.</description></item>
+    ///   <item><description>A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.</description></item>
+    ///   <item><description>The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.</description></item>
+    ///   <item><description>The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.</description></item>
+    ///   <item><description>A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.</description></item>
+    ///   <item><description>The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.</description></item>
+    ///   <item><description>The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.</description></item>
+    ///   <item><description>The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<ListSaleRepItem>> ListSalesReps(ListSalesRepsRequest request,
         RequestOptions? requestOptions = null,
@@ -140,6 +174,23 @@ public sealed class SalesCommissions
     /// <para>
     /// &gt; Note: The request is at seller level, it means <c>&lt;&lt;subdomain&gt;&gt;</c> variable will be replaced by <c>app</c>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A Sales Commission request is authenticated with a site API key instead of a user API key → the outcome is not stated. Generate a user API key and send it as a Bearer Authorization header for Sales Commission calls.</description></item>
+    ///   <item><description>Seller-level resources (sales commission settings and sales reps) are requested → the outcome is not stated. Authenticate these calls with a user API key generated from the API Token View, not a site API key.</description></item>
+    ///   <item><description>A user's API Token View access is removed → The user's API key is automatically disabled. Expect seller-level calls with that user's key to fail and issue a key for another enabled user.</description></item>
+    ///   <item><description>A user API key is regenerated (or deprecated) → The old key is deprecated and only the new key is valid. Replace the stored user API key right after regenerating it.</description></item>
+    ///   <item><description>The user whose API key is used does not have financial access → the outcome is not stated. Use the key of a user with financial access.</description></item>
+    ///   <item><description>The seller does not have the Advanced Analytics component enabled → the outcome is not stated. Have Advanced Analytics enabled for the seller (via Maxio support) before using these endpoints.</description></item>
+    ///   <item><description>A Sales Commission request is sent to a site subdomain instead of the seller-level app host → the outcome is not stated. Send Sales Commission requests to the app subdomain, not the site's subdomain.</description></item>
+    ///   <item><description>The user's API Token View access has been removed → The user's API key is automatically disabled. Use the key of a user who still has API Token View access.</description></item>
+    ///   <item><description>The user API key has been regenerated or deprecated → The old key is no longer valid; only the new key works. Update stored user API keys after regeneration.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>live_mode is omitted → Records are fetched from live mode sites (default true). Send live_mode=false to get test-mode site data.</description></item>
+    ///   <item><description>The requested page is past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    /// </list>
     /// </remarks>
     public Task<SaleRep> ReadSalesRep(ReadSalesRepRequest request,
         RequestOptions? requestOptions = null,

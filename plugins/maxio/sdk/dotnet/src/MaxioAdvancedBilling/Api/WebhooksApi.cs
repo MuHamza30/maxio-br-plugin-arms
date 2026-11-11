@@ -45,6 +45,15 @@ public sealed class WebhooksApi
     /// <remarks>
     /// Creates an endpoint and assigns a list of webhook subscriptions (events) to it.
     /// See the <see href="page:introduction/webhooks/webhooks-reference#events">Webhooks Reference</see> page for available events.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>An endpoint is created with a URL whose scheme is not http or https → Maxio answers 422 with "URL: invalid, only http and https supported". Give endpoint URLs an http or https scheme.</description></item>
+    ///   <item><description>A webhook endpoint URL uses plain HTTP while the site is in live mode → the outcome is not stated. Use an HTTPS endpoint URL before taking the site live.</description></item>
+    ///   <item><description>A site already has the maximum number of webhook endpoints allowed by its merchant limits → the outcome is not stated. Check the site's endpoint limit (Merchant Limits) before adding endpoints and reuse existing ones.</description></item>
+    ///   <item><description>A webhook endpoint is hosted on a port other than 80 or 443 → Ports other than 80 and 443 are not supported. Host webhook endpoints on port 80 or 443.</description></item>
+    /// </list>
     /// </remarks>
     public Task<EndpointResponse> CreateEndpoint(CreateEndpointRequest request,
         RequestOptions? requestOptions = null,
@@ -72,6 +81,12 @@ public sealed class WebhooksApi
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Enables webhooks for your site.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>Enable Webhooks is called with webhooks_enabled → Webhook sending is switched on (or off) for the whole site, not for one endpoint. Remember that this switch is site-wide and affects every configured endpoint.</description></item>
+    /// </list>
     /// </remarks>
     public Task<EnableWebhooksResponse> EnableWebhooks(EnableWebhooksOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -124,6 +139,17 @@ public sealed class WebhooksApi
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Retrieves a list of webhooks.  You can pass query parameters if you want to filter webhooks. See the <see href="page:introduction/webhooks/webhooks">Webhooks</see> documentation for more information.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A webhook is retried or replayed → The webhook keeps the same id across retries and replays, so the same event can arrive more than once with one id. Record processed webhook ids and skip ones already handled.</description></item>
+    ///   <item><description>A webhook that failed earlier is retried or resent and then accepted → last_error and last_error_at are cleared. Do not rely on last_error to keep the history of failed attempts.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    ///   <item><description>List Webhooks is called with since_date and/or until_date → The dates (YYYY-MM-DD) filter on the webhook created_at date and both bounds are inclusive. Send since_date and until_date as YYYY-MM-DD and treat both bounds as inclusive.</description></item>
+    ///   <item><description>Webhook data is older than the site's webhook data retention limit → Advanced Billing stores webhook data only for a limited time (see Merchant Limits). Do not rely on old webhooks being available to list or replay; keep your own record of what you need.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<WebhookResponse>> ListWebhooks(ListWebhooksRequest request,
         RequestOptions? requestOptions = null,
@@ -159,6 +185,18 @@ public sealed class WebhooksApi
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Replays webhooks. Posting to this endpoint does not immediately resend the webhooks. They are added to a queue and sent as soon as possible, depending on available system resources. You can submit an array of up to 1000 webhook IDs in the replay request.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A replay request lists more than 1000 webhook IDs → the outcome is not stated. Send at most 1000 webhook IDs per replay request and split larger sets.</description></item>
+    ///   <item><description>A webhook is retried or replayed → The webhook keeps the same id across retries and replays, so the same event can arrive more than once with one id. Record processed webhook ids and skip ones already handled.</description></item>
+    ///   <item><description>Webhook data is older than the site's webhook data retention limit → Advanced Billing stores webhook data only for a limited time (see Merchant Limits). Do not rely on old webhooks being available to list or replay; keep your own record of what you need.</description></item>
+    ///   <item><description>Replay Webhooks is accepted → The webhooks are not resent immediately; they are queued and sent as soon as system resources allow. Do not expect replayed webhooks to arrive at once; watch last_sent_at or your endpoint instead of the replay response.</description></item>
+    ///   <item><description>A webhook is explicitly replayed by the merchant → The webhook's accepted_at is cleared until the endpoint accepts it again. Do not treat a null accepted_at on a replayed webhook as a past delivery failure.</description></item>
+    ///   <item><description>Paused webhooks reference an endpoint that has been deleted from Advanced Billing → Those paused webhooks cannot be resent and are effectively discarded. Replay or resend paused webhooks before deleting their endpoint.</description></item>
+    ///   <item><description>Webhooks are replayed while the automatic retries for them may still be running → The same webhook can be delivered more than once (the replay and a retry). Track processed webhook IDs and replay only once last_sent_at is well outside the automatic retry intervals.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ReplayWebhooksResponse> ReplayWebhooks(ReplayWebhooksOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -192,6 +230,16 @@ public sealed class WebhooksApi
     /// <para>
     /// If you want to unsubscribe from a specific event, send a list of <c>webhook_subscriptions</c> without the specific event key.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A webhook endpoint URL uses plain HTTP while the site is in live mode → the outcome is not stated. Use an HTTPS endpoint URL before taking the site live.</description></item>
+    ///   <item><description>Update Endpoint names an event key that is not a valid webhook event → Maxio answers 422 with "Event key is not valid - foobar". Use only event keys from the Webhooks Reference event list.</description></item>
+    ///   <item><description>A webhook endpoint is hosted on a port other than 80 or 443 → Ports other than 80 and 443 are not supported. Host webhook endpoints on port 80 or 443.</description></item>
+    ///   <item><description>Update Endpoint is called with a webhook_subscriptions list → The list replaces the endpoint's subscribed events; any event left out is unsubscribed. Always send the complete list of events the endpoint should stay subscribed to.</description></item>
+    ///   <item><description>Update Endpoint is called with an empty webhook_subscriptions list → The endpoint is unsubscribed from all events. Never send an empty webhook_subscriptions list unless you mean to unsubscribe every event.</description></item>
+    /// </list>
     /// </remarks>
     public Task<EndpointResponse> UpdateEndpoint(UpdateEndpointRequest request,
         RequestOptions? requestOptions = null,

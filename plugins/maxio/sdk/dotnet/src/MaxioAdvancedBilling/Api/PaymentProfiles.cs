@@ -44,6 +44,14 @@ public sealed class PaymentProfiles
     /// <para>
     /// You must elect to change the existing payment profile to a new payment profile ID in order to receive a satisfactory response from this endpoint.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The payment profile given is already the current default for the subscription or subscription group → Maxio answers 422 with "This is already the current payment profile". Compare with the current default before calling, and treat this 422 as no change needed.</description></item>
+    ///   <item><description>A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.</description></item>
+    ///   <item><description>A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaymentProfileResponse> ChangeSubscriptionDefaultPaymentProfile(ChangeSubscriptionDefaultPaymentProfileRequest request,
         RequestOptions? requestOptions = null,
@@ -81,6 +89,14 @@ public sealed class PaymentProfiles
     /// <para>
     /// The new payment profile must belong to the subscription group's customer, otherwise you will receive an error.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The payment profile given is already the current default for the subscription or subscription group → Maxio answers 422 with "This is already the current payment profile". Compare with the current default before calling, and treat this 422 as no change needed.</description></item>
+    ///   <item><description>The new default payment profile does not belong to the subscription group's customer → the outcome is not stated. Use only payment profiles of the group's own customer as the group default.</description></item>
+    ///   <item><description>The active credit-card-type payment profile on a subscription group changes → A subscription_group_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_group_card_update to keep group payment details in sync.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaymentProfileResponse> ChangeSubscriptionGroupDefaultPaymentProfile(ChangeSubscriptionGroupDefaultPaymentProfileRequest request,
         RequestOptions? requestOptions = null,
@@ -153,6 +169,33 @@ public sealed class PaymentProfiles
     /// <para>
     /// See the <see href="https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow">3D Secure Post-Authentication Flow</see> article in the product documentation to learn how to manage the redirect flow.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>An ACH bank-account profile is created without bank_routing_number → the outcome is not stated. Send bank_routing_number for ACH; with GoCardless it is optional and is passed on as bank_code.</description></item>
+    ///   <item><description>A bank-account profile is created with ACH, GoCardless, Stripe BECS or BACS Direct Debit with neither bank_account_number nor bank_iban → the outcome is not stated. Send bank_account_number whenever bank_iban is blank on these gateways.</description></item>
+    ///   <item><description>A Stripe BECS or BACS Direct Debit bank-account profile is created without bank_branch_code → the outcome is not stated. Send bank_branch_code for Stripe BECS and BACS; with GoCardless an IBAN may be sent instead.</description></item>
+    ///   <item><description>An ACH payment profile has a billing_country other than US → the outcome is not stated. Use billing_country US for ACH bank accounts.</description></item>
+    ///   <item><description>The payment needs 3D Secure authentication to meet Strong Customer Authentication → Maxio answers 422. On this 422, send the customer to the returned action_link to complete 3DS and handle the post-authentication flow.</description></item>
+    ///   <item><description>The chargify_token sent does not match an existing Advanced Billing token → Maxio answers 422 with "Advanced Billing token not found". Obtain a fresh token from Maxio.js and send it unchanged.</description></item>
+    ///   <item><description>A credit card profile is created without expiration_month or expiration_year and is not an import via vault_token → Maxio answers 422 with "Credit card expiration month: cannot be blank.". Send expiration_month and expiration_year for every card that is not imported via vault_token.</description></item>
+    ///   <item><description>A new payment profile is created without customer_id → the outcome is not stated. Always send customer_id when creating a payment profile.</description></item>
+    ///   <item><description>A bank-account profile is created with ACH or GoCardless without bank_name → the outcome is not stated. Send bank_name for ACH and GoCardless bank accounts; it is optional only with Stripe Direct Debit.</description></item>
+    ///   <item><description>A Stripe Direct Debit bank-account profile is created without bank_iban → the outcome is not stated. Send bank_iban for Stripe Direct Debit; with GoCardless send either the IBAN or local bank details.</description></item>
+    ///   <item><description>A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.</description></item>
+    ///   <item><description>A new payment profile is created for a customer → The profile is not made current for any of the customer's subscriptions. After creating a profile, set it as the default on each subscription or subscription group that should use it.</description></item>
+    ///   <item><description>bank_account_type is omitted for a bank-account profile → bank_account_type defaults to checking. Send bank_account_type savings explicitly for savings accounts.</description></item>
+    ///   <item><description>bank_account_holder_type is omitted for a bank-account profile → bank_account_holder_type defaults to personal. Send bank_account_holder_type business explicitly for business accounts.</description></item>
+    ///   <item><description>Billing address fields or a CVV are sent on a payment profile → The values are merely passed through to the payment gateway, which may require its own formats such as specific country codes. Format billing address and country values to your gateway's requirements; Advanced Billing does not normalise them.</description></item>
+    ///   <item><description>customer_vault_token is sent for a vault other than Authorize.Net CIM or Square → customer_vault_token applies only to Authorize.Net CIM storage or Square. Send customer_vault_token only when importing from Authorize.Net CIM or Square.</description></item>
+    ///   <item><description>gateway_handle is sent on a site without the MultiGateway feature enabled → gateway_handle is only available with MultiGateway; with it, the handle selects the gateway that stores the profile. Send gateway_handle only on MultiGateway sites, using the unique handle of the target gateway.</description></item>
+    ///   <item><description>current_vault is sent with a value that does not match a gateway configured for the site, such as stripe instead of stripe_connect → The value is not currently validated against the site's gateways; that validation was briefly applied, reverted, and is to be re-introduced. Send the current_vault value that matches the site's configured gateway so the request keeps working when validation returns.</description></item>
+    ///   <item><description>A new PayPal account payment profile is added → No webhook is generated. Do not wait for a webhook after adding a PayPal account; read the profile back instead.</description></item>
+    ///   <item><description>A bank-account profile is created from an IBAN or local bank details → A customer, bank account and mandate are created in the site's current vault. If the customer, bank account and mandate already exist in the vault, import them with vault_token, customer_vault_token and current_vault instead of sending bank details.</description></item>
+    ///   <item><description>first_name or last_name is omitted when creating a payment profile → The customer's first_name or last_name is used. Send the card or account holder's name when it differs from the customer's name.</description></item>
+    ///   <item><description>A one-time token is used for ACH (bank account) data on a gateway other than Authorize.Net or Stripe → One-time tokens hold ACH data only for Authorize.Net or Stripe. Use one-time tokens for ACH only on Authorize.Net or Stripe sites.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaymentProfileResponse> CreatePaymentProfile(CreatePaymentProfileOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -183,6 +226,12 @@ public sealed class PaymentProfiles
     /// <para>
     /// <b>Note</b>: If the Payment Profile belongs to multiple Subscription Groups and/or Subscriptions, it will be removed from all of them.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The deleted payment profile belongs to several subscription groups and/or subscriptions → The payment profile is removed from all of them. Check every group and subscription that used the profile for a missing payment method after this delete.</description></item>
+    /// </list>
     /// </remarks>
     public Task DeleteSubscriptionGroupPaymentProfile(DeleteSubscriptionGroupPaymentProfileRequest request,
         RequestOptions? requestOptions = null,
@@ -216,6 +265,15 @@ public sealed class PaymentProfiles
     /// <para>
     /// If you delete the default payment profile for a subscription, you need to specify another payment profile to be the default through the API, or either prompt the user to enter a card in the billing portal or on the self-service page, or visit the Payment Details tab on the subscription in the Admin UI and use the “Add New Credit Card” or “Make Active Payment Method” link, (depending on whether there are other cards present).
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A payment profile is deleted through one subscription while the customer has several subscriptions → The payment profile is removed from all of the customer's subscriptions. Check every subscription of the customer for a missing payment method after this delete.</description></item>
+    ///   <item><description>The deleted payment profile is the subscription's default payment profile → The subscription is left without a default payment profile until another is set. Set another default payment profile through the API, or prompt the customer to add one, after deleting the default.</description></item>
+    ///   <item><description>A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.</description></item>
+    ///   <item><description>A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.</description></item>
+    /// </list>
     /// </remarks>
     public Task DeleteSubscriptionsPaymentProfile(DeleteSubscriptionsPaymentProfileRequest request,
         RequestOptions? requestOptions = null,
@@ -249,6 +307,12 @@ public sealed class PaymentProfiles
     /// <para>
     /// If the payment profile is in use by one or more subscriptions or groups, an error message is returned.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The payment profile is in use by one or more subscriptions or subscription groups → Maxio answers 422 with "The payment profile is in use by one or more subscriptions and cannot be deleted". Move subscriptions and groups to another payment profile before deleting this one, or use the subscription-scoped delete.</description></item>
+    /// </list>
     /// </remarks>
     public Task DeleteUnusedPaymentProfile(DeleteUnusedPaymentProfileRequest request,
         RequestOptions? requestOptions = null,
@@ -276,6 +340,16 @@ public sealed class PaymentProfiles
     /// <exception cref="ApiException{TError}"> of <see cref="RawError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Lists all active payment profiles for a site, or for one customer within a site. If no payment profiles are found, this endpoint returns an empty array.
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>per_page is sent above 200 → per_page is changed to 200. Page with per_page of at most 200 and expect no more than 200 records per page.</description></item>
+    ///   <item><description>page asks for a page past the last page of results → An empty result set is returned. Stop paging when a page comes back empty.</description></item>
+    ///   <item><description>A list request asks for a page past the last page of results → An empty result set is returned, not an error. Stop paging when a page comes back empty or shorter than per_page.</description></item>
+    ///   <item><description>Payment profiles are listed, with or without customer_id → Only active payment profiles are returned, for the site or for the one customer given; an empty array is returned when none are found. Do not expect inactive profiles in this list, and treat an empty array as no profiles rather than an error.</description></item>
+    ///   <item><description>A list request sends per_page above 200 → per_page is changed to 200 instead of being rejected. Page with per_page of 200 or less and never expect more than 200 records per page.</description></item>
+    /// </list>
     /// </remarks>
     public Task<IReadOnlyList<PaymentProfileResponse>> ListPaymentProfiles(ListPaymentProfilesRequest request,
         RequestOptions? requestOptions = null,
@@ -313,6 +387,13 @@ public sealed class PaymentProfiles
     /// <para>
     /// To obtain a One Time Token you have to use <see href="https://docs.maxio.com/hc/en-us/articles/38163190843789-Chargify-js-Overview#chargify-js-overview-0-0">Chargify.js</see>.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>The chargify_token in the path does not match an Advanced Billing token, which can only be obtained through Chargify.js → Maxio answers 404 with "Advanced Billing token not found". Obtain the token through Chargify.js before reading it, and treat a 404 as an unknown token.</description></item>
+    ///   <item><description>A one-time token is used for ACH (bank account) data on a gateway other than Authorize.Net or Stripe → One-time tokens hold ACH data only for Authorize.Net or Stripe. Use one-time tokens for ACH only on Authorize.Net or Stripe sites.</description></item>
+    /// </list>
     /// </remarks>
     public Task<GetOneTimeTokenRequest> ReadOneTimeToken(ReadOneTimeTokenRequest request,
         RequestOptions? requestOptions = null,
@@ -414,6 +495,13 @@ public sealed class PaymentProfiles
     /// <para>
     /// These error responses are designed to prevent excessive or invalid requests, and to provide clear and helpful information to users who encounter errors during the request process.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A request payment update email is sent more than five times within 30 minutes → Maxio answers 422 with "Too many requests. You can perform 5 requests within 00:30:00". Send at most 5 request-payment-update emails per subscription in any 30 minutes.</description></item>
+    ///   <item><description>The request payment update email is requested for a subscription that does not exist → Maxio answers 404. Treat a 404 as a missing subscription, not a transient failure.</description></item>
+    /// </list>
     /// </remarks>
     public Task SendRequestUpdatePaymentEmail(SendRequestUpdatePaymentEmailRequest request,
         RequestOptions? requestOptions = null,
@@ -485,6 +573,24 @@ public sealed class PaymentProfiles
     /// <list type="bullet">
     ///   <item><description>If you are using Authorize.net or Stripe, you may elect to manually trigger a retry for a past due subscription after a partial update.</description></item>
     /// </list>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>An ACH payment profile has a billing_country other than US → the outcome is not stated. Use billing_country US for ACH bank accounts.</description></item>
+    ///   <item><description>The payment profile of a customer who pays taxes is updated → the outcome is not stated. Send complete address information when updating the payment profile of a taxed customer.</description></item>
+    ///   <item><description>A payment profile is updated with attributes of another profile type, such as bank account attributes on a credit card profile → the outcome is not stated. Send only attributes of the profile's own type; create a new profile to switch between card and bank account.</description></item>
+    ///   <item><description>A card profile is updated without expiration_month or expiration_year, is not an import via vault_token, and the site's gateway is not one that allows billing-only partial updates → the outcome is not stated. Send expiration_month and expiration_year on card updates unless the gateway supports billing-only partial updates.</description></item>
+    ///   <item><description>The payment profile of a customer who pays taxes is updated without complete address information → the outcome is not stated. Send the complete billing address when updating a taxed customer's payment profile.</description></item>
+    ///   <item><description>A subscriber is to be taxed but neither the customer nor the payment profile has a full valid address with an ISO 2-3 character state and ISO 2 character country → The subscriber is not eligible to be taxed. Send a complete billing or shipping address with ISO state and country codes for every customer who must be taxed.</description></item>
+    ///   <item><description>Billing address fields or a CVV are sent on a payment profile → The values are merely passed through to the payment gateway, which may require its own formats such as specific country codes. Format billing address and country values to your gateway's requirements; Advanced Billing does not normalise them.</description></item>
+    ///   <item><description>current_vault is sent with a value that does not match a gateway configured for the site, such as stripe instead of stripe_connect → The value is not currently validated against the site's gateways; that validation was briefly applied, reverted, and is to be re-introduced. Send the current_vault value that matches the site's configured gateway so the request keeps working when validation returns.</description></item>
+    ///   <item><description>A card profile is updated with only billing and contact information on the Authorize.net, Stripe, Cybersource, Forte or Braintree Blue gateway → The billing information is updated and the original card number data is retained. On these gateways, send only billing and contact fields to change them without re-entering the card.</description></item>
+    ///   <item><description>A card number or CVV is sent in an update on the Authorize.net, Cybersource, Forte, Braintree Blue or Stripe gateway → The card number and CVV are ignored and a partial update is attempted. To change the card number on these gateways, create a new payment profile for the customer instead of updating.</description></item>
+    ///   <item><description>A payment profile used by a past-due subscription is updated directly → No attempt is made to capture the past-due balance. Update the card through the subscription, or trigger a retry yourself after a partial update, when the past-due balance should be collected.</description></item>
+    ///   <item><description>A subscription's active credit-card-type payment profile changes, including a partial card or billing address update or the deletion of a PayPal profile → A subscription_card_update webhook is sent with the previous and updated payment profiles. Listen for subscription_card_update to keep stored card details in sync.</description></item>
+    ///   <item><description>A subscription's bank account (ACH) payment profile is added, updated or deleted → No subscription_card_update is sent; a subscription_bank_account_update is sent when a subscription adds or updates a bank account. Listen for subscription_bank_account_update for bank account changes and read the profile back after bank account deletions.</description></item>
+    /// </list>
     /// </remarks>
     public Task<PaymentProfileResponse> UpdatePaymentProfile(UpdatePaymentProfileOperationRequest request,
         RequestOptions? requestOptions = null,
@@ -512,6 +618,15 @@ public sealed class PaymentProfiles
     /// <exception cref="ApiException{TError}"> of <see cref="VerifyBankAccountError"/> when the server returns an error response.</exception>
     /// <remarks>
     /// Verifies a bank account. Submit the two small deposit amounts the customer received in their bank account to verify the bank account. (Stripe only)
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A bank account is verified on a site whose gateway is not Stripe → the outcome is not stated. Call bank account verification only for bank accounts stored with Stripe.</description></item>
+    ///   <item><description>Verification has already been attempted 10 times for the bank account → Maxio answers 422 with "You have tried to verify this bank account 10 times. To continue trying to verify the account, please reach out to us directly.". Limit deposit-amount attempts and route the customer to support after the tenth failure.</description></item>
+    ///   <item><description>Verification is submitted before the customer has received the two small deposits, or with amounts that are not the deposits received → the outcome is not stated. Wait until the customer sees the two deposits in the bank account and submit exactly those amounts in cents.</description></item>
+    ///   <item><description>The two deposit amounts are provided successfully for a bank account → The bank account's verified flag records that it has been verified. Read verified on the bank account profile to know whether verification has completed.</description></item>
+    /// </list>
     /// </remarks>
     public Task<BankAccountResponse> VerifyBankAccount(VerifyBankAccountRequest request,
         RequestOptions? requestOptions = null,

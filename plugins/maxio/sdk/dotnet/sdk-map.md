@@ -92,7 +92,7 @@ Core error types (`src/MaxioAdvancedBilling/Core/ErrorResponse/`) — public mem
 
 | Type | Public members | Source |
 | --- | --- | --- |
-| `ApiError` — abstract base of the 201 typed error classes in `src/MaxioAdvancedBilling/Errors/` | `TryGetRawError(out RawError error): bool` | `src/MaxioAdvancedBilling/Core/ErrorResponse/ApiError.cs` |
+| `ApiError` — abstract base of the 204 typed error classes in `src/MaxioAdvancedBilling/Errors/` | `TryGetRawError(out RawError error): bool` | `src/MaxioAdvancedBilling/Core/ErrorResponse/ApiError.cs` |
 | `RawError` | `StatusCode: HttpStatusCode` · `ReadAsBytes(): ReadOnlyMemory<byte>` · `ReadAsString(): string` · `ReadAsJson<T>(): T?` | `src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs` |
 
 Typed-error payload shapes (the `out` types in each operation page's error-accessor cells) are ordinary records/unions — no special handling. The operation's **Type sources** table gives the file that declares each one; read field names, declared types, and JSON wire names there, as for any other model.
@@ -121,7 +121,7 @@ catch (ApiException<RawError> ex)
 }
 ```
 
-**No-throw (`…Result`) variants: absent across this SDK** — every operation is throw-only. Of **285 operations**, **201 are Case A (typed)** and **84 are Case B (raw)**.
+**No-throw (`…Result`) variants: absent across this SDK** — every operation is throw-only. Of **285 operations**, **204 are Case A (typed)** and **81 are Case B (raw)**.
 
 ---
 
@@ -200,7 +200,7 @@ Each links to a sub-page with one row per operation: signature, the request reco
 | Unions (`OneOf`) — variant factories + `TryGet…` | 8 | `src/MaxioAdvancedBilling/Models/OneOf/` |
 | Unions (`AnyOf`) — variant factories + `TryGet…` | 95 | `src/MaxioAdvancedBilling/Models/AnyOf/` |
 | Enums (`OpenStringEnum<T>` / `OpenIntEnum<T>`) — C# member names + wire values | 121 | `src/MaxioAdvancedBilling/Models/Enums/` |
-| Typed error classes (`: ApiError`, one per Case A operation) | 201 | `src/MaxioAdvancedBilling/Errors/` |
+| Typed error classes (`: ApiError`, one per Case A operation) | 204 | `src/MaxioAdvancedBilling/Errors/` |
 | Request records (one per operation that takes input; never serialized) | 279 | `src/MaxioAdvancedBilling/Requests/` — a controller's records sit in a folder named after it (an operation with several tags is filed under the first tag it declares) |
 
 Conventions: records are immutable, `init`-only; `required` properties must be set in the object initializer; `T?` is optional. A field's wire name is its `[JsonPropertyName]` and often differs from the C# name (`AmountInCents` ↔ `amount_in_cents`) — read it off the property, don't derive it. `OneOf`/`AnyOf` unions wrap `Optional<T>` variants — build via static factory or implicit conversion, read via `TryGet…(out …)`; `AllOf` compositions are not unions — every constituent is a `required` property, so set them all, and those constituent properties carry no `[JsonPropertyName]` and have no wire name of their own, because the generated converter flattens each constituent's own fields directly into the one parent JSON object. Enums are **not** C# enums — use the static members, whose names are PascalCase even when the wire value isn't (`CollectionMethod.Invoice`, not `.invoice`); there is no public factory, so resolve a raw value with `TryGetKnownValue` and branch with the generated `Match`, whose `otherwise` arm receives any value the SDK does not declare.

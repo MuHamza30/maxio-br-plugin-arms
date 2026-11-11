@@ -61,12 +61,14 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `ApiHandle`
 - **Query params (wire ← C#)**: `store_uid` ← `StoreUid`
 - **Returns**: `void` (Task)
-- **Error**: `ApiException<RawError>` — **Case B**
+- **Error**: `ApiException<BulkRecordEventsError>` — **Case A (typed)**
+- **Error accessors**: `TryGetNoContent(out RawError)` [422] · `TryGetRawError(out RawError)` [fallback]
 
 | Type | Source |
 | --- | --- |
 | `BulkRecordEventsRequest` | `src/MaxioAdvancedBilling/Requests/SubscriptionComponents/BulkRecordEventsRequest.cs` |
 | `EbbEvent` | `src/MaxioAdvancedBilling/Models/EbbEvent.cs` |
+| `BulkRecordEventsError` | `src/MaxioAdvancedBilling/Errors/BulkRecordEventsError.cs` |
 
 ### BulkResetSubscriptionComponentsPricePoints
 

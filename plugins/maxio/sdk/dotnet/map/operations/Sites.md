@@ -12,12 +12,14 @@ Accessor: `client.Sites` · Source: `src/MaxioAdvancedBilling/Api/Sites.cs` · 3
 - **Signature**: `ClearSite(ClearSiteRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Query params (wire ← C#)**: `cleanup_scope` ← `CleanupScope`
 - **Returns**: `void` (Task)
-- **Error**: `ApiException<RawError>` — **Case B**
+- **Error**: `ApiException<ClearSiteError>` — **Case A (typed)**
+- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetRawError(out RawError)` [fallback]
 
 | Type | Source |
 | --- | --- |
 | `ClearSiteRequest` | `src/MaxioAdvancedBilling/Requests/Sites/ClearSiteRequest.cs` |
 | `CleanupScope` | `src/MaxioAdvancedBilling/Models/Enums/CleanupScope.cs` |
+| `ClearSiteError` | `src/MaxioAdvancedBilling/Errors/ClearSiteError.cs` |
 
 ### ListChargifyJsPublicKeys
 

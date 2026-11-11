@@ -42,6 +42,13 @@ public sealed class SubscriptionGroupStatus
     /// <para>
     /// Removing the delayed cancellation on a subscription group will ensure that the subscriptions do not get canceled at the end of the period. The request will reset the <c>cancel_at_end_of_period</c> flag to false on each member in the group.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>cancelDelayedCancellationForGroup is called on a group with no pending delayed cancellation → Maxio answers 422 with "Subscriptions group does not have a pending delayed cancellation". Only remove a delayed cancellation that was scheduled; treat this 422 as already cleared.</description></item>
+    ///   <item><description>cancelDelayedCancellationForGroup succeeds → cancel_at_end_of_period is reset to false on every member of the group. Expect every member's cancel_at_end_of_period to be cleared, not just the primary's.</description></item>
+    /// </list>
     /// </remarks>
     public Task CancelDelayedCancellationForGroup(CancelDelayedCancellationForGroupRequest request,
         RequestOptions? requestOptions = null,
@@ -72,6 +79,15 @@ public sealed class SubscriptionGroupStatus
     /// <para>
     /// To cancel a subscription group while also charging for any unbilled usage on metered or prepaid components, the <c>charge_unbilled_usage=true</c> parameter must be included in the request.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>cancelSubscriptionsInGroup is called while the group's primary subscription is not on automatic billing → Maxio answers 422 with "One or more subscriptions are not on automatic billing". Move the primary subscription to automatic collection before cancelling the group.</description></item>
+    ///   <item><description>cancelSubscriptionsInGroup is called while a group member is on neither automatic billing nor prepaid → Maxio answers 422 with "One or more subscriptions are not on automatic billing". Make sure every member is on automatic or prepaid collection before cancelling the group.</description></item>
+    ///   <item><description>cancelSubscriptionsInGroup succeeds → Every subscription in the group is canceled immediately. Use initiateDelayedCancellationForGroup instead when the group should run to the end of its period.</description></item>
+    ///   <item><description>cancelSubscriptionsInGroup is called without charge_unbilled_usage=true while metered or prepaid components have unbilled usage → The unbilled usage is not charged at cancellation. Send charge_unbilled_usage=true to bill outstanding metered or prepaid usage when cancelling.</description></item>
+    /// </list>
     /// </remarks>
     public Task CancelSubscriptionsInGroup(CancelSubscriptionsInGroupRequest request,
         RequestOptions? requestOptions = null,
@@ -102,6 +118,14 @@ public sealed class SubscriptionGroupStatus
     /// <para>
     /// All subscriptions in the group must be on automatic billing in order to successfully cancel them, and the group must not be in a "past_due" state.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>initiateDelayedCancellationForGroup is called while a subscription in the group is not on automatic billing → Maxio answers 422. Put every group member on automatic billing before scheduling a delayed cancellation.</description></item>
+    ///   <item><description>initiateDelayedCancellationForGroup is called while the group is past_due → Maxio answers 422 with "Subscriptions group is in a past due state". Bring the group out of past_due before scheduling a delayed cancellation.</description></item>
+    ///   <item><description>initiateDelayedCancellationForGroup succeeds → Every subscription in the group is scheduled to cancel at the end of its billing period. Expect members to stay active until each one's period ends.</description></item>
+    /// </list>
     /// </remarks>
     public Task InitiateDelayedCancellationForGroup(InitiateDelayedCancellationForGroupRequest request,
         RequestOptions? requestOptions = null,
@@ -166,6 +190,20 @@ public sealed class SubscriptionGroupStatus
     /// <para>
     /// See the <see href="https://docs.maxio.com/hc/en-us/articles/44277749524365-3D-Secure-Post-Authentication-Flow">3D Secure Post-Authentication Flow</see> article in the product documentation to learn how to manage the redirect flow.
     /// </para>
+    /// <para>
+    /// <b>Business rules</b>
+    /// </para>
+    /// <list type="bullet">
+    ///   <item><description>A group on calendar billing is reactivated within the current period without resume=true → Maxio answers 422. Send resume=true when reactivating a calendar-billing group inside its current period.</description></item>
+    ///   <item><description>The reactivation payment requires 3D Secure authentication → Maxio answers 422. On a 422 with an action_link, send the customer to it to finish 3DS, then check the result.</description></item>
+    ///   <item><description>A canceled subscription group is reactivated or resumed → Canceled invoices created after the start of the primary subscription's billing period are reopened and payment is attempted on them. Expect reopened invoices to be charged on reactivation.</description></item>
+    ///   <item><description>A subscription group is reactivated (a new billing period), not resumed → New charges are assessed for the new billing period. Expect a new period charge when the group is reactivated rather than resumed.</description></item>
+    ///   <item><description>A canceled group is reactivated within the primary subscription's current period → With resume=true the existing billing period is kept; without it a new billing period is started. Send resume=true to keep the current period when reactivating inside it.</description></item>
+    ///   <item><description>resume_members is sent when reactivating within the primary subscription's current period → resume_members is ignored and all eligible members are resumed automatically. Do not rely on resume_members inside the current period; members are resumed anyway.</description></item>
+    ///   <item><description>resume=true is sent when reactivating after the primary subscription's current period has ended → resume is ignored and the group is reactivated with a new billing period. Expect a new billing period, not a resume, once the primary's period has passed.</description></item>
+    ///   <item><description>resume_members=true is sent when the primary subscription cannot be resumed within its current period but other members can → Eligible members keep their existing billing period while the primary starts a new one. Send resume_members=true to keep longer member periods (e.g. annual members under a monthly primary).</description></item>
+    ///   <item><description>A calendar-billing group is reactivated with a new billing period → The new period is partial, from the reactivation date to the next calendar renewal date. Expect a partial first period for calendar-billing groups.</description></item>
+    /// </list>
     /// </remarks>
     public Task<ReactivateSubscriptionGroupResponse> ReactivateSubscriptionGroup(ReactivateSubscriptionGroupOperationRequest request,
         RequestOptions? requestOptions = null,
