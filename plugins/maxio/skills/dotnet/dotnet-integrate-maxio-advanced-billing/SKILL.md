@@ -98,6 +98,7 @@ The CONTRACT SHEET also carries a **CROSS-OPERATION INVARIANTS** table, directly
 | 9 | **Duplicate prevention under concurrency** | For each write a caller can trigger twice: its row in **DUPLICATE CLAIMS** below. If this codebase has nowhere to keep a claim that outlives the process, that is a Blocker in §6, not a row. |
 | 10 | **Partial results** | For each paged read that can stop at a cap: the field or return type that tells the caller the result was cut short. |
 | 11 | **Unknown outcomes** | For each write whose connection can fail after the provider may have acted: how the code settles the outcome instead of reporting a failure. |
+| 12 | **Provider rules** | For each flow the scope touches, the Maxio rules `dotnet-maxio-business-rules` lists under it (every request, background jobs, and the rules that span several operations or fix their order), and how the plan honours each one, or `N/A` with the reason the scope never meets it. A row that only names the skill is **not addressed**. MUST load `dotnet-maxio-business-rules`. |
 
 **DUPLICATE CLAIMS** — one row per write a caller can trigger twice; `none` if the task has no such write.
 
