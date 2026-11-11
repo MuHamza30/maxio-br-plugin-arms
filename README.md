@@ -1,75 +1,75 @@
-# Control arm: the Maxio plugin codegen-v2 generates at eecee918
+# C5 Observed notes: C4 plus what scripted probes of the Maxio sandbox showed
 
-`plugins/maxio/` is exactly what the generator wrote, byte for byte, unedited (RULES 5). Every treatment branch of
-this repo starts from this branch's commit and only adds to it.
+The control plugin (`control-eecee918`) plus `plugins/maxio/knowledge/`, rendered by C4's renderer over C4's records
+and C5's. `git diff control-eecee918 c5-observed-notes` is exactly the treatment; against `c4-rule-catalogue` it adds
+41 observed records and a pointer line that says some rules come from the sandbox:
+
+- `knowledge/`: 1,278 rules (491 loud): C4's 1,237 from the spec and docs, and 41 with source `observed` (the probe
+  and the date). `rules.md` indexes `every-request.md`, `background.md` and `operations/<area>.md`, as in C4.
+- One pointer line, the first bullet of the router skill's grounding rules:
+
+  > - **Provider rules:** every business rule Maxio's own spec and docs state, and what probes of the Maxio sandbox
+  >   showed, is in `<plugin-root>/knowledge/`: `rules.md` indexes them (rules for every request, for background jobs,
+  >   and one file per API area with a section per operation, headed with its SDK call). Read the rules for every
+  >   request and for each operation you call: they are the source for how Maxio behaves; the map stays the source for
+  >   SDK contracts.
+
+## How the observations were gathered
+
+The fixed method of plugin-screen-build.md, never the graded rules or the contract probes:
+
+1. **The probe list was written and pushed before any probe ran:** `test-suite/scripts/br-plugin/c5/PROBES.md`
+   (commit `b517bbceb`). Operations: the 19 the task prompt's 10 features use. Kinds: K1 twice, K2 each subscription
+   state (`active`, `on_hold`, `canceled`), K3 boundary values for the numbers and dates the features set, K4 only the
+   schema's required fields, K5 a read at once after a write, K6 two identical writes at the same moment.
+2. **`c5/probe.py` ran them on the benchmark sandbox site `cp-exp-1`** on 2026-11-11, claimed in `WAVE-LOCK.md` and
+   cleared after: 553 calls. The 76 probe subscriptions were purged with their customers and the 11 probe products
+   archived; a search afterwards found none left. No subdomain or key is in the log.
+3. **An agent that saw only the observations, C4's records and the operation list** wrote the records
+   (`c5/records-prompt.md`): one per business rule the observations show and C4 lacks or states differently. 41
+   records (24 loud, 17 silent), in `test-suite/content/br-plugin/maxio/c5/rules.json` beside the observations.
+
+**Seven disagree with C4**, and each says it follows the sandbox: `createCustomer.12` (organization left null),
+`createProduct.102` (no public signup page listed), `createUsage.7` (0.5 accepted and stored as 0),
+`migrateSubscriptionProduct.11` (the prorated-migration message for a paused subscription's plain migration),
+`every-request.14` (a resume date with no time stored as midnight, not noon), `reactivateSubscription.1` (the message
+leaves out Unpaid), `reactivateSubscription.7` (the old balance kept, the new charge added). The C4 records stay in
+the catalogue beside them.
+
+Limits: the log keeps 2,000 characters of each answer, so two reads after a write (the product list after
+`createProduct`, the customer's subscriptions after a repeated `createSubscription`) cannot show the new item. The
+site needs a collection method that takes no card for a subscription with no card; that is this site's setting.
 
 ## How it was built
 
-From plugin-experiments at `9c2d0c33f` (branch `research/br-plugin-screen-build`), with a clean codegen-v2 checkout
-at `eecee918`:
+From plugin-experiments at `7a27ad359` (branch `research/br-plugin-screen-build`):
 
 ```
-python -I test-suite/scripts/br-plugin/generate-br-plugin.py \
-    --codegen <codegen-v2 checkout> --commit eecee918f4c4925690ded4c8fe8b2051d3032be1 --twice
+python -I test-suite/scripts/br-plugin/build-rule-catalogue.py --name c5-observed-notes \
+    --rules test-suite/content/br-plugin/maxio/c4/rules.json --rules test-suite/content/br-plugin/maxio/c5/rules.json
+python -I test-suite/scripts/br-plugin/assemble-branch.py --arms <this repo> --branch c5-observed-notes \
+    --plugin test-suite/content/br-plugin/maxio/c5-observed-notes --readme <this README> --description "<...>"
 ```
 
-The script copies `test-suite/scripts/br-plugin/BrPluginHarness.cs` into codegen-v2's test project for the run, and
-removes it afterwards. The harness runs, in process and in order, the activities codegen-v2's Functions host runs for
-`POST /plugin` (`apimatic plugin generate`): ValidateApimaticConfig, ValidateSpecFile, ValidatePackageSettings,
-GenerateSdk, GenerateV4Skills and AggregatePlugin. It calls each activity's own command handler, with the test
-project's in-memory blob stores in place of Azure storage, and writes out the `plugin.zip` AggregatePlugin makes.
-The build input is `test-suite/content/br-plugin/maxio/apimatic.json` with the Maxio spec beside it as `spec/`.
-The record of the generation is `test-suite/content/br-plugin/maxio/control.json`.
-
-`apimatic.json` copies the published Maxio plugin's metadata (`context-plugins/plugin-marketplace`, `plugins/maxio`,
-0.2.2) and declares only `csharp`, with no publishing block and no package settings, so the C# SDK is bundled:
-
-```json
-{
-  "plugin": {
-    "pluginId": "maxio",
-    "pluginName": "Maxio",
-    "pluginVersion": "0.2.2",
-    "author": { "name": "APIMatic", "email": "developer@apimatic.io" },
-    "license": "MIT",
-    "homepage": "https://context.apimatic.io/",
-    "repository": "https://github.com/context-plugins/plugin-marketplace"
-  },
-  "languages": { "csharp": {} }
-}
-```
+The record is `test-suite/content/br-plugin/maxio/c5-observed-notes.json`. C4's extraction is described in the
+`c4-rule-catalogue` branch README.
 
 ## Pins
 
 | Pin | Value |
 |---|---|
-| codegen-v2 | `eecee918f4c4925690ded4c8fe8b2051d3032be1` |
-| Spec | plugin-experiments `research/docs/maxio/src/spec`, tree sha256 `619868198e3f21002ef62549d982607f2f4c33b5ffdabeb9a00bb368e1484bdc` (744 files, as git stores them, LF) |
-| SDK | `plugins/maxio/sdk/dotnet` without `README.md`, `api-reference.md`, `sdk-map.md` and `map/`: tree sha256 `e8cebb1cd8e89812ddb8bad45c38c6a0c1bfbfa91504e1c9402fe4b5b1203673` over 1,505 files, the same as the business-rule SDK pin (`test-suite/content/br-sdk/PIN.json`, arm `br-maxio-sdk`) |
-| Plugin | `plugins/maxio`: tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` over 1,566 files (`test-suite/scripts/content-tree-sha.ps1`) |
-| Harness | `BrPluginHarness.cs` sha256 `587ff0d2d61e944d68bb70ab0dfb0cc82d45cc66f7c0e9862e43085785fede21` |
-
-## What the plugin holds
-
-- `.claude-plugin/plugin.json` (skills `./skills/dotnet`, agent `./scoped/agents/maxio-advanced-billing-planner.md`),
-  `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, a root `plugin.json` and the plugin `README.md`.
-- 9 C# skills under `skills/dotnet/`: `dotnet-integrate-maxio-advanced-billing`, `dotnet-getting-started` and
-  `dotnet-authentication` (generated for Maxio), and `dotnet-client-initialization`, `dotnet-calling-endpoints`,
-  `dotnet-models`, `dotnet-error-handling`, `dotnet-configuration-resilience` and `dotnet-testing` (the same for
-  every API).
-- The planner agent, `scoped/agents/maxio-advanced-billing-planner.md` (Claude Code only).
-- The bundled C# SDK, `sdk/dotnet/`, with its generated `README.md`, `api-reference.md`, `sdk-map.md` and `map/`.
+| Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
+| Rules | `c4/rules.json` (`54cbdadd…9214`, 1,237) and `c5/rules.json` (sha256 `961158ebeeabee4e414fc8bb3b6dc94d59da464b3234d3445192e0abaebd29e7`, 41) |
+| Observations | `c5/observations.jsonl`, sha256 `2d49356b737341e8f354b8f4539172c672020b30c083a600a95368cf2fa756b6`, 553 calls |
+| Plugin | `plugins/maxio`: tree sha256 `f12954610b3d1acd3a16273e11ed581dfd52a815357263daff49aa6441dbfaae`, 1,612 files |
+| SDK | `sdk/dotnet` without its docs: the SDK pin, `e8cebb1c…3673` |
 
 ## Checks
 
-1. Same SDK: `sdk/dotnet` without the generated docs has the SDK pin's tree sha.
-2. Deterministic: three generations, the last two from the committed scripts, are byte-identical.
-3. Valid: `claude plugin validate --strict` passes on Claude Code 2.1.319.
-4. Loads: installs and loads in an empty `CLAUDE_CONFIG_DIR` on Claude Code 2.1.319, from a clone holding only the
-   pinned commit, as `new-run.ps1` installs a plugin arm.
-5. Unedited: `plugins/maxio` is the generator's output byte for byte; `.gitattributes` (`* -text`) keeps every
-   checkout byte for byte.
+`test-suite/scripts/br-plugin/check-branch.py` on a clone holding only this branch's commit: only adds, same SDK,
+`claude plugin validate --strict` passes on Claude Code 2.1.319, installs and is enabled in an empty
+`CLAUDE_CONFIG_DIR`.
 
 ## Approval
 
-Pending: a second person approves this branch before it is pinned in an arm (RULES 4).
+Pending: a second person approves this branch's diff against the control before it is pinned in an arm (RULES 4).
