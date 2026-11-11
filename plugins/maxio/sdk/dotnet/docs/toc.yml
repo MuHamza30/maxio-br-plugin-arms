@@ -1,0 +1,45 @@
+toc:
+  - group: Getting Started
+    items:
+      - page: Overview
+        file: introduction/landing.html
+      - generate: How to Get Started
+        from: getting-started
+      - page: Authentication
+        file: introduction/authentication.md
+      - group: Advanced Billing Concepts
+        dir: introduction/basic-concepts
+      - group: About the API
+        dir: introduction/about-the-api
+      - group: Webhooks
+        dir: introduction/webhooks
+  - group: Advanced Billing API
+    items:
+      - generate: API Endpoints
+        from: endpoints
+      - generate: Models
+        from: models
+  - group: Guided Walkthroughs
+    items:
+      - page: Create Product Catalog
+        file: walkthroughs/product-catalog/walkthrough-1.md
+      - page: Create Subscription
+        file: walkthroughs/subscription-management/walkthrough-1.md
+      - page: Manage Billing Portal
+        file: walkthroughs/manage-billing-portal/walkthrough-1.md
+  - group: Development Tools
+    items:
+      - page: Using the Developer Portal
+        file: development-tools/client-libraries.md
+      - page: Maxio.js (formerly Chargify.js)
+        file: development-tools/chargify-js-overview.md
+      - group: Embeddable Components
+        dir: development-tools/embeddable-components
+  - group: Help
+    items:
+      - page: Getting Support
+        file: help/getting-support.md
+      - group: Announcements
+        dir: help/announcements
+      - link: Legacy API
+        url: https://staging-developers.maxio.com/legacy/http/legacy-api/how-to-get-started

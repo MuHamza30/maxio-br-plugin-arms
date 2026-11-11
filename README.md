@@ -1,75 +1,50 @@
-# Control arm: the Maxio plugin codegen-v2 generates at eecee918
+# C3 Portal docs: the control plus Maxio's portal guides
 
-`plugins/maxio/` is exactly what the generator wrote, byte for byte, unedited (RULES 5). Every treatment branch of
-this repo starts from this branch's commit and only adds to it.
+The control plugin (`control-eecee918`) plus Maxio's own portal content, copied unedited. `git diff control-eecee918
+c3-portal-docs` is exactly the treatment:
+
+- `plugins/maxio/sdk/dotnet/docs/`: the 74 files of the Maxio portal source's `content/` (65 Markdown pages, 1 HTML
+  page, 8 `toc.yml`), byte for byte as git stores them: concepts, API usage (errors and rate limits, duplicate
+  prevention, list operations, versioning), webhooks, the three walkthrough stubs and the announcements.
+- `plugins/maxio/sdk/dotnet/docs/index.md`: one row per page, its title and its path.
+- One pointer line, the first bullet of the router skill's grounding rules
+  (`skills/dotnet/dotnet-integrate-maxio-advanced-billing/SKILL.md`):
+
+  > - **Provider docs:** Maxio's own portal guides ship with this plugin as Markdown at
+  >   `<plugin-root>/sdk/dotnet/docs/`, and `index.md` there lists every page by title. Read the pages on the flows
+  >   you implement: they are the source for how Maxio behaves; the map stays the source for SDK contracts.
+
+The pages teach what the docs state, including where the sandbox disagrees (maxio-v03, maxio-p1); that is C3's
+content, not a bug to fix.
 
 ## How it was built
 
-From plugin-experiments at `9c2d0c33f` (branch `research/br-plugin-screen-build`), with a clean codegen-v2 checkout
-at `eecee918`:
+From plugin-experiments at `5e6039e84` (branch `research/br-plugin-screen-build`), after the control was generated
+there (`control-eecee918`'s README):
 
 ```
-python -I test-suite/scripts/br-plugin/generate-br-plugin.py \
-    --codegen <codegen-v2 checkout> --commit eecee918f4c4925690ded4c8fe8b2051d3032be1 --twice
+python -I test-suite/scripts/br-plugin/build-c3-portal-docs.py
+python -I test-suite/scripts/br-plugin/assemble-branch.py --arms <this repo> --branch c3-portal-docs \
+    --plugin test-suite/content/br-plugin/maxio/c3-portal-docs --readme <this README> --description "<...>"
 ```
 
-The script copies `test-suite/scripts/br-plugin/BrPluginHarness.cs` into codegen-v2's test project for the run, and
-removes it afterwards. The harness runs, in process and in order, the activities codegen-v2's Functions host runs for
-`POST /plugin` (`apimatic plugin generate`): ValidateApimaticConfig, ValidateSpecFile, ValidatePackageSettings,
-GenerateSdk, GenerateV4Skills and AggregatePlugin. It calls each activity's own command handler, with the test
-project's in-memory blob stores in place of Azure storage, and writes out the `plugin.zip` AggregatePlugin makes.
-The build input is `test-suite/content/br-plugin/maxio/apimatic.json` with the Maxio spec beside it as `spec/`.
-The record of the generation is `test-suite/content/br-plugin/maxio/control.json`.
-
-`apimatic.json` copies the published Maxio plugin's metadata (`context-plugins/plugin-marketplace`, `plugins/maxio`,
-0.2.2) and declares only `csharp`, with no publishing block and no package settings, so the C# SDK is bundled:
-
-```json
-{
-  "plugin": {
-    "pluginId": "maxio",
-    "pluginName": "Maxio",
-    "pluginVersion": "0.2.2",
-    "author": { "name": "APIMatic", "email": "developer@apimatic.io" },
-    "license": "MIT",
-    "homepage": "https://context.apimatic.io/",
-    "repository": "https://github.com/context-plugins/plugin-marketplace"
-  },
-  "languages": { "csharp": {} }
-}
-```
+The record is `test-suite/content/br-plugin/maxio/c3-portal-docs.json`.
 
 ## Pins
 
 | Pin | Value |
 |---|---|
-| codegen-v2 | `eecee918f4c4925690ded4c8fe8b2051d3032be1` |
-| Spec | plugin-experiments `research/docs/maxio/src/spec`, tree sha256 `619868198e3f21002ef62549d982607f2f4c33b5ffdabeb9a00bb368e1484bdc` (744 files, as git stores them, LF) |
-| SDK | `plugins/maxio/sdk/dotnet` without `README.md`, `api-reference.md`, `sdk-map.md` and `map/`: tree sha256 `e8cebb1cd8e89812ddb8bad45c38c6a0c1bfbfa91504e1c9402fe4b5b1203673` over 1,505 files, the same as the business-rule SDK pin (`test-suite/content/br-sdk/PIN.json`, arm `br-maxio-sdk`) |
-| Plugin | `plugins/maxio`: tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` over 1,566 files (`test-suite/scripts/content-tree-sha.ps1`) |
-| Harness | `BrPluginHarness.cs` sha256 `587ff0d2d61e944d68bb70ab0dfb0cc82d45cc66f7c0e9862e43085785fede21` |
-
-## What the plugin holds
-
-- `.claude-plugin/plugin.json` (skills `./skills/dotnet`, agent `./scoped/agents/maxio-advanced-billing-planner.md`),
-  `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, a root `plugin.json` and the plugin `README.md`.
-- 9 C# skills under `skills/dotnet/`: `dotnet-integrate-maxio-advanced-billing`, `dotnet-getting-started` and
-  `dotnet-authentication` (generated for Maxio), and `dotnet-client-initialization`, `dotnet-calling-endpoints`,
-  `dotnet-models`, `dotnet-error-handling`, `dotnet-configuration-resilience` and `dotnet-testing` (the same for
-  every API).
-- The planner agent, `scoped/agents/maxio-advanced-billing-planner.md` (Claude Code only).
-- The bundled C# SDK, `sdk/dotnet/`, with its generated `README.md`, `api-reference.md`, `sdk-map.md` and `map/`.
+| Control | `control-eecee918`, plugin tree sha256 `a4ed19b537118186bca4c07bde18cb1d2c43f0777975a6a8335691eb0fb00ce5` |
+| Content | plugin-experiments `research/docs/maxio/src/content`, 74 files, tree sha256 `5f0852ba53160f3648d94483586aaeed70257d2903defe4ec145e0db211608d4` (as copied, LF) |
+| Plugin | `plugins/maxio`: tree sha256 `f0149d4aaee6b97640c4ed0fd5c0bc40087a3adc497c0eeb97a0947f2f1cd333`, 1,641 files |
+| SDK | `sdk/dotnet` without its docs (`README.md`, `api-reference.md`, `sdk-map.md`, `map/`, `docs/`): the SDK pin, `e8cebb1c…3673` |
 
 ## Checks
 
-1. Same SDK: `sdk/dotnet` without the generated docs has the SDK pin's tree sha.
-2. Deterministic: three generations, the last two from the committed scripts, are byte-identical.
-3. Valid: `claude plugin validate --strict` passes on Claude Code 2.1.319.
-4. Loads: installs and loads in an empty `CLAUDE_CONFIG_DIR` on Claude Code 2.1.319, from a clone holding only the
-   pinned commit, as `new-run.ps1` installs a plugin arm.
-5. Unedited: `plugins/maxio` is the generator's output byte for byte; `.gitattributes` (`* -text`) keeps every
-   checkout byte for byte.
+`test-suite/scripts/br-plugin/check-branch.py` on a clone holding only this branch's commit: only adds (against the
+control's commit), same SDK, `claude plugin validate --strict` passes on Claude Code 2.1.319, and the plugin installs
+and is enabled in an empty `CLAUDE_CONFIG_DIR`.
 
 ## Approval
 
-Pending: a second person approves this branch before it is pinned in an arm (RULES 4).
+Pending: a second person approves this branch's diff against the control before it is pinned in an arm (RULES 4).

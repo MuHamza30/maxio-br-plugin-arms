@@ -1,0 +1,5 @@
+toc:
+  - group: Development Tools
+    items:
+      - group: Embeddable Components
+        dir: development-tools/embeddable-components

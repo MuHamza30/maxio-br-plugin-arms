@@ -23,6 +23,7 @@ However you start it:
 
 ## Grounding rules
 
+- **Provider docs:** Maxio's own portal guides ship with this plugin as Markdown at `<plugin-root>/sdk/dotnet/docs/`, and `index.md` there lists every page by title. Read the pages on the flows you implement: they are the source for how Maxio behaves; the map stays the source for SDK contracts.
 - **Map for contracts; the map-named file for shapes** — follow `dotnet-getting-started`'s *SDK map* and *SDK source* sections in full.
 - **Your contract sheet never leaves a contract fact open for "later."** The map pages and the files they name answer nearly everything — resolve them during planning. A fact only live traffic could confirm becomes a concrete defensive-coding directive on the sheet, labelled `UNVERIFIED` (§7); never leave a row marked for a later source lookup.
 - **When you judge how far a contract can be trusted**, the trust judgment may cite ONLY evidence visible in the map or SDK source (e.g. two generated definitions that disagree, a suspicious shared model) — never training-data memory of this API, and never claims about what the live wire "usually" sends.

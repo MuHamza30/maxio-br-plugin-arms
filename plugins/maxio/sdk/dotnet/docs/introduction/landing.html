@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Landing Page</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://kit.fontawesome.com/6743334a5d.css"
+      crossorigin="anonymous"
+    /></head
+  ><style>
+    #app-layout-docs-container .app-layout-side-container {
+      display: none;
+    }
+    #scroll-container {
+      width: 100%;
+      max-width: 100%;
+    }
+    .view * {
+      box-sizing: border-box;
+    }
+    .view ul {
+      margin: 0;
+      padding: 0;
+      padding-left: 24px;
+    }
+    .view h1 {
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 22.4px;
+      margin: 0;
+    }
+    .view h3 {
+      font-weight: 600;
+      line-height: 22.4px;
+      margin: 0;
+      font-size: 20px;
+    }
+    .view h4 {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 22.4px;
+      margin: 0;
+    }
+    .view {
+      display: flex;
+      flex-direction: column;
+      --banner-color: #ffffff;
+      --banner-image: url(../../static/images/landing-page/hero-banner.png);
+      max-width: 1174px;
+      margin: 0 auto;
+      padding: 40px;
+      border-radius: 6px;
+      border: 1px solid #ececec;
+      gap: 80px;
+      background-color: #fff;
+      font-family: Inter, sans-serif;
+    }
+    .banner {
+      display: flex;
+      padding: 20px 40px;
+      gap: 40px;
+      align-self: stretch;
+      color: var(--banner-color);
+      background-color: #000;
+      align-items: center;
+    }
+    .banner-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-4, 16px);
+      flex: 1 0 0;
+    }
+    .banner-details a {
+      display: flex;
+      flex-direction: row;
+      cursor: pointer;
+      width: 157px;
+      height: 32px;
+      align-items: center;
+      background: #e9e9e9;
+      gap: 32px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      border: 0;
+      padding: 0 0 0 16px;
+      color: #000;
+      text-decoration: none;
+    }
+    .banner-details a:nth-of-type(2) {
+      width: 212px;
+    }
+    .banner-details a:hover {
+      color: #000;
+      text-decoration: none;
+    }
+    .banner-details-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      align-self: stretch;
+      max-width: 730px;
+    }
+    .banner-details-text-buttons-container {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+    }
+    .banner-details-text-title {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 30px;
+    }
+    .banner-details-text-sub-title {
+      font-size: 16px;
+      font-weight: 200;
+      line-height: 24px;
+      font-style: normal;
+    }
+    .banner-details-button-icon {
+      width: 16px;
+      height: 16px;
+    }
+    .banner-image {
+      background-image: var(--banner-image);
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 244px;
+      height: 180px;
+      flex-shrink: 0;
+    }
+    .maxio-integration {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      align-self: stretch;
+    }
+    .maxio-integration-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-2, 8px);
+      align-self: stretch;
+      font-family: Inter;
+      font-style: normal;
+    }
+    .maxio-integration-title {
+      color: #000;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 30px;
+    }
+    .maxio-integration-sub-title {
+      color: var(--gray-90, #4a4a4a);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+    }
+    .maxio-integration-api-endpoints {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      align-self: stretch;
+    }
+    .maxio-integration-api-endpoint {
+      background: #f5f5f5;
+      display: flex;
+      padding: 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 40px;
+      flex: 1 0 0;
+    }
+    .maxio-integration-api-endpoint a {
+      display: flex;
+      align-items: flex-start;
+      cursor: pointer;
+      gap: 8px;
+      font-style: normal;
+      font-weight: 300;
+      line-height: 16px;
+      text-decoration: none;
+      font-size: 14px;
+      color: #0042ff;
+      text-decoration: none;
+    }
+    .maxio-integration-api-endpoint a:hover {
+      text-decoration: none;
+    }
+    .maxio-integration-api-endpoint-title {
+      color: #000;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 30px;
+    }
+    .maxio-tools {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      align-self: stretch;
+    }
+    .maxio-tools-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      align-self: stretch;
+    }
+    .maxio-tools-text-title {
+      font-size: 20px;
+      color: #000;
+      line-height: 30px;
+      font-weight: 600;
+    }
+    .maxio-tools-text-subtitle {
+      font-size: 16px;
+      color: #4a4a4a;
+      line-height: 24px;
+      font-weight: 500;
+    }
+    .maxio-tools-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      align-self: stretch;
+    }
+    .maxio-tools-container-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      flex: 1 0 0;
+      align-self: stretch;
+    }
+    .maxio-tools-container-item a {
+      text-decoration: none;
+      display: flex;
+      padding: 6px 16px;
+      flex-direction: row;
+      align-items: flex-start;
+      background: #000;
+      gap: 32px;
+    }
+    .maxio-tools-container-item a:hover {
+      text-decoration: none;
+      opacity: 1;
+    }
+    .maxio-tools-container-item-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      align-self: stretch;
+    }
+    .maxio-tools-container-item-details-icon {
+      display: flex;
+      height: 120px;
+      padding: 52px 28px;
+      background: #f5f5f5;
+      justify-content: center;
+      align-items: center;
+      align-self: stretch;
+      font-family: "Font Awesome 6 Pro";
+      font-size: 32px;
+    }
+    .maxio-tools-container-item-details-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      align-self: stretch;
+      max-height: 65px;
+      margin-bottom: 20px;
+    }
+    .maxio-tools-container-item-details-text-title {
+      color: #000;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: normal;
+    }
+    .maxio-tools-container-item-details-text-sub-title {
+      color: #4a4a4a;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 21px;
+    }
+    .maxio-tools-container-item-button-icon {
+      width: 16px;
+      height: 16px;
+    }
+    .maxio-tools-container-item-button-text {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    }
+    .questions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      align-self: stretch;
+    }
+    .questions-title {
+      color: #000;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 30px;
+    }
+    .question {
+      width: 100%;
+      display: flex;
+      padding: 16px 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      background: #f5f5f5;
+      gap: 6px;
+    }
+    .question a {
+      text-decoration: none;
+      color: #0042ff;
+      cursor: pointer;
+    }
+    .question-text {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .question-title {
+      height: 100%;
+      width: 100%;
+      display: block;
+      color: #000;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 21px;
+    }
+    .explanation {
+      display: flex;
+      max-width: 80%;
+      max-height: 200px;
+      color: #000;
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 21px;
+    }
+    @media (max-width: 768px) {
+      .banner-image {
+        display: none;
+      }
+      .maxio-tools-container-item {
+        flex: none !important;
+      }
+      .maxio-tools-container-item {
+        flex: none;
+        width: 100%;
+      }
+      .maxio-integration-api-endpoints {
+        flex-wrap: wrap;
+      }
+      .maxio-integration-api-endpoint {
+        flex: none !important;
+      }
+      .maxio-tools-container {
+        flex-wrap: wrap !important;
+      }
+      .maxio-tools-container-item-details-text {
+        max-width: 100% !important;
+      }
+      .banner-details-text-buttons-container {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+  <body>
+    <div class="view">
+      <section class="banner">
+        <div class="banner-details">
+          <div class="banner-details-text">
+            <span class="banner-details-text-title"
+              >B2B Billing, Redefined: Developer Resources at Your
+              Fingertips</span
+            >
+            <span class="banner-details-text-sub-title"
+              >Welcome to the Maxio Developer Portal – an easy access to our API
+              endpoints, documentation, and more! Find all the tools you need to
+              build, test, and launch a world-class billing experience.</span
+            >
+          </div>
+          <div class="banner-details-text-buttons-container">
+            <a href="$h/__intro" target="_blank"
+              ><span>Get started</span
+              ><span class="banner-details-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="black"
+                  /></svg></span></a
+            ><a
+              href="https://app.chargify.com/signup/maxio-billing-sandbox"
+              target="_blank"
+              ><span>Signup for sandbox</span
+              ><span class="banner-details-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="black"
+                  /></svg></span
+            ></a>
+          </div>
+        </div>
+        <div class="banner-image"></div>
+      </section>
+      <section class="maxio-integration">
+        <div class="maxio-integration-text">
+          <span class="maxio-integration-title"
+            >Integrate Maxio into your workflow</span
+          >
+          <span class="maxio-integration-sub-title"
+            >Understand how we enable your subscription management workflow
+            through these commonly used API endpoints</span
+          >
+        </div>
+        <div class="maxio-integration-api-endpoints">
+          <div class="maxio-integration-api-endpoint">
+            <span class="maxio-integration-api-endpoint-title"
+              >Subscriptions </span
+            ><a target="_blank" href="$e/Subscriptions/listSubscriptions"
+              >Learn more
+              <span class="maxio-integration-api-endpoint-link-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="#0042FF"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-integration-api-endpoint">
+            <span class="maxio-integration-api-endpoint-title">Components </span
+            ><a target="_blank" href="$e/Components/listComponents"
+              >Learn more
+              <span class="maxio-integration-api-endpoint-link-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="#0042FF"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-integration-api-endpoint">
+            <span class="maxio-integration-api-endpoint-title"
+              >Allocations </span
+            ><a
+              target="_blank"
+              href="$e/Subscription%20Components/listAllocations"
+              >Learn more
+              <span class="maxio-integration-api-endpoint-link-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="#0042FF"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-integration-api-endpoint">
+            <span class="maxio-integration-api-endpoint-title"
+              >Price Points </span
+            ><a
+              target="_blank"
+              href="$e/Component%3A%20Price%20Points/listComponentPricePoints"
+              >Learn more
+              <span class="maxio-integration-api-endpoint-link-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="#0042FF"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-integration-api-endpoint">
+            <span class="maxio-integration-api-endpoint-title">Events </span
+            ><a target="_blank" href="$e/Events/listEvents"
+              >Learn more
+              <span class="maxio-integration-api-endpoint-link-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="#0042FF"
+                  /></svg></span
+            ></a>
+          </div>
+        </div>
+      </section>
+      <section class="maxio-tools">
+        <div class="maxio-tools-text">
+          <span class="maxio-tools-text-title"
+            >Best-in-class tooling to get you up and running </span
+          ><span class="maxio-tools-text-sub-title"
+            >Explore our security, reliability, and building tools</span
+          >
+        </div>
+        <div class="maxio-tools-container">
+          <div class="maxio-tools-container-item">
+            <div class="maxio-tools-container-item-details">
+              <div class="maxio-tools-container-item-details-icon">
+                <i class="fa-regular fa-clock" style="color: #1e8769"></i>
+              </div>
+              <div class="maxio-tools-container-item-details-text">
+                <span class="maxio-tools-container-item-details-text-title"
+                  >99.9% uptime</span
+                >
+                <span class="maxio-tools-container-item-details-text-sub-title"
+                  >Maxio guarantees security and reliability to launch a
+                  world-class billing experience</span
+                >
+              </div>
+            </div>
+            <a target="_blank" href="https://maxio.statuspage.io/"
+              ><span class="maxio-tools-container-item-button-text"
+                >Learn more </span
+              ><span class="maxio-tools-container-item-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="white"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-tools-container-item">
+            <div class="maxio-tools-container-item-details">
+              <div class="maxio-tools-container-item-details-icon">
+                <i class="fa-regular fa-code" style="color: #620093"></i>
+              </div>
+              <div class="maxio-tools-container-item-details-text">
+                <span class="maxio-tools-container-item-details-text-title"
+                  >Ecosystem</span
+                >
+                <span class="maxio-tools-container-item-details-text-sub-title"
+                  >Advanced Billing has partnered with many SaaS solutions to
+                  help you manage your business.</span
+                >
+              </div>
+            </div>
+            <a target="_blank" href="https://www.maxio.com/integrations"
+              ><span class="maxio-tools-container-item-button-text"
+                >Learn more </span
+              ><span class="maxio-tools-container-item-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="white"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-tools-container-item">
+            <div class="maxio-tools-container-item-details">
+              <div class="maxio-tools-container-item-details-icon">
+                <i
+                  class="fa-regular fa-shield-check"
+                  style="color: #0042ff"
+                ></i>
+              </div>
+              <div class="maxio-tools-container-item-details-text">
+                <span class="maxio-tools-container-item-details-text-title"
+                  >Security</span
+                >
+                <span class="maxio-tools-container-item-details-text-sub-title"
+                  >A winning combination of enterprise-grade security to protect
+                  your customers.</span
+                >
+              </div>
+            </div>
+            <a target="_blank" href="https://www.maxio.com/security"
+              ><span class="maxio-tools-container-item-button-text"
+                >Learn more </span
+              ><span class="maxio-tools-container-item-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="white"
+                  /></svg></span
+            ></a>
+          </div>
+          <div class="maxio-tools-container-item">
+            <div class="maxio-tools-container-item-details">
+              <div class="maxio-tools-container-item-details-icon">
+                <i
+                  class="fa-regular fa-brackets-curly"
+                  style="color: #ffab41"
+                ></i>
+              </div>
+              <div class="maxio-tools-container-item-details-text">
+                <span class="maxio-tools-container-item-details-text-title"
+                  >Maxio.js (formerly Chargify.js)</span
+                >
+                <span class="maxio-tools-container-item-details-text-sub-title"
+                  >Streamline your existing API-based workflows in Maxio's
+                  Advanced Billing module.</span
+                >
+              </div>
+            </div>
+            <a
+              target="_blank"
+              href="page:development-tools/chargify-js-overview"
+              ><span class="maxio-tools-container-item-button-text"
+                >Learn more </span
+              ><span class="maxio-tools-container-item-button-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.52843 2L14 7.47158V8.53224L8.52866 14.0036L7.468 12.9429L10.909 9.50191L10.159 8.75191L2 8.75185V7.25185L10.159 7.25191L10.909 6.50191L7.46777 3.06066L8.52843 2Z"
+                    fill="white"
+                  /></svg></span
+            ></a>
+          </div>
+        </div>
+      </section>
+      <section class="questions">
+        <span class="questions-title">Frequently Asked Questions</span>
+        <div class="question">
+          <div class="question-text">
+            <div class="question-title">
+              What is the application’s uptime SLA?
+            </div>
+          </div>
+          <div class="explanation">
+            <span
+              >Maxio will use commercially reasonable efforts to ensure that the
+              Services will be available 99.6% of the time each month other than
+              during scheduled maintenance.</span
+            >
+          </div>
+        </div>
+        <div class="question">
+          <div class="question-text">
+            <div class="question-title">
+              Which methodologies are used to monitor API usage and limits?
+            </div>
+          </div>
+          <div class="explanation">
+            <span
+              >Our API limits are described
+              <a
+                href="https://developers.maxio.com/http/getting-started/about-the-api/error-handling-rate-limiting#rate-limits-and-blocks"
+                target="_blank"
+                >here.</a
+              >
+              We log all incoming traffic, and have alerts when the limits are
+              triggered too often. We use one of the best-in-class APM tools to
+              monitor app performance.</span
+            >
+          </div>
+        </div>
+        <div class="question">
+          <div class="question-text">
+            <div class="question-title">
+              How many out-of-the-box webhooks do you support?
+            </div>
+          </div>
+          <div class="explanation">
+            <span
+              ><a href="page:introduction/webhooks/webhooks" target="_blank"
+                >See the comprehensive list of supported webhooks.</a
+              ></span
+            ><br />
+          </div>
+        </div>
+        <div class="question">
+          <div class="question-text">
+            <div class="question-title">
+              How many API calls do your largest customers make per day?
+            </div>
+          </div>
+          <div class="explanation">
+            <span
+              ><ul>
+                <li>1st largest customer: 2.5M</li>
+                <li>2nd largest customer: 1.2M</li>
+                <li>3rd largest customer: 1M</li>
+                <li>4th largest customer: 1M</li>
+                <li>5th largest customer: 900K</li>
+              </ul></span
+            >
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
