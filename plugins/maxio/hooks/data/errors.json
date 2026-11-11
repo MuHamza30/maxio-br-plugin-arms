@@ -1,0 +1,2307 @@
+[
+ {
+  "key": "400|",
+  "status": 400,
+  "error": null,
+  "operations": [
+   "overrideSubscription"
+  ],
+  "rules": [
+   "maxio-c4:overrideSubscription.3"
+  ]
+ },
+ {
+  "key": "400|purchase declined. the subscription is now in the 'awaiting_signup' state.",
+  "status": 400,
+  "error": "Purchase Declined. The subscription is now in the 'awaiting_signup' state.",
+  "operations": [
+   "activateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:activateSubscription.4"
+  ]
+ },
+ {
+  "key": "400|supplied value is invalid, expected iso 8601 format",
+  "status": 400,
+  "error": "supplied value is invalid, expected ISO 8601 format",
+  "operations": [
+   "listMrrPerSubscription"
+  ],
+  "rules": [
+   "maxio-c4:listMrrPerSubscription.1"
+  ]
+ },
+ {
+  "key": "403|403 forbidden",
+  "status": 403,
+  "error": "403 Forbidden",
+  "operations": [
+   "archiveWallet",
+   "archiveWalletProduct",
+   "createWallet",
+   "createWalletAdjustment",
+   "createWalletProduct",
+   "createWalletPurchase",
+   "createWalletTransaction",
+   "listWalletProducts",
+   "listWalletTransactions",
+   "listWallets",
+   "previewWalletPurchase",
+   "readWallet",
+   "readWalletProduct",
+   "readWalletProductUsage",
+   "unarchiveWalletProduct",
+   "updateWallet",
+   "updateWalletProduct"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.101",
+   "maxio-c4:createWallet.102",
+   "maxio-c4:createWallet.16",
+   "maxio-c4:listWallets.1"
+  ]
+ },
+ {
+  "key": "403|forbidden",
+  "status": 403,
+  "error": "FORBIDDEN",
+  "operations": [
+   "clearSite"
+  ],
+  "rules": [
+   "maxio-c4:clearSite.1"
+  ]
+ },
+ {
+  "key": "404|",
+  "status": 404,
+  "error": null,
+  "operations": [
+   "archiveWalletProduct",
+   "createWallet",
+   "findSubscriptionGroup",
+   "readFeatureTemplate",
+   "readWalletProduct",
+   "readWalletProductUsage",
+   "resendBillingPortalInvitation",
+   "sendRequestUpdatePaymentEmail",
+   "unarchiveWalletProduct",
+   "updateFeatureTemplate",
+   "updateWalletProduct"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.5",
+   "maxio-c4:createWallet.8",
+   "maxio-c4:createWallet.9",
+   "maxio-c4:findSubscriptionGroup.1",
+   "maxio-c4:readFeatureTemplate.1",
+   "maxio-c4:resendBillingPortalInvitation.3",
+   "maxio-c4:sendRequestUpdatePaymentEmail.2"
+  ]
+ },
+ {
+  "key": "404|a valid product_family_id is required",
+  "status": 404,
+  "error": "A valid product_family_id is required",
+  "operations": [
+   "listProductsForProductFamily"
+  ],
+  "rules": [
+   "maxio-c4:listProductsForProductFamily.1"
+  ]
+ },
+ {
+  "key": "404|advanced billing token not found",
+  "status": 404,
+  "error": "Advanced Billing token not found",
+  "operations": [
+   "readOneTimeToken"
+  ],
+  "rules": [
+   "maxio-c4:readOneTimeToken.1"
+  ]
+ },
+ {
+  "key": "404|coupon code could not be found.",
+  "status": 404,
+  "error": "Coupon code could not be found.",
+  "operations": [
+   "validateCoupon"
+  ],
+  "rules": [
+   "maxio-c4:validateCoupon.1"
+  ]
+ },
+ {
+  "key": "404|invoice not found",
+  "status": 404,
+  "error": "Invoice not found",
+  "operations": [
+   "deleteInvoice",
+   "updateInvoice"
+  ],
+  "rules": [
+   "maxio-c4:updateInvoice.2"
+  ]
+ },
+ {
+  "key": "404|referral code is invalid.",
+  "status": 404,
+  "error": "Referral code is invalid.",
+  "operations": [
+   "validateReferralCode"
+  ],
+  "rules": [
+   "maxio-c4:validateReferralCode.1"
+  ]
+ },
+ {
+  "key": "404|wallet product not found",
+  "status": 404,
+  "error": "Wallet product not found",
+  "operations": [
+   "createWallet"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.3"
+  ]
+ },
+ {
+  "key": "409|",
+  "status": 409,
+  "error": null,
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.12",
+   "maxio-c4:createWalletAdjustment.15",
+   "maxio-c4:every-request.39"
+  ]
+ },
+ {
+  "key": "409|duplicateprevention::duplicatesubmissionerror",
+  "status": 409,
+  "error": "DuplicatePrevention::DuplicateSubmissionError",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.36",
+   "maxio-c4:every-request.38"
+  ]
+ },
+ {
+  "key": "409|the grant balance changed since this correction was prepared. reload and try again.",
+  "status": 409,
+  "error": "The grant balance changed since this correction was prepared. Reload and try again.",
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.11"
+  ]
+ },
+ {
+  "key": "422|",
+  "status": 422,
+  "error": null,
+  "operations": [
+   "archiveWalletProduct",
+   "bulkCreateSegments",
+   "bulkRecordEvents",
+   "bulkUpdateSegments",
+   "createComponentFeature",
+   "createCustomer",
+   "createEventBasedComponent",
+   "createFeatureTemplate",
+   "createMeteredComponent",
+   "createOnOffComponent",
+   "createPaymentProfile",
+   "createPrepaidUsageComponent",
+   "createPrepayment",
+   "createProductFeature",
+   "createQuantityBasedComponent",
+   "createSubscription",
+   "createWallet",
+   "createWalletAdjustment",
+   "createWalletProduct",
+   "createWalletPurchase",
+   "createWalletTransaction",
+   "initiateDelayedCancellationForGroup",
+   "previewWalletPurchase",
+   "reactivateSubscription",
+   "reactivateSubscriptionGroup",
+   "resendBillingPortalInvitation",
+   "restoreComponentFeature",
+   "restoreProductFeature",
+   "revokeBillingPortalAccess",
+   "signupWithSubscriptionGroup",
+   "unarchiveWalletProduct",
+   "updateComponent",
+   "updateCustomer",
+   "updateFeatureTemplate",
+   "updateInvoice",
+   "updateProductFamilyComponent",
+   "updateWallet"
+  ],
+  "rules": [
+   "maxio-c4:archiveWalletProduct.2",
+   "maxio-c4:archiveWalletProduct.3",
+   "maxio-c4:bulkCreateSegments.1",
+   "maxio-c4:bulkRecordEvents.1",
+   "maxio-c4:createCustomer.2",
+   "maxio-c4:createCustomer.3",
+   "maxio-c4:createCustomer.4",
+   "maxio-c4:createFeatureTemplate.1",
+   "maxio-c4:createFeatureTemplate.2",
+   "maxio-c4:createFeatureTemplate.4",
+   "maxio-c4:createFeatureTemplate.5",
+   "maxio-c4:createFeatureTemplate.6",
+   "maxio-c4:createMeteredComponent.1",
+   "maxio-c4:createPaymentProfile.2",
+   "maxio-c4:createPrepayment.3",
+   "maxio-c4:createProductFeature.1",
+   "maxio-c4:createProductFeature.2",
+   "maxio-c4:createSubscription.77",
+   "maxio-c4:createWallet.1",
+   "maxio-c4:createWallet.10",
+   "maxio-c4:createWallet.104",
+   "maxio-c4:createWallet.12",
+   "maxio-c4:createWallet.15",
+   "maxio-c4:createWallet.17",
+   "maxio-c4:createWallet.19",
+   "maxio-c4:createWallet.2",
+   "maxio-c4:createWallet.22",
+   "maxio-c4:createWallet.23",
+   "maxio-c4:createWallet.24",
+   "maxio-c4:createWallet.26",
+   "maxio-c4:createWalletAdjustment.1",
+   "maxio-c4:createWalletAdjustment.14",
+   "maxio-c4:createWalletAdjustment.3",
+   "maxio-c4:createWalletAdjustment.4",
+   "maxio-c4:createWalletAdjustment.5",
+   "maxio-c4:createWalletAdjustment.6",
+   "maxio-c4:createWalletProduct.2",
+   "maxio-c4:createWalletProduct.6",
+   "maxio-c4:createWalletProduct.7",
+   "maxio-c4:createWalletProduct.8",
+   "maxio-c4:createWalletPurchase.2",
+   "maxio-c4:createWalletPurchase.3",
+   "maxio-c4:createWalletPurchase.4",
+   "maxio-c4:createWalletPurchase.5",
+   "maxio-c4:createWalletPurchase.6",
+   "maxio-c4:createWalletPurchase.7",
+   "maxio-c4:createWalletTransaction.101",
+   "maxio-c4:createWalletTransaction.2",
+   "maxio-c4:createWalletTransaction.4",
+   "maxio-c4:initiateDelayedCancellationForGroup.1",
+   "maxio-c4:reactivateSubscription.11",
+   "maxio-c4:reactivateSubscriptionGroup.4",
+   "maxio-c4:reactivateSubscriptionGroup.9",
+   "maxio-c4:resendBillingPortalInvitation.2",
+   "maxio-c4:restoreComponentFeature.1",
+   "maxio-c4:restoreProductFeature.1",
+   "maxio-c4:revokeBillingPortalAccess.1",
+   "maxio-c4:signupWithSubscriptionGroup.1",
+   "maxio-c4:signupWithSubscriptionGroup.11",
+   "maxio-c4:signupWithSubscriptionGroup.12",
+   "maxio-c4:signupWithSubscriptionGroup.13",
+   "maxio-c4:signupWithSubscriptionGroup.2",
+   "maxio-c4:signupWithSubscriptionGroup.4",
+   "maxio-c4:signupWithSubscriptionGroup.5",
+   "maxio-c4:unarchiveWalletProduct.1",
+   "maxio-c4:updateCustomer.6",
+   "maxio-c4:updateFeatureTemplate.1",
+   "maxio-c4:updateFeatureTemplate.2",
+   "maxio-c4:updateInvoice.1",
+   "maxio-c4:updateWallet.2"
+  ]
+ },
+ {
+  "key": "422|'expires_at' cannot be set for subscriptions on calendar billing",
+  "status": 422,
+  "error": "'expires_at' cannot be set for subscriptions on calendar billing",
+  "operations": [
+   "updateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:updateSubscription.17"
+  ]
+ },
+ {
+  "key": "422|'name' must be present to create or update metafields",
+  "status": 422,
+  "error": "'name' must be present to create or update metafields",
+  "operations": [
+   "createMetadata",
+   "createMetafields",
+   "updateMetadata"
+  ],
+  "rules": [
+   "maxio-c4:createMetafields.3"
+  ]
+ },
+ {
+  "key": "422|a valid expires_at date must be provided.",
+  "status": 422,
+  "error": "A valid expires_at date must be provided.",
+  "operations": [
+   "updatePrepaidUsageAllocationExpirationDate"
+  ],
+  "rules": [
+   "maxio-c4:updatePrepaidUsageAllocationExpirationDate.3"
+  ]
+ },
+ {
+  "key": "422|action_link",
+  "status": 422,
+  "error": "action_link",
+  "operations": [
+   "createSubscription",
+   "migrateSubscriptionProduct",
+   "reactivateSubscription",
+   "retrySubscription"
+  ],
+  "rules": [
+   "maxio-c4:createSubscription.8"
+  ]
+ },
+ {
+  "key": "422|adjustment exceeds the grant's remaining balance",
+  "status": 422,
+  "error": "Adjustment exceeds the grant's remaining balance",
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.2"
+  ]
+ },
+ {
+  "key": "422|adjustment exceeds the usage this entry still records",
+  "status": 422,
+  "error": "Adjustment exceeds the usage this entry still records",
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.9"
+  ]
+ },
+ {
+  "key": "422|adjustment exceeds the wallet's outstanding overdraft",
+  "status": 422,
+  "error": "Adjustment exceeds the wallet's outstanding overdraft",
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.10"
+  ]
+ },
+ {
+  "key": "422|advance invoice already exists",
+  "status": 422,
+  "error": "Advance invoice already exists",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.2"
+  ]
+ },
+ {
+  "key": "422|advanced billing token not found",
+  "status": 422,
+  "error": "Advanced Billing token not found",
+  "operations": [
+   "createPaymentProfile"
+  ],
+  "rules": [
+   "maxio-c4:createPaymentProfile.4"
+  ]
+ },
+ {
+  "key": "422|all prices must belong to the price point",
+  "status": 422,
+  "error": "all prices must belong to the price point",
+  "operations": [
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:updateComponentPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|allocations can only be updated for quantity and on/off components.",
+  "status": 422,
+  "error": "Allocations can only be updated for quantity and on/off components.",
+  "operations": [
+   "previewAllocations"
+  ],
+  "rules": [
+   "maxio-c4:previewAllocations.1"
+  ]
+ },
+ {
+  "key": "422|amount cannot exceed current service credit account balance.",
+  "status": 422,
+  "error": "Amount cannot exceed current service credit account balance.",
+  "operations": [
+   "deductServiceCredit"
+  ],
+  "rules": [
+   "maxio-c4:deductServiceCredit.1"
+  ]
+ },
+ {
+  "key": "422|amount must be greater than 0",
+  "status": 422,
+  "error": "Amount must be greater than 0",
+  "operations": [
+   "createSubscriptionGroupPrepayment",
+   "deductSubscriptionGroupServiceCredit",
+   "issueServiceCredit",
+   "issueSubscriptionGroupServiceCredit"
+  ],
+  "rules": [
+   "maxio-c4:createSubscriptionGroupPrepayment.1",
+   "maxio-c4:issueServiceCredit.2"
+  ]
+ },
+ {
+  "key": "422|amount must be greater than 0.",
+  "status": 422,
+  "error": "Amount must be greater than 0.",
+  "operations": [
+   "deductServiceCredit"
+  ],
+  "rules": [
+   "maxio-c4:deductServiceCredit.2"
+  ]
+ },
+ {
+  "key": "422|amount: is not a number.",
+  "status": 422,
+  "error": "Amount: is not a number.",
+  "operations": [
+   "recordPaymentForInvoice"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForInvoice.3"
+  ]
+ },
+ {
+  "key": "422|amount: must be greater than 0.",
+  "status": 422,
+  "error": "Amount: must be greater than 0.",
+  "operations": [
+   "refundInvoice",
+   "refundPrepayment"
+  ],
+  "rules": [
+   "maxio-c4:refundInvoice.2",
+   "maxio-c4:refundPrepayment.5"
+  ]
+ },
+ {
+  "key": "422|amount: must be greater than or equal to $0.00.",
+  "status": 422,
+  "error": "Amount: must be greater than or equal to $0.00.",
+  "operations": [
+   "createCoupon",
+   "updateCoupon"
+  ],
+  "rules": [
+   "maxio-c4:createCoupon.8"
+  ]
+ },
+ {
+  "key": "422|api handle: must be unique - that value has been taken.",
+  "status": 422,
+  "error": "API Handle: must be unique - that value has been taken.",
+  "operations": [
+   "createProductFamily"
+  ],
+  "rules": [
+   "maxio-c4:createProductFamily.2"
+  ]
+ },
+ {
+  "key": "422|at least 1 price bracket must be defined",
+  "status": 422,
+  "error": "At least 1 price bracket must be defined",
+  "operations": [
+   "createEventBasedComponent",
+   "createMeteredComponent",
+   "createPrepaidUsageComponent",
+   "createQuantityBasedComponent",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createMeteredComponent.3",
+   "maxio-c4:updateComponentPricePoint.5"
+  ]
+ },
+ {
+  "key": "422|auto create signup page: is not allowed",
+  "status": 422,
+  "error": "Auto Create Signup Page: is not allowed",
+  "operations": [
+   "createProduct"
+  ],
+  "rules": [
+   "maxio-c4:createProduct.1"
+  ]
+ },
+ {
+  "key": "422|automatic resume date: must be at least 24 hours in the future.",
+  "status": 422,
+  "error": "Automatic resume date: must be at least 24 hours in the future.",
+  "operations": [
+   "updateAutomaticSubscriptionResumption"
+  ],
+  "rules": [
+   "maxio-c4:updateAutomaticSubscriptionResumption.2"
+  ]
+ },
+ {
+  "key": "422|bank routing number: cannot be blank.",
+  "status": 422,
+  "error": "Bank routing number: cannot be blank.",
+  "operations": [
+   "createSubscription"
+  ],
+  "rules": [
+   "maxio-c4:createSubscription.26"
+  ]
+ },
+ {
+  "key": "422|base: subscription retry was unsuccessful",
+  "status": 422,
+  "error": "base: subscription retry was unsuccessful",
+  "operations": [
+   "retrySubscription"
+  ],
+  "rules": [
+   "maxio-c4:retrySubscription.2"
+  ]
+ },
+ {
+  "key": "422|billing address must include name.",
+  "status": 422,
+  "error": "Billing address must include name.",
+  "operations": [
+   "createInvoice",
+   "updateInvoice"
+  ],
+  "rules": [
+   "maxio-c4:createInvoice.32"
+  ]
+ },
+ {
+  "key": "422|billing portal is not enabled for this customer.",
+  "status": 422,
+  "error": "Billing Portal is not enabled for this customer.",
+  "operations": [
+   "readBillingPortalLink"
+  ],
+  "rules": [
+   "maxio-c4:readBillingPortalLink.1"
+  ]
+ },
+ {
+  "key": "422|body: cannot be blank.",
+  "status": 422,
+  "error": "Body: cannot be blank.",
+  "operations": [
+   "createSubscriptionNote",
+   "updateSubscriptionNote"
+  ],
+  "rules": [
+   "maxio-c4:createSubscriptionNote.1"
+  ]
+ },
+ {
+  "key": "422|cancellation_message size cannot be greater than 65535",
+  "status": 422,
+  "error": "cancellation_message size cannot be greater than 65535",
+  "operations": [
+   "cancelSubscription",
+   "initiateDelayedCancellation"
+  ],
+  "rules": [
+   "maxio-c4:cancelSubscription.8"
+  ]
+ },
+ {
+  "key": "422|cannot archive the default price point.",
+  "status": 422,
+  "error": "Cannot archive the default price point.",
+  "operations": [
+   "archiveProductPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:archiveProductPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|cannot clone a custom price point",
+  "status": 422,
+  "error": "Cannot clone a custom price point",
+  "operations": [
+   "cloneComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:cloneComponentPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|cannot clone an archived price point",
+  "status": 422,
+  "error": "Cannot clone an archived price point",
+  "operations": [
+   "cloneComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:cloneComponentPricePoint.2"
+  ]
+ },
+ {
+  "key": "422|cannot create prices for a percentage-based coupon.",
+  "status": 422,
+  "error": "Cannot create prices for a percentage-based coupon.",
+  "operations": [
+   "createOrUpdateCouponCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:createOrUpdateCouponCurrencyPrices.1"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance for a calendar billing subscription",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance for a calendar billing subscription",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.6"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance for a prepaid subscription",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance for a prepaid subscription",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.7"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance for a subscription using the site level exchange rate",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance for a subscription using the site level exchange rate",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.9"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance for inactive subscription",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance for inactive subscription",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.5"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance for subscription in the group",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance for subscription in the group",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.4"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance when a subscription uses prepaid components",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance when a subscription uses prepaid components",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.10"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance when nothing is due",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance when nothing is due",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.1"
+  ]
+ },
+ {
+  "key": "422|cannot generate an invoice in advance within an hour of renewal",
+  "status": 422,
+  "error": "Cannot generate an invoice in advance within an hour of renewal",
+  "operations": [
+   "issueAdvanceInvoice"
+  ],
+  "rules": [
+   "maxio-c4:issueAdvanceInvoice.8"
+  ]
+ },
+ {
+  "key": "422|cannot reactivate a subscription that is not marked \"canceled\", \"unpaid\", or \"trial ended\".",
+  "status": 422,
+  "error": "Cannot reactivate a subscription that is not marked \"Canceled\", \"Unpaid\", or \"Trial Ended\".",
+  "operations": [
+   "reactivateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:reactivateSubscription.1"
+  ]
+ },
+ {
+  "key": "422|cc_recipient_emails: must be a valid email address",
+  "status": 422,
+  "error": "cc_recipient_emails: must be a valid email address",
+  "operations": [
+   "sendInvoice"
+  ],
+  "rules": [
+   "maxio-c4:sendInvoice.5"
+  ]
+ },
+ {
+  "key": "422|chargify token not found",
+  "status": 422,
+  "error": "Chargify token not found",
+  "operations": [
+   "signupWithSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:signupWithSubscriptionGroup.8"
+  ]
+ },
+ {
+  "key": "422|cloning failed due to validation errors.",
+  "status": 422,
+  "error": "Cloning failed due to validation errors.",
+  "operations": [
+   "cloneComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:cloneComponentPricePoint.3"
+  ]
+ },
+ {
+  "key": "422|code cannot be changed because coupon belongs to one or more active offers: offer-1",
+  "status": 422,
+  "error": "Code cannot be changed because coupon belongs to one or more active offers: offer-1",
+  "operations": [
+   "updateCoupon"
+  ],
+  "rules": [
+   "maxio-c4:updateCoupon.2"
+  ]
+ },
+ {
+  "key": "422|code: cannot be blank. / description: cannot be blank.",
+  "status": 422,
+  "error": "Code: cannot be blank. / Description: cannot be blank.",
+  "operations": [
+   "createReasonCode"
+  ],
+  "rules": [
+   "maxio-c4:createReasonCode.2"
+  ]
+ },
+ {
+  "key": "422|code: must be unique - that value has been taken.",
+  "status": 422,
+  "error": "Code: must be unique - that value has been taken.",
+  "operations": [
+   "updateCoupon"
+  ],
+  "rules": [
+   "maxio-c4:updateCoupon.1"
+  ]
+ },
+ {
+  "key": "422|code: this code is already in use.",
+  "status": 422,
+  "error": "Code: This code is already in use.",
+  "operations": [
+   "createReasonCode",
+   "updateReasonCode"
+  ],
+  "rules": [
+   "maxio-c4:createReasonCode.1"
+  ]
+ },
+ {
+  "key": "422|component cannot be archived. please make sure it hasn't already been archived.",
+  "status": 422,
+  "error": "Component cannot be archived. Please make sure it hasn't already been archived.",
+  "operations": [
+   "archiveComponent"
+  ],
+  "rules": [
+   "maxio-c4:archiveComponent.1"
+  ]
+ },
+ {
+  "key": "422|consolidated proforma invoice generation already in progress",
+  "status": 422,
+  "error": "Consolidated proforma invoice generation already in progress",
+  "operations": [
+   "createConsolidatedProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:createConsolidatedProformaInvoice.3"
+  ]
+ },
+ {
+  "key": "422|couldn't find component by handle:unknown",
+  "status": 422,
+  "error": "Couldn't find Component by handle:unknown",
+  "operations": [
+   "previewRenewal"
+  ],
+  "rules": [
+   "maxio-c4:previewRenewal.5"
+  ]
+ },
+ {
+  "key": "422|couldn't find product by 1",
+  "status": 422,
+  "error": "Couldn't find Product by 1",
+  "operations": [
+   "createSignupProformaInvoice",
+   "previewSignupProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:createSignupProformaInvoice.4"
+  ]
+ },
+ {
+  "key": "422|coupon code could not be found.",
+  "status": 422,
+  "error": "Coupon code could not be found.",
+  "operations": [
+   "applyCouponsToSubscription"
+  ],
+  "rules": [
+   "maxio-c4:applyCouponsToSubscription.2"
+  ]
+ },
+ {
+  "key": "422|credit card expiration month: cannot be blank.",
+  "status": 422,
+  "error": "Credit card expiration month: cannot be blank.",
+  "operations": [
+   "createPaymentProfile"
+  ],
+  "rules": [
+   "maxio-c4:createPaymentProfile.6"
+  ]
+ },
+ {
+  "key": "422|credit card number: cannot be blank.",
+  "status": 422,
+  "error": "Credit card number: cannot be blank.",
+  "operations": [
+   "signupWithSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:signupWithSubscriptionGroup.10"
+  ]
+ },
+ {
+  "key": "422|credit invoice account not found for subscription",
+  "status": 422,
+  "error": "Credit invoice account not found for subscription",
+  "operations": [
+   "listServiceCredits"
+  ],
+  "rules": [
+   "maxio-c4:listServiceCredits.1"
+  ]
+ },
+ {
+  "key": "422|currency must be defined on the site level.",
+  "status": 422,
+  "error": "Currency must be defined on the site level.",
+  "operations": [
+   "createOrUpdateCouponCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:createOrUpdateCouponCurrencyPrices.2"
+  ]
+ },
+ {
+  "key": "422|currency: cannot be blank.",
+  "status": 422,
+  "error": "Currency: cannot be blank.",
+  "operations": [
+   "createCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:createCurrencyPrices.2"
+  ]
+ },
+ {
+  "key": "422|currency: is not one of the allowed values.",
+  "status": 422,
+  "error": "Currency: is not one of the allowed values.",
+  "operations": [
+   "createCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:createCurrencyPrices.1"
+  ]
+ },
+ {
+  "key": "422|date_field must be one of: created_at, updated_at",
+  "status": 422,
+  "error": "date_field must be one of: created_at, updated_at",
+  "operations": [
+   "listAllProductPricePoints"
+  ],
+  "rules": [
+   "maxio-c4:listAllProductPricePoints.1"
+  ]
+ },
+ {
+  "key": "422|effective date is invalid or malformed",
+  "status": 422,
+  "error": "Effective date is invalid or malformed",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.12"
+  ]
+ },
+ {
+  "key": "422|effective date is missing",
+  "status": 422,
+  "error": "Effective date is missing",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.11"
+  ]
+ },
+ {
+  "key": "422|effective date must occur in the past",
+  "status": 422,
+  "error": "Effective date must occur in the past",
+  "operations": [
+   "recordPaymentForInvoice",
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForInvoice.7"
+  ]
+ },
+ {
+  "key": "422|ending quantity: must be greater than the low end bracket quantity, if given",
+  "status": 422,
+  "error": "Ending quantity: must be greater than the low end bracket quantity, if given",
+  "operations": [
+   "bulkCreateComponentPricePoints",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:bulkCreateComponentPricePoints.1"
+  ]
+ },
+ {
+  "key": "422|event key is not valid - foobar",
+  "status": 422,
+  "error": "Event key is not valid - foobar",
+  "operations": [
+   "updateEndpoint"
+  ],
+  "rules": [
+   "maxio-c4:updateEndpoint.3"
+  ]
+ },
+ {
+  "key": "422|expiration date cannot be in the past",
+  "status": 422,
+  "error": "Expiration Date cannot be in the past",
+  "operations": [
+   "createCoupon",
+   "updateCoupon"
+  ],
+  "rules": [
+   "maxio-c4:createCoupon.7"
+  ]
+ },
+ {
+  "key": "422|expires at: must be greater than or equal to 2024-02-28",
+  "status": 422,
+  "error": "Expires at: must be greater than or equal to 2024-02-28",
+  "operations": [
+   "updatePrepaidUsageAllocationExpirationDate"
+  ],
+  "rules": [
+   "maxio-c4:updatePrepaidUsageAllocationExpirationDate.2"
+  ]
+ },
+ {
+  "key": "422|handle must be unique within a site.",
+  "status": 422,
+  "error": "Handle must be unique within a Site.",
+  "operations": [
+   "createEventBasedComponent",
+   "createMeteredComponent",
+   "createOnOffComponent",
+   "createPrepaidUsageComponent",
+   "createQuantityBasedComponent"
+  ],
+  "rules": [
+   "maxio-c4:createPrepaidUsageComponent.3"
+  ]
+ },
+ {
+  "key": "422|handle: must begin with a letter or a number, have at least one letter in it, and contain only lowercase letters, numbers, dashes and underscores.",
+  "status": 422,
+  "error": "Handle: must begin with a letter or a number, have at least one letter in it, and contain only lowercase letters, numbers, dashes and underscores.",
+  "operations": [
+   "bulkCreateComponentPricePoints",
+   "createComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createComponentPricePoint.3"
+  ]
+ },
+ {
+  "key": "422|handle: this handle is already in use.",
+  "status": 422,
+  "error": "Handle: This handle is already in use.",
+  "operations": [
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:updateComponentPricePoint.6"
+  ]
+ },
+ {
+  "key": "422|if in a group, the subscription must be the primary",
+  "status": 422,
+  "error": "If in a group, the Subscription must be the primary",
+  "operations": [
+   "recordPaymentForSubscription"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForSubscription.3"
+  ]
+ },
+ {
+  "key": "422|individual invoices may not be overpaid. to create a prepayment, add overage to the total amount.",
+  "status": 422,
+  "error": "Individual invoices may not be overpaid. To create a prepayment, add overage to the total amount.",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.6"
+  ]
+ },
+ {
+  "key": "422|invalid page: -1",
+  "status": 422,
+  "error": "invalid page: -1",
+  "operations": [
+   "listSubscriptionNotes"
+  ],
+  "rules": [
+   "maxio-c4:listSubscriptionNotes.1"
+  ]
+ },
+ {
+  "key": "422|invalid page: 0",
+  "status": 422,
+  "error": "invalid page: 0",
+  "operations": [
+   "listAllocations",
+   "listOffers",
+   "listReasonCodes"
+  ],
+  "rules": [
+   "maxio-c4:listAllocations.3",
+   "maxio-c4:listReasonCodes.1"
+  ]
+ },
+ {
+  "key": "422|invoice does not exist",
+  "status": 422,
+  "error": "Invoice does not exist",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.3"
+  ]
+ },
+ {
+  "key": "422|invoice must be open or in collections to apply payment",
+  "status": 422,
+  "error": "Invoice must be open or in collections to apply payment",
+  "operations": [
+   "recordPaymentForInvoice"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForInvoice.2"
+  ]
+ },
+ {
+  "key": "422|invoice must have an open balance",
+  "status": 422,
+  "error": "Invoice must have an open balance",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.10"
+  ]
+ },
+ {
+  "key": "422|invoice must have an open status",
+  "status": 422,
+  "error": "Invoice must have an open status",
+  "operations": [
+   "previewCustomerInformationChanges",
+   "updateCustomerInformation"
+  ],
+  "rules": [
+   "maxio-c4:previewCustomerInformationChanges.1"
+  ]
+ },
+ {
+  "key": "422|invoice payment amounts must be greater than 0",
+  "status": 422,
+  "error": "Invoice payment amounts must be greater than 0",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.9"
+  ]
+ },
+ {
+  "key": "422|invoice status must be 'open', 'canceled', or 'pending' and non-consolidated to be voided.",
+  "status": 422,
+  "error": "Invoice status must be 'open', 'canceled', or 'pending' and non-consolidated to be voided.",
+  "operations": [
+   "voidInvoice"
+  ],
+  "rules": [
+   "maxio-c4:voidInvoice.1",
+   "maxio-c4:voidInvoice.2"
+  ]
+ },
+ {
+  "key": "422|invoices belong to different subscriptions. only invoices from same subscriptions are allowed when total amount exceeds invoices due amount.",
+  "status": 422,
+  "error": "Invoices belong to different subscriptions. Only invoices from same subscriptions are allowed when total amount exceeds invoices due amount.",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.5"
+  ]
+ },
+ {
+  "key": "422|invoices must be in the same currency",
+  "status": 422,
+  "error": "Invoices must be in the same currency",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.4"
+  ]
+ },
+ {
+  "key": "422|line item not found.",
+  "status": 422,
+  "error": "Line item not found.",
+  "operations": [
+   "updateInvoice"
+  ],
+  "rules": [
+   "maxio-c4:updateInvoice.8"
+  ]
+ },
+ {
+  "key": "422|list_price_point_id must belong to the same product",
+  "status": 422,
+  "error": "list_price_point_id must belong to the same product",
+  "operations": [
+   "createScheduledRenewalConfigurationItem",
+   "updateScheduledRenewalConfigurationItem"
+  ],
+  "rules": [
+   "maxio-c4:createScheduledRenewalConfigurationItem.4"
+  ]
+ },
+ {
+  "key": "422|list_price_point_id must reference a non-custom product price point",
+  "status": 422,
+  "error": "list_price_point_id must reference a non-custom product price point",
+  "operations": [
+   "createScheduledRenewalConfigurationItem",
+   "updateScheduledRenewalConfigurationItem"
+  ],
+  "rules": [
+   "maxio-c4:createScheduledRenewalConfigurationItem.3"
+  ]
+ },
+ {
+  "key": "422|list_price_point_id not found",
+  "status": 422,
+  "error": "list_price_point_id not found",
+  "operations": [
+   "createScheduledRenewalConfigurationItem",
+   "updateScheduledRenewalConfigurationItem"
+  ],
+  "rules": [
+   "maxio-c4:createScheduledRenewalConfigurationItem.2"
+  ]
+ },
+ {
+  "key": "422|members: not_found",
+  "status": 422,
+  "error": "members: not_found",
+  "operations": [
+   "createSubscriptionGroup",
+   "updateSubscriptionGroupMembers"
+  ],
+  "rules": [
+   "maxio-c4:createSubscriptionGroup.2"
+  ]
+ },
+ {
+  "key": "422|metafield name must be unique for the attachment type",
+  "status": 422,
+  "error": "Metafield name must be unique for the Attachment Type",
+  "operations": [
+   "updateMetafield"
+  ],
+  "rules": [
+   "maxio-c4:updateMetafield.6"
+  ]
+ },
+ {
+  "key": "422|missing required customer attributes",
+  "status": 422,
+  "error": "Missing required customer attributes",
+  "operations": [
+   "createSignupProformaInvoice",
+   "previewSignupProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:createSignupProformaInvoice.3"
+  ]
+ },
+ {
+  "key": "422|multiple applications associated to a single invoice, please aggregate and send as a single application per invoice.",
+  "status": 422,
+  "error": "Multiple applications associated to a single invoice, please aggregate and send as a single application per invoice.",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.13"
+  ]
+ },
+ {
+  "key": "422|must set tax type if taxes enabled",
+  "status": 422,
+  "error": "Must set tax type if taxes enabled",
+  "operations": [
+   "createEventBasedComponent",
+   "createMeteredComponent",
+   "createOnOffComponent",
+   "createPrepaidUsageComponent",
+   "createQuantityBasedComponent",
+   "updateComponent",
+   "updateProductFamilyComponent"
+  ],
+  "rules": [
+   "maxio-c4:createMeteredComponent.2"
+  ]
+ },
+ {
+  "key": "422|name: cannot be blank.",
+  "status": 422,
+  "error": "Name: cannot be blank.",
+  "operations": [
+   "createWalletProduct"
+  ],
+  "rules": [
+   "maxio-c4:createWalletProduct.5"
+  ]
+ },
+ {
+  "key": "422|name: must be unique - that value has been taken.",
+  "status": 422,
+  "error": "Name: must be unique - that value has been taken.",
+  "operations": [
+   "createPrepaidUsageComponent"
+  ],
+  "rules": [
+   "maxio-c4:createPrepaidUsageComponent.4"
+  ]
+ },
+ {
+  "key": "422|names entity_identifier_kind",
+  "status": 422,
+  "error": "names entity_identifier_kind",
+  "operations": [
+   "createCustomer",
+   "updateCustomer"
+  ],
+  "rules": [
+   "maxio-c4:createCustomer.6"
+  ]
+ },
+ {
+  "key": "422|no credit card was on file for the $200.00 balance",
+  "status": 422,
+  "error": "No credit card was on file for the $200.00 balance",
+  "operations": [
+   "migrateSubscriptionProduct"
+  ],
+  "rules": [
+   "maxio-c4:migrateSubscriptionProduct.10"
+  ]
+ },
+ {
+  "key": "422|no payment method was on file for the $30.00 balance",
+  "status": 422,
+  "error": "No payment method was on file for the $30.00 balance",
+  "operations": [
+   "signupWithSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:signupWithSubscriptionGroup.9"
+  ]
+ },
+ {
+  "key": "422|no payment method was on file for the x balance",
+  "status": 422,
+  "error": "No payment method was on file for the X balance",
+  "operations": [
+   "reactivateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:reactivateSubscription.12"
+  ]
+ },
+ {
+  "key": "422|one or more allocation changes are required.",
+  "status": 422,
+  "error": "One or more allocation changes are required.",
+  "operations": [
+   "allocateComponent"
+  ],
+  "rules": [
+   "maxio-c4:allocateComponent.16"
+  ]
+ },
+ {
+  "key": "422|one or more subscriptions are not on automatic billing",
+  "status": 422,
+  "error": "One or more subscriptions are not on automatic billing",
+  "operations": [
+   "cancelSubscriptionsInGroup"
+  ],
+  "rules": [
+   "maxio-c4:cancelSubscriptionsInGroup.1",
+   "maxio-c4:cancelSubscriptionsInGroup.2"
+  ]
+ },
+ {
+  "key": "422|only adhoc invoices can be deleted.",
+  "status": 422,
+  "error": "Only adhoc invoices can be deleted.",
+  "operations": [
+   "deleteInvoice"
+  ],
+  "rules": [
+   "maxio-c4:deleteInvoice.2"
+  ]
+ },
+ {
+  "key": "422|only draft proforma invoices may be voided.",
+  "status": 422,
+  "error": "Only draft proforma invoices may be voided.",
+  "operations": [
+   "voidProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:voidProformaInvoice.1"
+  ]
+ },
+ {
+  "key": "422|only subscriptions that are on hold can be resumed.",
+  "status": 422,
+  "error": "Only subscriptions that are on hold can be resumed.",
+  "operations": [
+   "resumeSubscription"
+  ],
+  "rules": [
+   "maxio-c4:resumeSubscription.1"
+  ]
+ },
+ {
+  "key": "422|overdraft usage can only be corrected downward",
+  "status": 422,
+  "error": "Overdraft usage can only be corrected downward",
+  "operations": [
+   "createWalletAdjustment"
+  ],
+  "rules": [
+   "maxio-c4:createWalletAdjustment.8"
+  ]
+ },
+ {
+  "key": "422|paying consolidated invoices is forbidden",
+  "status": 422,
+  "error": "Paying consolidated invoices is forbidden",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.8"
+  ]
+ },
+ {
+  "key": "422|payment amount 10.50 exceeds due amount 4.00",
+  "status": 422,
+  "error": "Payment amount 10.50 exceeds due amount 4.00",
+  "operations": [
+   "recordPaymentForInvoice"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForInvoice.1"
+  ]
+ },
+ {
+  "key": "422|payment amount must be greater than zero",
+  "status": 422,
+  "error": "Payment amount must be greater than zero",
+  "operations": [
+   "recordPaymentForSubscription"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForSubscription.4"
+  ]
+ },
+ {
+  "key": "422|payment collection method cannot be set to 'invoice' when the subscription is past due",
+  "status": 422,
+  "error": "Payment collection method cannot be set to 'invoice' when the subscription is past due",
+  "operations": [
+   "updateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:updateSubscription.16"
+  ]
+ },
+ {
+  "key": "422|payment for this purchase was declined: insufficient funds",
+  "status": 422,
+  "error": "Payment for this purchase was declined: insufficient funds",
+  "operations": [
+   "createWalletPurchase"
+  ],
+  "rules": [
+   "maxio-c4:createWalletPurchase.10"
+  ]
+ },
+ {
+  "key": "422|portal is already enabled for this customer.",
+  "status": 422,
+  "error": "Portal is already enabled for this customer.",
+  "operations": [
+   "enableBillingPortalForCustomer"
+  ],
+  "rules": [
+   "maxio-c4:enableBillingPortalForCustomer.1"
+  ]
+ },
+ {
+  "key": "422|price point does not belong to component",
+  "status": 422,
+  "error": "Price Point does not belong to Component",
+  "operations": [
+   "bulkUpdateSubscriptionComponentsPricePoints"
+  ],
+  "rules": [
+   "maxio-c4:bulkUpdateSubscriptionComponentsPricePoints.2"
+  ]
+ },
+ {
+  "key": "422|price point is already archived.",
+  "status": 422,
+  "error": "Price point is already archived.",
+  "operations": [
+   "archiveComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:archiveComponentPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|price point: could not be found.",
+  "status": 422,
+  "error": "Price point: could not be found.",
+  "operations": [
+   "createUsage"
+  ],
+  "rules": [
+   "maxio-c4:createUsage.4"
+  ]
+ },
+ {
+  "key": "422|price: must be greater than or equal to 0.",
+  "status": 422,
+  "error": "Price: must be greater than or equal to 0.",
+  "operations": [
+   "bulkCreateProductPricePoints",
+   "createProductPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createProductPricePoint.2"
+  ]
+ },
+ {
+  "key": "422|pricing already exists for this currency.",
+  "status": 422,
+  "error": "Pricing already exists for this currency.",
+  "operations": [
+   "updateCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:updateCurrencyPrices.2"
+  ]
+ },
+ {
+  "key": "422|pricing scheme: cannot be blank",
+  "status": 422,
+  "error": "Pricing scheme: cannot be blank",
+  "operations": [
+   "bulkCreateSegments",
+   "bulkUpdateSegments"
+  ],
+  "rules": [
+   "maxio-c4:bulkCreateSegments.2"
+  ]
+ },
+ {
+  "key": "422|product cannot be archived.",
+  "status": 422,
+  "error": "Product cannot be archived.",
+  "operations": [
+   "archiveProduct"
+  ],
+  "rules": [
+   "maxio-c4:archiveProduct.4"
+  ]
+ },
+ {
+  "key": "422|product family cannot be set on a wallet product",
+  "status": 422,
+  "error": "Product family cannot be set on a wallet product",
+  "operations": [
+   "createWalletProduct"
+  ],
+  "rules": [
+   "maxio-c4:createWalletProduct.1"
+  ]
+ },
+ {
+  "key": "422|product must be among the products for this site",
+  "status": 422,
+  "error": "Product must be among the Products for this Site",
+  "operations": [
+   "signupWithSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:signupWithSubscriptionGroup.6"
+  ]
+ },
+ {
+  "key": "422|product price point must belong to product.",
+  "status": 422,
+  "error": "Product price point must belong to product.",
+  "operations": [
+   "signupWithSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:signupWithSubscriptionGroup.7"
+  ]
+ },
+ {
+  "key": "422|purchase was paid but the units could not be credited: abc123",
+  "status": 422,
+  "error": "Purchase was paid but the units could not be credited: abc123",
+  "operations": [
+   "createWalletPurchase"
+  ],
+  "rules": [
+   "maxio-c4:createWalletPurchase.14"
+  ]
+ },
+ {
+  "key": "422|reason_code size cannot be greater than 255",
+  "status": 422,
+  "error": "reason_code size cannot be greater than 255",
+  "operations": [
+   "cancelSubscription",
+   "initiateDelayedCancellation"
+  ],
+  "rules": [
+   "maxio-c4:cancelSubscription.7"
+  ]
+ },
+ {
+  "key": "422|recipient_emails: must be a valid email address",
+  "status": 422,
+  "error": "recipient_emails: must be a valid email address",
+  "operations": [
+   "deliverProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:deliverProformaInvoice.3"
+  ]
+ },
+ {
+  "key": "422|recipient_emails: must include at least one email",
+  "status": 422,
+  "error": "recipient_emails: must include at least one email",
+  "operations": [
+   "deliverProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:deliverProformaInvoice.2"
+  ]
+ },
+ {
+  "key": "422|recurring funding comes from a wallet-backed feature, not from this endpoint",
+  "status": 422,
+  "error": "Recurring funding comes from a wallet-backed feature, not from this endpoint",
+  "operations": [
+   "createWallet"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.6"
+  ]
+ },
+ {
+  "key": "422|recurring interval: must be greater than or equal to 1.",
+  "status": 422,
+  "error": "Recurring Interval: must be greater than or equal to 1.",
+  "operations": [
+   "bulkCreateProductPricePoints",
+   "createProductPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createProductPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|refund amount exceeds prepayment amount",
+  "status": 422,
+  "error": "Refund amount exceeds prepayment amount",
+  "operations": [
+   "refundPrepayment"
+  ],
+  "rules": [
+   "maxio-c4:refundPrepayment.4"
+  ]
+ },
+ {
+  "key": "422|request was 'resume only', but this subscription cannot be resumed.",
+  "status": 422,
+  "error": "Request was 'resume only', but this subscription cannot be resumed.",
+  "operations": [
+   "reactivateSubscription"
+  ],
+  "rules": [
+   "maxio-c4:reactivateSubscription.5"
+  ]
+ },
+ {
+  "key": "422|site data clearing is in progress. please try later.",
+  "status": 422,
+  "error": "Site data clearing is in progress. Please try later.",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.34"
+  ]
+ },
+ {
+  "key": "422|start_date supplied value is invalid, expected iso 8601 format",
+  "status": 422,
+  "error": "start_date supplied value is invalid, expected ISO 8601 format",
+  "operations": [
+   "listAllComponentPricePoints",
+   "listAllProductPricePoints"
+  ],
+  "rules": [
+   "maxio-c4:listAllComponentPricePoints.2"
+  ]
+ },
+ {
+  "key": "422|starting_quantity for an on/off component can only be '1' or '0': 24",
+  "status": 422,
+  "error": "starting_quantity for an On/Off component can only be '1' or '0': 24",
+  "operations": [
+   "createOffer"
+  ],
+  "rules": [
+   "maxio-c4:createOffer.3"
+  ]
+ },
+ {
+  "key": "422|status must be draft.",
+  "status": 422,
+  "error": "Status must be draft.",
+  "operations": [
+   "deleteInvoice"
+  ],
+  "rules": [
+   "maxio-c4:deleteInvoice.1"
+  ]
+ },
+ {
+  "key": "422|status must be one of: active, archived",
+  "status": 422,
+  "error": "Status must be one of: active, archived",
+  "operations": [
+   "listWallets"
+  ],
+  "rules": [
+   "maxio-c4:listWallets.7"
+  ]
+ },
+ {
+  "key": "422|subscription is already in group",
+  "status": 422,
+  "error": "Subscription is already in group",
+  "operations": [
+   "createSubscriptionGroup"
+  ],
+  "rules": [
+   "maxio-c4:createSubscriptionGroup.1"
+  ]
+ },
+ {
+  "key": "422|subscription is not currently on hold.",
+  "status": 422,
+  "error": "Subscription is not currently on hold.",
+  "operations": [
+   "updateAutomaticSubscriptionResumption"
+  ],
+  "rules": [
+   "maxio-c4:updateAutomaticSubscriptionResumption.1"
+  ]
+ },
+ {
+  "key": "422|subscription must be active",
+  "status": 422,
+  "error": "Subscription must be active",
+  "operations": [
+   "previewSubscriptionProductMigration"
+  ],
+  "rules": [
+   "maxio-c4:previewSubscriptionProductMigration.1"
+  ]
+ },
+ {
+  "key": "422|subscription payment method must be prepaid",
+  "status": 422,
+  "error": "Subscription payment method must be Prepaid",
+  "operations": [
+   "updatePrepaidSubscriptionConfiguration"
+  ],
+  "rules": [
+   "maxio-c4:updatePrepaidSubscriptionConfiguration.1"
+  ]
+ },
+ {
+  "key": "422|subscriptions group does not have a pending delayed cancellation",
+  "status": 422,
+  "error": "Subscriptions group does not have a pending delayed cancellation",
+  "operations": [
+   "cancelDelayedCancellationForGroup"
+  ],
+  "rules": [
+   "maxio-c4:cancelDelayedCancellationForGroup.1"
+  ]
+ },
+ {
+  "key": "422|subscriptions group is in a past due state",
+  "status": 422,
+  "error": "Subscriptions group is in a past due state",
+  "operations": [
+   "initiateDelayedCancellationForGroup"
+  ],
+  "rules": [
+   "maxio-c4:initiateDelayedCancellationForGroup.2"
+  ]
+ },
+ {
+  "key": "422|successive brackets may not have gaps in quantity (i.e. if one bracket ends at quantity 10, the next must begin at quantity 11)",
+  "status": 422,
+  "error": "Successive brackets may not have gaps in quantity (i.e. if one bracket ends at quantity 10, the next must begin at quantity 11)",
+  "operations": [
+   "createComponentPricePoint",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createComponentPricePoint.2"
+  ]
+ },
+ {
+  "key": "422|that coupon is not stackable",
+  "status": 422,
+  "error": "That coupon is not stackable",
+  "operations": [
+   "applyCouponsToSubscription"
+  ],
+  "rules": [
+   "maxio-c4:applyCouponsToSubscription.1"
+  ]
+ },
+ {
+  "key": "422|the invoice for this purchase could not be created",
+  "status": 422,
+  "error": "The invoice for this purchase could not be created",
+  "operations": [
+   "createWalletPurchase"
+  ],
+  "rules": [
+   "maxio-c4:createWalletPurchase.13"
+  ]
+ },
+ {
+  "key": "422|the invoice must be in canceled status to be reopened.",
+  "status": 422,
+  "error": "The invoice must be in canceled status to be reopened.",
+  "operations": [
+   "reopenInvoice"
+  ],
+  "rules": [
+   "maxio-c4:reopenInvoice.1"
+  ]
+ },
+ {
+  "key": "422|the payment profile is in use by one or more subscriptions and cannot be deleted",
+  "status": 422,
+  "error": "The payment profile is in use by one or more subscriptions and cannot be deleted",
+  "operations": [
+   "deleteUnusedPaymentProfile"
+  ],
+  "rules": [
+   "maxio-c4:deleteUnusedPaymentProfile.1"
+  ]
+ },
+ {
+  "key": "422|the subscription is already canceled",
+  "status": 422,
+  "error": "The subscription is already canceled",
+  "operations": [
+   "cancelSubscription",
+   "initiateDelayedCancellation"
+  ],
+  "rules": [
+   "maxio-c4:cancelSubscription.6"
+  ]
+ },
+ {
+  "key": "422|there cannot be any overlapping bracket ranges",
+  "status": 422,
+  "error": "There cannot be any overlapping bracket ranges",
+  "operations": [
+   "createComponentPricePoint",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createComponentPricePoint.1"
+  ]
+ },
+ {
+  "key": "422|there's no coupon applied to this subscription",
+  "status": 422,
+  "error": "There's no coupon applied to this subscription",
+  "operations": [
+   "removeCouponFromSubscription"
+  ],
+  "rules": [
+   "maxio-c4:removeCouponFromSubscription.1"
+  ]
+ },
+ {
+  "key": "422|this is already the current payment profile",
+  "status": 422,
+  "error": "This is already the current payment profile",
+  "operations": [
+   "changeSubscriptionDefaultPaymentProfile",
+   "changeSubscriptionGroupDefaultPaymentProfile"
+  ],
+  "rules": [
+   "maxio-c4:changeSubscriptionDefaultPaymentProfile.1"
+  ]
+ },
+ {
+  "key": "422|this product price point requires that prices are defined for: [baseline].",
+  "status": 422,
+  "error": "This product price point requires that prices are defined for: [baseline].",
+  "operations": [
+   "createProductCurrencyPrices",
+   "updateProductCurrencyPrices"
+  ],
+  "rules": [
+   "maxio-c4:createProductCurrencyPrices.2"
+  ]
+ },
+ {
+  "key": "422|this site has been deleted.",
+  "status": 422,
+  "error": "This site has been deleted.",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.35"
+  ]
+ },
+ {
+  "key": "422|this subscription is not eligible for a prorated migration",
+  "status": 422,
+  "error": "This subscription is not eligible for a prorated migration",
+  "operations": [
+   "migrateSubscriptionProduct"
+  ],
+  "rules": [
+   "maxio-c4:migrateSubscriptionProduct.11"
+  ]
+ },
+ {
+  "key": "422|this subscription is not eligible to be put on hold.",
+  "status": 422,
+  "error": "This subscription is not eligible to be put on hold.",
+  "operations": [
+   "pauseSubscription"
+  ],
+  "rules": [
+   "maxio-c4:pauseSubscription.2"
+  ]
+ },
+ {
+  "key": "422|this subscription is not eligible to create proforma invoices",
+  "status": 422,
+  "error": "this subscription is not eligible to create proforma invoices",
+  "operations": [
+   "createConsolidatedProformaInvoice",
+   "createProformaInvoice",
+   "previewProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:createProformaInvoice.1",
+   "maxio-c4:createProformaInvoice.2",
+   "maxio-c4:createProformaInvoice.3"
+  ]
+ },
+ {
+  "key": "422|this subscription is not eligible to have its dunning canceled.",
+  "status": 422,
+  "error": "This subscription is not eligible to have its dunning canceled.",
+  "operations": [
+   "cancelDunning"
+  ],
+  "rules": [
+   "maxio-c4:cancelDunning.2"
+  ]
+ },
+ {
+  "key": "422|too many requests for this customer. you can perform 5 requests within 00:30:00.",
+  "status": 422,
+  "error": "Too many requests for this customer. You can perform 5 requests within 00:30:00.",
+  "operations": [
+   "resendBillingPortalInvitation"
+  ],
+  "rules": [
+   "maxio-c4:resendBillingPortalInvitation.1"
+  ]
+ },
+ {
+  "key": "422|too many requests. you can perform 5 requests within 00:30:00",
+  "status": 422,
+  "error": "Too many requests. You can perform 5 requests within 00:30:00",
+  "operations": [
+   "sendRequestUpdatePaymentEmail"
+  ],
+  "rules": [
+   "maxio-c4:sendRequestUpdatePaymentEmail.1"
+  ]
+ },
+ {
+  "key": "422|total amount must be greater than 0",
+  "status": 422,
+  "error": "Total amount must be greater than 0",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.1"
+  ]
+ },
+ {
+  "key": "422|total amount must be higher or equal to invoices payment amount sum",
+  "status": 422,
+  "error": "Total amount must be higher or equal to invoices payment amount sum",
+  "operations": [
+   "recordPaymentForMultipleInvoices"
+  ],
+  "rules": [
+   "maxio-c4:recordPaymentForMultipleInvoices.2"
+  ]
+ },
+ {
+  "key": "422|unable to enqueue proforma invoice for email delivery",
+  "status": 422,
+  "error": "Unable to enqueue proforma invoice for email delivery",
+  "operations": [
+   "deliverProformaInvoice"
+  ],
+  "rules": [
+   "maxio-c4:deliverProformaInvoice.4"
+  ]
+ },
+ {
+  "key": "422|unit price: must be greater than or equal to $0.00.",
+  "status": 422,
+  "error": "Unit price: must be greater than or equal to $0.00.",
+  "operations": [
+   "bulkCreateComponentPricePoints",
+   "createComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createComponentPricePoint.4"
+  ]
+ },
+ {
+  "key": "422|url: invalid, only http and https supported",
+  "status": 422,
+  "error": "URL: invalid, only http and https supported",
+  "operations": [
+   "createEndpoint"
+  ],
+  "rules": [
+   "maxio-c4:createEndpoint.1"
+  ]
+ },
+ {
+  "key": "422|wallet is archived",
+  "status": 422,
+  "error": "Wallet is archived",
+  "operations": [
+   "createWalletAdjustment",
+   "createWalletPurchase",
+   "createWalletTransaction",
+   "previewWalletPurchase",
+   "updateWallet"
+  ],
+  "rules": [
+   "maxio-c4:createWalletTransaction.1"
+  ]
+ },
+ {
+  "key": "422|wallet is depleted",
+  "status": 422,
+  "error": "Wallet is depleted",
+  "operations": [
+   "createWalletTransaction"
+  ],
+  "rules": [
+   "maxio-c4:createWalletTransaction.9"
+  ]
+ },
+ {
+  "key": "422|wallet product is archived",
+  "status": 422,
+  "error": "Wallet product is archived",
+  "operations": [
+   "createWallet"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.4"
+  ]
+ },
+ {
+  "key": "422|wallet product is in use by one or more features",
+  "status": 422,
+  "error": "Wallet product is in use by one or more features",
+  "operations": [
+   "archiveWalletProduct"
+  ],
+  "rules": [
+   "maxio-c4:archiveWalletProduct.1"
+  ]
+ },
+ {
+  "key": "422|wallets are not available on prepaid subscriptions",
+  "status": 422,
+  "error": "Wallets are not available on prepaid subscriptions",
+  "operations": [
+   "createWallet"
+  ],
+  "rules": [
+   "maxio-c4:createWallet.7"
+  ]
+ },
+ {
+  "key": "422|you can not remove primary subscription when there are others in group",
+  "status": 422,
+  "error": "You can not remove primary subscription when there are others in group",
+  "operations": [
+   "removeSubscriptionFromGroup"
+  ],
+  "rules": [
+   "maxio-c4:removeSubscriptionFromGroup.1"
+  ]
+ },
+ {
+  "key": "422|you have tried to verify this bank account 10 times. to continue trying to verify the account, please reach out to us directly.",
+  "status": 422,
+  "error": "You have tried to verify this bank account 10 times. To continue trying to verify the account, please reach out to us directly.",
+  "operations": [
+   "verifyBankAccount"
+  ],
+  "rules": [
+   "maxio-c4:verifyBankAccount.2"
+  ]
+ },
+ {
+  "key": "422|your advanced billing account has been canceled. please contact support@maxio.com to reactivate.",
+  "status": 422,
+  "error": "Your Advanced Billing account has been canceled. Please contact support@maxio.com to reactivate.",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.32"
+  ]
+ },
+ {
+  "key": "422|your trial has ended, please contact sales.",
+  "status": 422,
+  "error": "Your trial has ended, please contact sales.",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.33"
+  ]
+ },
+ {
+  "key": "429|too many requests for this customer's management link",
+  "status": 429,
+  "error": "Too many requests for this customer's management link",
+  "operations": [
+   "readBillingPortalLink"
+  ],
+  "rules": [
+   "maxio-c4:readBillingPortalLink.3"
+  ]
+ },
+ {
+  "key": "429|your request was denied due to a usage violation. you can track this request with support by referencing …",
+  "status": 429,
+  "error": "Your request was denied due to a usage violation. You can track this request with support by referencing …",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.28"
+  ]
+ },
+ {
+  "key": "500|",
+  "status": 500,
+  "error": null,
+  "operations": [
+   "createWalletTransaction"
+  ],
+  "rules": [
+   "maxio-c4:createWalletTransaction.12"
+  ]
+ },
+ {
+  "key": "503|",
+  "status": 503,
+  "error": null,
+  "operations": [
+   "createWalletTransaction"
+  ],
+  "rules": [
+   "maxio-c4:createWalletTransaction.11"
+  ]
+ },
+ {
+  "key": "|prices primary pricing must have a finite included threshold for hybrid pricing",
+  "status": null,
+  "error": "Prices primary pricing must have a finite included threshold for hybrid pricing",
+  "operations": [
+   "createComponentPricePoint",
+   "createMeteredComponent",
+   "createQuantityBasedComponent",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createMeteredComponent.15",
+   "maxio-c4:createQuantityBasedComponent.104"
+  ]
+ },
+ {
+  "key": "|pricing scheme cannot be per_unit for hybrid pricing",
+  "status": null,
+  "error": "Pricing scheme cannot be per_unit for hybrid pricing",
+  "operations": [
+   "createComponentPricePoint",
+   "createMeteredComponent",
+   "createQuantityBasedComponent",
+   "updateComponentPricePoint"
+  ],
+  "rules": [
+   "maxio-c4:createMeteredComponent.14"
+  ]
+ },
+ {
+  "key": "|response to preflight request doesn't pass access control check: no 'access-control-allow-origin' header is present on the requested resource.",
+  "status": null,
+  "error": "Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+  "operations": [],
+  "rules": [
+   "maxio-c4:every-request.41"
+  ]
+ }
+]

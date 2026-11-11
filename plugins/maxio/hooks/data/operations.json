@@ -1,0 +1,2285 @@
+{
+ "api": "Maxio",
+ "operations": [
+  {
+   "operationId": "listWebhooks",
+   "call": "client.WebhooksApi.ListWebhooks",
+   "method": "ListWebhooks",
+   "http": "GET",
+   "path": "/webhooks.json",
+   "pathRegex": "/?webhooks\\.json"
+  },
+  {
+   "operationId": "enableWebhooks",
+   "call": "client.WebhooksApi.EnableWebhooks",
+   "method": "EnableWebhooks",
+   "http": "PUT",
+   "path": "/webhooks/settings.json",
+   "pathRegex": "/?webhooks/settings\\.json"
+  },
+  {
+   "operationId": "replayWebhooks",
+   "call": "client.WebhooksApi.ReplayWebhooks",
+   "method": "ReplayWebhooks",
+   "http": "POST",
+   "path": "/webhooks/replay.json",
+   "pathRegex": "/?webhooks/replay\\.json"
+  },
+  {
+   "operationId": "createEndpoint",
+   "call": "client.WebhooksApi.CreateEndpoint",
+   "method": "CreateEndpoint",
+   "http": "POST",
+   "path": "/endpoints.json",
+   "pathRegex": "/?endpoints\\.json"
+  },
+  {
+   "operationId": "listEndpoints",
+   "call": "client.WebhooksApi.ListEndpoints",
+   "method": "ListEndpoints",
+   "http": "GET",
+   "path": "/endpoints.json",
+   "pathRegex": "/?endpoints\\.json"
+  },
+  {
+   "operationId": "updateEndpoint",
+   "call": "client.WebhooksApi.UpdateEndpoint",
+   "method": "UpdateEndpoint",
+   "http": "PUT",
+   "path": "/endpoints/{endpoint_id}.json",
+   "pathRegex": "/?endpoints/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readSite",
+   "call": "client.Sites.ReadSite",
+   "method": "ReadSite",
+   "http": "GET",
+   "path": "/site.json",
+   "pathRegex": "/?site\\.json"
+  },
+  {
+   "operationId": "clearSite",
+   "call": "client.Sites.ClearSite",
+   "method": "ClearSite",
+   "http": "POST",
+   "path": "/sites/clear_data.json",
+   "pathRegex": "/?sites/clear_data\\.json"
+  },
+  {
+   "operationId": "createSubscriptionNote",
+   "call": "client.SubscriptionNotes.CreateSubscriptionNote",
+   "method": "CreateSubscriptionNote",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/notes.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/notes\\.json"
+  },
+  {
+   "operationId": "listSubscriptionNotes",
+   "call": "client.SubscriptionNotes.ListSubscriptionNotes",
+   "method": "ListSubscriptionNotes",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/notes.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/notes\\.json"
+  },
+  {
+   "operationId": "readSubscriptionNote",
+   "call": "client.SubscriptionNotes.ReadSubscriptionNote",
+   "method": "ReadSubscriptionNote",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/notes/{note_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/notes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateSubscriptionNote",
+   "call": "client.SubscriptionNotes.UpdateSubscriptionNote",
+   "method": "UpdateSubscriptionNote",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/notes/{note_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/notes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteSubscriptionNote",
+   "call": "client.SubscriptionNotes.DeleteSubscriptionNote",
+   "method": "DeleteSubscriptionNote",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/notes/{note_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/notes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createCustomer",
+   "call": "client.Customers.CreateCustomer",
+   "method": "CreateCustomer",
+   "http": "POST",
+   "path": "/customers.json",
+   "pathRegex": "/?customers\\.json"
+  },
+  {
+   "operationId": "listCustomers",
+   "call": "client.Customers.ListCustomers",
+   "method": "ListCustomers",
+   "http": "GET",
+   "path": "/customers.json",
+   "pathRegex": "/?customers\\.json"
+  },
+  {
+   "operationId": "readCustomer",
+   "call": "client.Customers.ReadCustomer",
+   "method": "ReadCustomer",
+   "http": "GET",
+   "path": "/customers/{id}.json",
+   "pathRegex": "/?customers/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateCustomer",
+   "call": "client.Customers.UpdateCustomer",
+   "method": "UpdateCustomer",
+   "http": "PUT",
+   "path": "/customers/{id}.json",
+   "pathRegex": "/?customers/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteCustomer",
+   "call": "client.Customers.DeleteCustomer",
+   "method": "DeleteCustomer",
+   "http": "DELETE",
+   "path": "/customers/{id}.json",
+   "pathRegex": "/?customers/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readCustomerByReference",
+   "call": "client.Customers.ReadCustomerByReference",
+   "method": "ReadCustomerByReference",
+   "http": "GET",
+   "path": "/customers/lookup.json",
+   "pathRegex": "/?customers/lookup\\.json"
+  },
+  {
+   "operationId": "listCustomerSubscriptions",
+   "call": "client.Customers.ListCustomerSubscriptions",
+   "method": "ListCustomerSubscriptions",
+   "http": "GET",
+   "path": "/customers/{customer_id}/subscriptions.json",
+   "pathRegex": "/?customers/[^\\s\\\"'`]*?/subscriptions\\.json"
+  },
+  {
+   "operationId": "enableBillingPortalForCustomer",
+   "call": "client.BillingPortal.EnableBillingPortalForCustomer",
+   "method": "EnableBillingPortalForCustomer",
+   "http": "POST",
+   "path": "/portal/customers/{customer_id}/enable.json",
+   "pathRegex": "/?portal/customers/[^\\s\\\"'`]*?/enable\\.json"
+  },
+  {
+   "operationId": "readBillingPortalLink",
+   "call": "client.BillingPortal.ReadBillingPortalLink",
+   "method": "ReadBillingPortalLink",
+   "http": "GET",
+   "path": "/portal/customers/{customer_id}/management_link.json",
+   "pathRegex": "/?portal/customers/[^\\s\\\"'`]*?/management_link\\.json"
+  },
+  {
+   "operationId": "resendBillingPortalInvitation",
+   "call": "client.BillingPortal.ResendBillingPortalInvitation",
+   "method": "ResendBillingPortalInvitation",
+   "http": "POST",
+   "path": "/portal/customers/{customer_id}/invitations/invite.json",
+   "pathRegex": "/?portal/customers/[^\\s\\\"'`]*?/invitations/invite\\.json"
+  },
+  {
+   "operationId": "revokeBillingPortalAccess",
+   "call": "client.BillingPortal.RevokeBillingPortalAccess",
+   "method": "RevokeBillingPortalAccess",
+   "http": "DELETE",
+   "path": "/portal/customers/{customer_id}/invitations/revoke.json",
+   "pathRegex": "/?portal/customers/[^\\s\\\"'`]*?/invitations/revoke\\.json"
+  },
+  {
+   "operationId": "readSiteStats",
+   "call": "client.Insights.ReadSiteStats",
+   "method": "ReadSiteStats",
+   "http": "GET",
+   "path": "/stats.json",
+   "pathRegex": "/?stats\\.json"
+  },
+  {
+   "operationId": "validateReferralCode",
+   "call": "client.ReferralCodes.ValidateReferralCode",
+   "method": "ValidateReferralCode",
+   "http": "GET",
+   "path": "/referral_codes/validate.json",
+   "pathRegex": "/?referral_codes/validate\\.json"
+  },
+  {
+   "operationId": "createReasonCode",
+   "call": "client.ReasonCodes.CreateReasonCode",
+   "method": "CreateReasonCode",
+   "http": "POST",
+   "path": "/reason_codes.json",
+   "pathRegex": "/?reason_codes\\.json"
+  },
+  {
+   "operationId": "listReasonCodes",
+   "call": "client.ReasonCodes.ListReasonCodes",
+   "method": "ListReasonCodes",
+   "http": "GET",
+   "path": "/reason_codes.json",
+   "pathRegex": "/?reason_codes\\.json"
+  },
+  {
+   "operationId": "readReasonCode",
+   "call": "client.ReasonCodes.ReadReasonCode",
+   "method": "ReadReasonCode",
+   "http": "GET",
+   "path": "/reason_codes/{reason_code_id}.json",
+   "pathRegex": "/?reason_codes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateReasonCode",
+   "call": "client.ReasonCodes.UpdateReasonCode",
+   "method": "UpdateReasonCode",
+   "http": "PUT",
+   "path": "/reason_codes/{reason_code_id}.json",
+   "pathRegex": "/?reason_codes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteReasonCode",
+   "call": "client.ReasonCodes.DeleteReasonCode",
+   "method": "DeleteReasonCode",
+   "http": "DELETE",
+   "path": "/reason_codes/{reason_code_id}.json",
+   "pathRegex": "/?reason_codes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createMetafields",
+   "call": "client.CustomFields.CreateMetafields",
+   "method": "CreateMetafields",
+   "http": "POST",
+   "path": "/{resource_type}/metafields.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/metafields\\.json"
+  },
+  {
+   "operationId": "listMetafields",
+   "call": "client.CustomFields.ListMetafields",
+   "method": "ListMetafields",
+   "http": "GET",
+   "path": "/{resource_type}/metafields.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/metafields\\.json"
+  },
+  {
+   "operationId": "updateMetafield",
+   "call": "client.CustomFields.UpdateMetafield",
+   "method": "UpdateMetafield",
+   "http": "PUT",
+   "path": "/{resource_type}/metafields.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/metafields\\.json"
+  },
+  {
+   "operationId": "deleteMetafield",
+   "call": "client.CustomFields.DeleteMetafield",
+   "method": "DeleteMetafield",
+   "http": "DELETE",
+   "path": "/{resource_type}/metafields.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/metafields\\.json"
+  },
+  {
+   "operationId": "createMetadata",
+   "call": "client.CustomFields.CreateMetadata",
+   "method": "CreateMetadata",
+   "http": "POST",
+   "path": "/{resource_type}/{resource_id}/metadata.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/[^\\s\\\"'`]*?/metadata\\.json"
+  },
+  {
+   "operationId": "listMetadata",
+   "call": "client.CustomFields.ListMetadata",
+   "method": "ListMetadata",
+   "http": "GET",
+   "path": "/{resource_type}/{resource_id}/metadata.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/[^\\s\\\"'`]*?/metadata\\.json"
+  },
+  {
+   "operationId": "updateMetadata",
+   "call": "client.CustomFields.UpdateMetadata",
+   "method": "UpdateMetadata",
+   "http": "PUT",
+   "path": "/{resource_type}/{resource_id}/metadata.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/[^\\s\\\"'`]*?/metadata\\.json"
+  },
+  {
+   "operationId": "deleteMetadata",
+   "call": "client.CustomFields.DeleteMetadata",
+   "method": "DeleteMetadata",
+   "http": "DELETE",
+   "path": "/{resource_type}/{resource_id}/metadata.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/[^\\s\\\"'`]*?/metadata\\.json"
+  },
+  {
+   "operationId": "listMetadataForResourceType",
+   "call": "client.CustomFields.ListMetadataForResourceType",
+   "method": "ListMetadataForResourceType",
+   "http": "GET",
+   "path": "/{resource_type}/metadata.json",
+   "pathRegex": "/?[^\\s\\\"'`]*?/metadata\\.json"
+  },
+  {
+   "operationId": "createCoupon",
+   "call": "client.Coupons.CreateCoupon",
+   "method": "CreateCoupon",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/coupons.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons\\.json"
+  },
+  {
+   "operationId": "listCouponsForProductFamily",
+   "call": "client.Coupons.ListCouponsForProductFamily",
+   "method": "ListCouponsForProductFamily",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/coupons.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons\\.json"
+  },
+  {
+   "operationId": "findCoupon",
+   "call": "client.Coupons.FindCoupon",
+   "method": "FindCoupon",
+   "http": "GET",
+   "path": "/coupons/find.json",
+   "pathRegex": "/?coupons/find\\.json"
+  },
+  {
+   "operationId": "readCoupon",
+   "call": "client.Coupons.ReadCoupon",
+   "method": "ReadCoupon",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/coupons/{coupon_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateCoupon",
+   "call": "client.Coupons.UpdateCoupon",
+   "method": "UpdateCoupon",
+   "http": "PUT",
+   "path": "/product_families/{product_family_id}/coupons/{coupon_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveCoupon",
+   "call": "client.Coupons.ArchiveCoupon",
+   "method": "ArchiveCoupon",
+   "http": "DELETE",
+   "path": "/product_families/{product_family_id}/coupons/{coupon_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listCoupons",
+   "call": "client.Coupons.ListCoupons",
+   "method": "ListCoupons",
+   "http": "GET",
+   "path": "/coupons.json",
+   "pathRegex": "/?coupons\\.json"
+  },
+  {
+   "operationId": "readCouponUsage",
+   "call": "client.Coupons.ReadCouponUsage",
+   "method": "ReadCouponUsage",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/coupons/{coupon_id}/usage.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/coupons/[^\\s\\\"'`]*?/usage\\.json"
+  },
+  {
+   "operationId": "validateCoupon",
+   "call": "client.Coupons.ValidateCoupon",
+   "method": "ValidateCoupon",
+   "http": "GET",
+   "path": "/coupons/validate.json",
+   "pathRegex": "/?coupons/validate\\.json"
+  },
+  {
+   "operationId": "createOrUpdateCouponCurrencyPrices",
+   "call": "client.Coupons.CreateOrUpdateCouponCurrencyPrices",
+   "method": "CreateOrUpdateCouponCurrencyPrices",
+   "http": "PUT",
+   "path": "/coupons/{coupon_id}/currency_prices.json",
+   "pathRegex": "/?coupons/[^\\s\\\"'`]*?/currency_prices\\.json"
+  },
+  {
+   "operationId": "createCouponSubcodes",
+   "call": "client.Coupons.CreateCouponSubcodes",
+   "method": "CreateCouponSubcodes",
+   "http": "POST",
+   "path": "/coupons/{coupon_id}/codes.json",
+   "pathRegex": "/?coupons/[^\\s\\\"'`]*?/codes\\.json"
+  },
+  {
+   "operationId": "listCouponSubcodes",
+   "call": "client.Coupons.ListCouponSubcodes",
+   "method": "ListCouponSubcodes",
+   "http": "GET",
+   "path": "/coupons/{coupon_id}/codes.json",
+   "pathRegex": "/?coupons/[^\\s\\\"'`]*?/codes\\.json"
+  },
+  {
+   "operationId": "updateCouponSubcodes",
+   "call": "client.Coupons.UpdateCouponSubcodes",
+   "method": "UpdateCouponSubcodes",
+   "http": "PUT",
+   "path": "/coupons/{coupon_id}/codes.json",
+   "pathRegex": "/?coupons/[^\\s\\\"'`]*?/codes\\.json"
+  },
+  {
+   "operationId": "deleteCouponSubcode",
+   "call": "client.Coupons.DeleteCouponSubcode",
+   "method": "DeleteCouponSubcode",
+   "http": "DELETE",
+   "path": "/coupons/{coupon_id}/codes/{subcode}.json",
+   "pathRegex": "/?coupons/[^\\s\\\"'`]*?/codes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listEvents",
+   "call": "client.Events.ListEvents",
+   "method": "ListEvents",
+   "http": "GET",
+   "path": "/events.json",
+   "pathRegex": "/?events\\.json"
+  },
+  {
+   "operationId": "listSubscriptionEvents",
+   "call": "client.Events.ListSubscriptionEvents",
+   "method": "ListSubscriptionEvents",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/events.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/events\\.json"
+  },
+  {
+   "operationId": "readEventsCount",
+   "call": "client.Events.ReadEventsCount",
+   "method": "ReadEventsCount",
+   "http": "GET",
+   "path": "/events/count.json",
+   "pathRegex": "/?events/count\\.json"
+  },
+  {
+   "operationId": "readMrr",
+   "call": "client.Insights.ReadMrr",
+   "method": "ReadMrr",
+   "http": "GET",
+   "path": "/mrr.json",
+   "pathRegex": "/?mrr\\.json"
+  },
+  {
+   "operationId": "createMeteredComponent",
+   "call": "client.Components.CreateMeteredComponent",
+   "method": "CreateMeteredComponent",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/metered_components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/metered_components\\.json"
+  },
+  {
+   "operationId": "createQuantityBasedComponent",
+   "call": "client.Components.CreateQuantityBasedComponent",
+   "method": "CreateQuantityBasedComponent",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/quantity_based_components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/quantity_based_components\\.json"
+  },
+  {
+   "operationId": "createOnOffComponent",
+   "call": "client.Components.CreateOnOffComponent",
+   "method": "CreateOnOffComponent",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/on_off_components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/on_off_components\\.json"
+  },
+  {
+   "operationId": "createPrepaidUsageComponent",
+   "call": "client.Components.CreatePrepaidUsageComponent",
+   "method": "CreatePrepaidUsageComponent",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/prepaid_usage_components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/prepaid_usage_components\\.json"
+  },
+  {
+   "operationId": "createEventBasedComponent",
+   "call": "client.Components.CreateEventBasedComponent",
+   "method": "CreateEventBasedComponent",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/event_based_components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/event_based_components\\.json"
+  },
+  {
+   "operationId": "findComponent",
+   "call": "client.Components.FindComponent",
+   "method": "FindComponent",
+   "http": "GET",
+   "path": "/components/lookup.json",
+   "pathRegex": "/?components/lookup\\.json"
+  },
+  {
+   "operationId": "readComponent",
+   "call": "client.Components.ReadComponent",
+   "method": "ReadComponent",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/components/{component_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateProductFamilyComponent",
+   "call": "client.Components.UpdateProductFamilyComponent",
+   "method": "UpdateProductFamilyComponent",
+   "http": "PUT",
+   "path": "/product_families/{product_family_id}/components/{component_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveComponent",
+   "call": "client.Components.ArchiveComponent",
+   "method": "ArchiveComponent",
+   "http": "DELETE",
+   "path": "/product_families/{product_family_id}/components/{component_id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listComponents",
+   "call": "client.Components.ListComponents",
+   "method": "ListComponents",
+   "http": "GET",
+   "path": "/components.json",
+   "pathRegex": "/?components\\.json"
+  },
+  {
+   "operationId": "updateComponent",
+   "call": "client.Components.UpdateComponent",
+   "method": "UpdateComponent",
+   "http": "PUT",
+   "path": "/components/{component_id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "promoteComponentPricePointToDefault",
+   "call": "client.ComponentPricePoints.PromoteComponentPricePointToDefault",
+   "method": "PromoteComponentPricePointToDefault",
+   "http": "PUT",
+   "path": "/components/{component_id}/price_points/{price_point_id}/default.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/default\\.json"
+  },
+  {
+   "operationId": "listComponentsForProductFamily",
+   "call": "client.Components.ListComponentsForProductFamily",
+   "method": "ListComponentsForProductFamily",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/components.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/components\\.json"
+  },
+  {
+   "operationId": "createComponentPricePoint",
+   "call": "client.ComponentPricePoints.CreateComponentPricePoint",
+   "method": "CreateComponentPricePoint",
+   "http": "POST",
+   "path": "/components/{component_id}/price_points.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points\\.json"
+  },
+  {
+   "operationId": "listComponentPricePoints",
+   "call": "client.ComponentPricePoints.ListComponentPricePoints",
+   "method": "ListComponentPricePoints",
+   "http": "GET",
+   "path": "/components/{component_id}/price_points.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points\\.json"
+  },
+  {
+   "operationId": "bulkCreateComponentPricePoints",
+   "call": "client.ComponentPricePoints.BulkCreateComponentPricePoints",
+   "method": "BulkCreateComponentPricePoints",
+   "http": "POST",
+   "path": "/components/{component_id}/price_points/bulk.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/bulk\\.json"
+  },
+  {
+   "operationId": "cloneComponentPricePoint",
+   "call": "client.ComponentPricePoints.CloneComponentPricePoint",
+   "method": "CloneComponentPricePoint",
+   "http": "POST",
+   "path": "/components/{component_id}/price_points/{price_point_id}/clone.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/clone\\.json"
+  },
+  {
+   "operationId": "updateComponentPricePoint",
+   "call": "client.ComponentPricePoints.UpdateComponentPricePoint",
+   "method": "UpdateComponentPricePoint",
+   "http": "PUT",
+   "path": "/components/{component_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readComponentPricePoint",
+   "call": "client.ComponentPricePoints.ReadComponentPricePoint",
+   "method": "ReadComponentPricePoint",
+   "http": "GET",
+   "path": "/components/{component_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveComponentPricePoint",
+   "call": "client.ComponentPricePoints.ArchiveComponentPricePoint",
+   "method": "ArchiveComponentPricePoint",
+   "http": "DELETE",
+   "path": "/components/{component_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "unarchiveComponentPricePoint",
+   "call": "client.ComponentPricePoints.UnarchiveComponentPricePoint",
+   "method": "UnarchiveComponentPricePoint",
+   "http": "PUT",
+   "path": "/components/{component_id}/price_points/{price_point_id}/unarchive.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/unarchive\\.json"
+  },
+  {
+   "operationId": "createCurrencyPrices",
+   "call": "client.ComponentPricePoints.CreateCurrencyPrices",
+   "method": "CreateCurrencyPrices",
+   "http": "POST",
+   "path": "/price_points/{price_point_id}/currency_prices.json",
+   "pathRegex": "/?price_points/[^\\s\\\"'`]*?/currency_prices\\.json"
+  },
+  {
+   "operationId": "updateCurrencyPrices",
+   "call": "client.ComponentPricePoints.UpdateCurrencyPrices",
+   "method": "UpdateCurrencyPrices",
+   "http": "PUT",
+   "path": "/price_points/{price_point_id}/currency_prices.json",
+   "pathRegex": "/?price_points/[^\\s\\\"'`]*?/currency_prices\\.json"
+  },
+  {
+   "operationId": "listMrrMovements",
+   "call": "client.Insights.ListMrrMovements",
+   "method": "ListMrrMovements",
+   "http": "GET",
+   "path": "/mrr_movements.json",
+   "pathRegex": "/?mrr_movements\\.json"
+  },
+  {
+   "operationId": "createProduct",
+   "call": "client.Products.CreateProduct",
+   "method": "CreateProduct",
+   "http": "POST",
+   "path": "/product_families/{product_family_id}/products.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/products\\.json"
+  },
+  {
+   "operationId": "listProductsForProductFamily",
+   "call": "client.ProductFamilies.ListProductsForProductFamily",
+   "method": "ListProductsForProductFamily",
+   "http": "GET",
+   "path": "/product_families/{product_family_id}/products.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?/products\\.json"
+  },
+  {
+   "operationId": "readProduct",
+   "call": "client.Products.ReadProduct",
+   "method": "ReadProduct",
+   "http": "GET",
+   "path": "/products/{product_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateProduct",
+   "call": "client.Products.UpdateProduct",
+   "method": "UpdateProduct",
+   "http": "PUT",
+   "path": "/products/{product_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveProduct",
+   "call": "client.Products.ArchiveProduct",
+   "method": "ArchiveProduct",
+   "http": "DELETE",
+   "path": "/products/{product_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readProductByHandle",
+   "call": "client.Products.ReadProductByHandle",
+   "method": "ReadProductByHandle",
+   "http": "GET",
+   "path": "/products/handle/{api_handle}.json",
+   "pathRegex": "/?products/handle/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createProductFamily",
+   "call": "client.ProductFamilies.CreateProductFamily",
+   "method": "CreateProductFamily",
+   "http": "POST",
+   "path": "/product_families.json",
+   "pathRegex": "/?product_families\\.json"
+  },
+  {
+   "operationId": "listProductFamilies",
+   "call": "client.ProductFamilies.ListProductFamilies",
+   "method": "ListProductFamilies",
+   "http": "GET",
+   "path": "/product_families.json",
+   "pathRegex": "/?product_families\\.json"
+  },
+  {
+   "operationId": "readProductFamily",
+   "call": "client.ProductFamilies.ReadProductFamily",
+   "method": "ReadProductFamily",
+   "http": "GET",
+   "path": "/product_families/{id}.json",
+   "pathRegex": "/?product_families/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createProductPricePoint",
+   "call": "client.ProductPricePoints.CreateProductPricePoint",
+   "method": "CreateProductPricePoint",
+   "http": "POST",
+   "path": "/products/{product_id}/price_points.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points\\.json"
+  },
+  {
+   "operationId": "listProductPricePoints",
+   "call": "client.ProductPricePoints.ListProductPricePoints",
+   "method": "ListProductPricePoints",
+   "http": "GET",
+   "path": "/products/{product_id}/price_points.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points\\.json"
+  },
+  {
+   "operationId": "updateProductPricePoint",
+   "call": "client.ProductPricePoints.UpdateProductPricePoint",
+   "method": "UpdateProductPricePoint",
+   "http": "PUT",
+   "path": "/products/{product_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readProductPricePoint",
+   "call": "client.ProductPricePoints.ReadProductPricePoint",
+   "method": "ReadProductPricePoint",
+   "http": "GET",
+   "path": "/products/{product_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveProductPricePoint",
+   "call": "client.ProductPricePoints.ArchiveProductPricePoint",
+   "method": "ArchiveProductPricePoint",
+   "http": "DELETE",
+   "path": "/products/{product_id}/price_points/{price_point_id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "unarchiveProductPricePoint",
+   "call": "client.ProductPricePoints.UnarchiveProductPricePoint",
+   "method": "UnarchiveProductPricePoint",
+   "http": "PATCH",
+   "path": "/products/{product_id}/price_points/{price_point_id}/unarchive.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/unarchive\\.json"
+  },
+  {
+   "operationId": "promoteProductPricePointToDefault",
+   "call": "client.ProductPricePoints.PromoteProductPricePointToDefault",
+   "method": "PromoteProductPricePointToDefault",
+   "http": "PATCH",
+   "path": "/products/{product_id}/price_points/{price_point_id}/default.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/default\\.json"
+  },
+  {
+   "operationId": "bulkCreateProductPricePoints",
+   "call": "client.ProductPricePoints.BulkCreateProductPricePoints",
+   "method": "BulkCreateProductPricePoints",
+   "http": "POST",
+   "path": "/products/{product_id}/price_points/bulk.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/price_points/bulk\\.json"
+  },
+  {
+   "operationId": "createProductCurrencyPrices",
+   "call": "client.ProductPricePoints.CreateProductCurrencyPrices",
+   "method": "CreateProductCurrencyPrices",
+   "http": "POST",
+   "path": "/product_price_points/{product_price_point_id}/currency_prices.json",
+   "pathRegex": "/?product_price_points/[^\\s\\\"'`]*?/currency_prices\\.json"
+  },
+  {
+   "operationId": "updateProductCurrencyPrices",
+   "call": "client.ProductPricePoints.UpdateProductCurrencyPrices",
+   "method": "UpdateProductCurrencyPrices",
+   "http": "PUT",
+   "path": "/product_price_points/{product_price_point_id}/currency_prices.json",
+   "pathRegex": "/?product_price_points/[^\\s\\\"'`]*?/currency_prices\\.json"
+  },
+  {
+   "operationId": "createPaymentProfile",
+   "call": "client.PaymentProfiles.CreatePaymentProfile",
+   "method": "CreatePaymentProfile",
+   "http": "POST",
+   "path": "/payment_profiles.json",
+   "pathRegex": "/?payment_profiles\\.json"
+  },
+  {
+   "operationId": "listPaymentProfiles",
+   "call": "client.PaymentProfiles.ListPaymentProfiles",
+   "method": "ListPaymentProfiles",
+   "http": "GET",
+   "path": "/payment_profiles.json",
+   "pathRegex": "/?payment_profiles\\.json"
+  },
+  {
+   "operationId": "readPaymentProfile",
+   "call": "client.PaymentProfiles.ReadPaymentProfile",
+   "method": "ReadPaymentProfile",
+   "http": "GET",
+   "path": "/payment_profiles/{payment_profile_id}.json",
+   "pathRegex": "/?payment_profiles/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updatePaymentProfile",
+   "call": "client.PaymentProfiles.UpdatePaymentProfile",
+   "method": "UpdatePaymentProfile",
+   "http": "PUT",
+   "path": "/payment_profiles/{payment_profile_id}.json",
+   "pathRegex": "/?payment_profiles/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteUnusedPaymentProfile",
+   "call": "client.PaymentProfiles.DeleteUnusedPaymentProfile",
+   "method": "DeleteUnusedPaymentProfile",
+   "http": "DELETE",
+   "path": "/payment_profiles/{payment_profile_id}.json",
+   "pathRegex": "/?payment_profiles/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteSubscriptionsPaymentProfile",
+   "call": "client.PaymentProfiles.DeleteSubscriptionsPaymentProfile",
+   "method": "DeleteSubscriptionsPaymentProfile",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/payment_profiles/{payment_profile_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/payment_profiles/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "verifyBankAccount",
+   "call": "client.PaymentProfiles.VerifyBankAccount",
+   "method": "VerifyBankAccount",
+   "http": "PUT",
+   "path": "/bank_accounts/{bank_account_id}/verification.json",
+   "pathRegex": "/?bank_accounts/[^\\s\\\"'`]*?/verification\\.json"
+  },
+  {
+   "operationId": "refundInvoice",
+   "call": "client.Invoices.RefundInvoice",
+   "method": "RefundInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/refunds.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/refunds\\.json"
+  },
+  {
+   "operationId": "listInvoices",
+   "call": "client.Invoices.ListInvoices",
+   "method": "ListInvoices",
+   "http": "GET",
+   "path": "/invoices.json",
+   "pathRegex": "/?invoices\\.json"
+  },
+  {
+   "operationId": "readInvoice",
+   "call": "client.Invoices.ReadInvoice",
+   "method": "ReadInvoice",
+   "http": "GET",
+   "path": "/invoices/{uid}.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listInvoiceEvents",
+   "call": "client.Invoices.ListInvoiceEvents",
+   "method": "ListInvoiceEvents",
+   "http": "GET",
+   "path": "/invoices/events.json",
+   "pathRegex": "/?invoices/events\\.json"
+  },
+  {
+   "operationId": "recordPaymentForInvoice",
+   "call": "client.Invoices.RecordPaymentForInvoice",
+   "method": "RecordPaymentForInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/payments.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/payments\\.json"
+  },
+  {
+   "operationId": "recordPaymentForMultipleInvoices",
+   "call": "client.Invoices.RecordPaymentForMultipleInvoices",
+   "method": "RecordPaymentForMultipleInvoices",
+   "http": "POST",
+   "path": "/invoices/payments.json",
+   "pathRegex": "/?invoices/payments\\.json"
+  },
+  {
+   "operationId": "listCreditNotes",
+   "call": "client.Invoices.ListCreditNotes",
+   "method": "ListCreditNotes",
+   "http": "GET",
+   "path": "/credit_notes.json",
+   "pathRegex": "/?credit_notes\\.json"
+  },
+  {
+   "operationId": "readCreditNote",
+   "call": "client.Invoices.ReadCreditNote",
+   "method": "ReadCreditNote",
+   "http": "GET",
+   "path": "/credit_notes/{uid}.json",
+   "pathRegex": "/?credit_notes/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "recordPaymentForSubscription",
+   "call": "client.Invoices.RecordPaymentForSubscription",
+   "method": "RecordPaymentForSubscription",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/payments.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/payments\\.json"
+  },
+  {
+   "operationId": "reopenInvoice",
+   "call": "client.Invoices.ReopenInvoice",
+   "method": "ReopenInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/reopen.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/reopen\\.json"
+  },
+  {
+   "operationId": "voidInvoice",
+   "call": "client.Invoices.VoidInvoice",
+   "method": "VoidInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/void.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/void\\.json"
+  },
+  {
+   "operationId": "listConsolidatedInvoiceSegments",
+   "call": "client.Invoices.ListConsolidatedInvoiceSegments",
+   "method": "ListConsolidatedInvoiceSegments",
+   "http": "GET",
+   "path": "/invoices/{invoice_uid}/segments.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/segments\\.json"
+  },
+  {
+   "operationId": "readAccountBalances",
+   "call": "client.SubscriptionInvoiceAccount.ReadAccountBalances",
+   "method": "ReadAccountBalances",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/account_balances.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/account_balances\\.json"
+  },
+  {
+   "operationId": "readSubscriptionComponent",
+   "call": "client.SubscriptionComponents.ReadSubscriptionComponent",
+   "method": "ReadSubscriptionComponent",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/components/{component_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listSubscriptionComponents",
+   "call": "client.SubscriptionComponents.ListSubscriptionComponents",
+   "method": "ListSubscriptionComponents",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/components.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components\\.json"
+  },
+  {
+   "operationId": "bulkUpdateSubscriptionComponentsPricePoints",
+   "call": "client.SubscriptionComponents.BulkUpdateSubscriptionComponentsPricePoints",
+   "method": "BulkUpdateSubscriptionComponentsPricePoints",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/price_points.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/price_points\\.json"
+  },
+  {
+   "operationId": "bulkResetSubscriptionComponentsPricePoints",
+   "call": "client.SubscriptionComponents.BulkResetSubscriptionComponentsPricePoints",
+   "method": "BulkResetSubscriptionComponentsPricePoints",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/price_points/reset.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/price_points/reset\\.json"
+  },
+  {
+   "operationId": "allocateComponent",
+   "call": "client.SubscriptionComponents.AllocateComponent",
+   "method": "AllocateComponent",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/components/{component_id}/allocations.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/allocations\\.json"
+  },
+  {
+   "operationId": "listAllocations",
+   "call": "client.SubscriptionComponents.ListAllocations",
+   "method": "ListAllocations",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/components/{component_id}/allocations.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/allocations\\.json"
+  },
+  {
+   "operationId": "allocateComponents",
+   "call": "client.SubscriptionComponents.AllocateComponents",
+   "method": "AllocateComponents",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/allocations.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/allocations\\.json"
+  },
+  {
+   "operationId": "previewAllocations",
+   "call": "client.SubscriptionComponents.PreviewAllocations",
+   "method": "PreviewAllocations",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/allocations/preview.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/allocations/preview\\.json"
+  },
+  {
+   "operationId": "updatePrepaidUsageAllocationExpirationDate",
+   "call": "client.SubscriptionComponents.UpdatePrepaidUsageAllocationExpirationDate",
+   "method": "UpdatePrepaidUsageAllocationExpirationDate",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/components/{component_id}/allocations/{allocation_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/allocations/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deletePrepaidUsageAllocation",
+   "call": "client.SubscriptionComponents.DeletePrepaidUsageAllocation",
+   "method": "DeletePrepaidUsageAllocation",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/components/{component_id}/allocations/{allocation_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/allocations/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createUsage",
+   "call": "client.SubscriptionComponents.CreateUsage",
+   "method": "CreateUsage",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id_or_reference}/components/{component_id}/usages.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/usages\\.json"
+  },
+  {
+   "operationId": "listUsages",
+   "call": "client.SubscriptionComponents.ListUsages",
+   "method": "ListUsages",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id_or_reference}/components/{component_id}/usages.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/usages\\.json"
+  },
+  {
+   "operationId": "activateEventBasedComponent",
+   "call": "client.SubscriptionComponents.ActivateEventBasedComponent",
+   "method": "ActivateEventBasedComponent",
+   "http": "POST",
+   "path": "/event_based_billing/subscriptions/{subscription_id}/components/{component_id}/activate.json",
+   "pathRegex": "/?event_based_billing/subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/activate\\.json"
+  },
+  {
+   "operationId": "deactivateEventBasedComponent",
+   "call": "client.SubscriptionComponents.DeactivateEventBasedComponent",
+   "method": "DeactivateEventBasedComponent",
+   "http": "POST",
+   "path": "/event_based_billing/subscriptions/{subscription_id}/components/{component_id}/deactivate.json",
+   "pathRegex": "/?event_based_billing/subscriptions/[^\\s\\\"'`]*?/components/[^\\s\\\"'`]*?/deactivate\\.json"
+  },
+  {
+   "operationId": "createSubscription",
+   "call": "client.Subscriptions.CreateSubscription",
+   "method": "CreateSubscription",
+   "http": "POST",
+   "path": "/subscriptions.json",
+   "pathRegex": "/?subscriptions\\.json"
+  },
+  {
+   "operationId": "listSubscriptions",
+   "call": "client.Subscriptions.ListSubscriptions",
+   "method": "ListSubscriptions",
+   "http": "GET",
+   "path": "/subscriptions.json",
+   "pathRegex": "/?subscriptions\\.json"
+  },
+  {
+   "operationId": "recordEvent",
+   "call": "client.SubscriptionComponents.RecordEvent",
+   "method": "RecordEvent",
+   "http": "POST",
+   "path": "/events/{api_handle}.json",
+   "pathRegex": "/?events/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "bulkRecordEvents",
+   "call": "client.SubscriptionComponents.BulkRecordEvents",
+   "method": "BulkRecordEvents",
+   "http": "POST",
+   "path": "/events/{api_handle}/bulk.json",
+   "pathRegex": "/?events/[^\\s\\\"'`]*?/bulk\\.json"
+  },
+  {
+   "operationId": "createOffer",
+   "call": "client.Offers.CreateOffer",
+   "method": "CreateOffer",
+   "http": "POST",
+   "path": "/offers.json",
+   "pathRegex": "/?offers\\.json"
+  },
+  {
+   "operationId": "listOffers",
+   "call": "client.Offers.ListOffers",
+   "method": "ListOffers",
+   "http": "GET",
+   "path": "/offers.json",
+   "pathRegex": "/?offers\\.json"
+  },
+  {
+   "operationId": "readOffer",
+   "call": "client.Offers.ReadOffer",
+   "method": "ReadOffer",
+   "http": "GET",
+   "path": "/offers/{offer_id}.json",
+   "pathRegex": "/?offers/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveOffer",
+   "call": "client.Offers.ArchiveOffer",
+   "method": "ArchiveOffer",
+   "http": "PUT",
+   "path": "/offers/{offer_id}/archive.json",
+   "pathRegex": "/?offers/[^\\s\\\"'`]*?/archive\\.json"
+  },
+  {
+   "operationId": "unarchiveOffer",
+   "call": "client.Offers.UnarchiveOffer",
+   "method": "UnarchiveOffer",
+   "http": "PUT",
+   "path": "/offers/{offer_id}/unarchive.json",
+   "pathRegex": "/?offers/[^\\s\\\"'`]*?/unarchive\\.json"
+  },
+  {
+   "operationId": "listSalesCommissionSettings",
+   "call": "client.SalesCommissions.ListSalesCommissionSettings",
+   "method": "ListSalesCommissionSettings",
+   "http": "GET",
+   "path": "/sellers/{seller_id}/sales_commission_settings.json",
+   "pathRegex": "/?sellers/[^\\s\\\"'`]*?/sales_commission_settings\\.json"
+  },
+  {
+   "operationId": "listSalesReps",
+   "call": "client.SalesCommissions.ListSalesReps",
+   "method": "ListSalesReps",
+   "http": "GET",
+   "path": "/sellers/{seller_id}/sales_reps.json",
+   "pathRegex": "/?sellers/[^\\s\\\"'`]*?/sales_reps\\.json"
+  },
+  {
+   "operationId": "readSalesRep",
+   "call": "client.SalesCommissions.ReadSalesRep",
+   "method": "ReadSalesRep",
+   "http": "GET",
+   "path": "/sellers/{seller_id}/sales_reps/{sales_rep_id}.json",
+   "pathRegex": "/?sellers/[^\\s\\\"'`]*?/sales_reps/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "retrySubscription",
+   "call": "client.SubscriptionStatus.RetrySubscription",
+   "method": "RetrySubscription",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/retry.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/retry\\.json"
+  },
+  {
+   "operationId": "updateSubscription",
+   "call": "client.Subscriptions.UpdateSubscription",
+   "method": "UpdateSubscription",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "cancelSubscription",
+   "call": "client.SubscriptionStatus.CancelSubscription",
+   "method": "CancelSubscription",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readSubscription",
+   "call": "client.Subscriptions.ReadSubscription",
+   "method": "ReadSubscription",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "resumeSubscription",
+   "call": "client.SubscriptionStatus.ResumeSubscription",
+   "method": "ResumeSubscription",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/resume.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/resume\\.json"
+  },
+  {
+   "operationId": "pauseSubscription",
+   "call": "client.SubscriptionStatus.PauseSubscription",
+   "method": "PauseSubscription",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/hold.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/hold\\.json"
+  },
+  {
+   "operationId": "updateAutomaticSubscriptionResumption",
+   "call": "client.SubscriptionStatus.UpdateAutomaticSubscriptionResumption",
+   "method": "UpdateAutomaticSubscriptionResumption",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/hold.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/hold\\.json"
+  },
+  {
+   "operationId": "reactivateSubscription",
+   "call": "client.SubscriptionStatus.ReactivateSubscription",
+   "method": "ReactivateSubscription",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/reactivate.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/reactivate\\.json"
+  },
+  {
+   "operationId": "migrateSubscriptionProduct",
+   "call": "client.SubscriptionProducts.MigrateSubscriptionProduct",
+   "method": "MigrateSubscriptionProduct",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/migrations.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/migrations\\.json"
+  },
+  {
+   "operationId": "previewSubscriptionProductMigration",
+   "call": "client.SubscriptionProducts.PreviewSubscriptionProductMigration",
+   "method": "PreviewSubscriptionProductMigration",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/migrations/preview.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/migrations/preview\\.json"
+  },
+  {
+   "operationId": "overrideSubscription",
+   "call": "client.Subscriptions.OverrideSubscription",
+   "method": "OverrideSubscription",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/override.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/override\\.json"
+  },
+  {
+   "operationId": "initiateDelayedCancellation",
+   "call": "client.SubscriptionStatus.InitiateDelayedCancellation",
+   "method": "InitiateDelayedCancellation",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/delayed_cancel.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/delayed_cancel\\.json"
+  },
+  {
+   "operationId": "cancelDelayedCancellation",
+   "call": "client.SubscriptionStatus.CancelDelayedCancellation",
+   "method": "CancelDelayedCancellation",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/delayed_cancel.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/delayed_cancel\\.json"
+  },
+  {
+   "operationId": "cancelDunning",
+   "call": "client.SubscriptionStatus.CancelDunning",
+   "method": "CancelDunning",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/cancel_dunning.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/cancel_dunning\\.json"
+  },
+  {
+   "operationId": "previewRenewal",
+   "call": "client.SubscriptionStatus.PreviewRenewal",
+   "method": "PreviewRenewal",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/renewals/preview.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/renewals/preview\\.json"
+  },
+  {
+   "operationId": "createScheduledRenewalConfiguration",
+   "call": "client.SubscriptionRenewals.CreateScheduledRenewalConfiguration",
+   "method": "CreateScheduledRenewalConfiguration",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals\\.json"
+  },
+  {
+   "operationId": "listScheduledRenewalConfigurations",
+   "call": "client.SubscriptionRenewals.ListScheduledRenewalConfigurations",
+   "method": "ListScheduledRenewalConfigurations",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals\\.json"
+  },
+  {
+   "operationId": "readScheduledRenewalConfiguration",
+   "call": "client.SubscriptionRenewals.ReadScheduledRenewalConfiguration",
+   "method": "ReadScheduledRenewalConfiguration",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateScheduledRenewalConfiguration",
+   "call": "client.SubscriptionRenewals.UpdateScheduledRenewalConfiguration",
+   "method": "UpdateScheduledRenewalConfiguration",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "scheduleScheduledRenewalLockIn",
+   "call": "client.SubscriptionRenewals.ScheduleScheduledRenewalLockIn",
+   "method": "ScheduleScheduledRenewalLockIn",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}/schedule_lock_in.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/schedule_lock_in\\.json"
+  },
+  {
+   "operationId": "lockInScheduledRenewalImmediately",
+   "call": "client.SubscriptionRenewals.LockInScheduledRenewalImmediately",
+   "method": "LockInScheduledRenewalImmediately",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}/immediate_lock_in.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/immediate_lock_in\\.json"
+  },
+  {
+   "operationId": "unpublishScheduledRenewalConfiguration",
+   "call": "client.SubscriptionRenewals.UnpublishScheduledRenewalConfiguration",
+   "method": "UnpublishScheduledRenewalConfiguration",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}/unpublish.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/unpublish\\.json"
+  },
+  {
+   "operationId": "cancelScheduledRenewalConfiguration",
+   "call": "client.SubscriptionRenewals.CancelScheduledRenewalConfiguration",
+   "method": "CancelScheduledRenewalConfiguration",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{id}/cancel.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/cancel\\.json"
+  },
+  {
+   "operationId": "createScheduledRenewalConfigurationItem",
+   "call": "client.SubscriptionRenewals.CreateScheduledRenewalConfigurationItem",
+   "method": "CreateScheduledRenewalConfigurationItem",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{scheduled_renewals_configuration_id}/configuration_items.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/configuration_items\\.json"
+  },
+  {
+   "operationId": "updateScheduledRenewalConfigurationItem",
+   "call": "client.SubscriptionRenewals.UpdateScheduledRenewalConfigurationItem",
+   "method": "UpdateScheduledRenewalConfigurationItem",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{scheduled_renewals_configuration_id}/configuration_items/{id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/configuration_items/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteScheduledRenewalConfigurationItem",
+   "call": "client.SubscriptionRenewals.DeleteScheduledRenewalConfigurationItem",
+   "method": "DeleteScheduledRenewalConfigurationItem",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/scheduled_renewals/{scheduled_renewals_configuration_id}/configuration_items/{id}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/scheduled_renewals/[^\\s\\\"'`]*?/configuration_items/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createInvoice",
+   "call": "client.Invoices.CreateInvoice",
+   "method": "CreateInvoice",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/invoices.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/invoices\\.json"
+  },
+  {
+   "operationId": "updateInvoice",
+   "call": "client.Invoices.UpdateInvoice",
+   "method": "UpdateInvoice",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/invoices/{uid}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteInvoice",
+   "call": "client.Invoices.DeleteInvoice",
+   "method": "DeleteInvoice",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/invoices/{uid}.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createPrepayment",
+   "call": "client.SubscriptionInvoiceAccount.CreatePrepayment",
+   "method": "CreatePrepayment",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/prepayments.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/prepayments\\.json"
+  },
+  {
+   "operationId": "listPrepayments",
+   "call": "client.SubscriptionInvoiceAccount.ListPrepayments",
+   "method": "ListPrepayments",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/prepayments.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/prepayments\\.json"
+  },
+  {
+   "operationId": "issueServiceCredit",
+   "call": "client.SubscriptionInvoiceAccount.IssueServiceCredit",
+   "method": "IssueServiceCredit",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/service_credits.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/service_credits\\.json"
+  },
+  {
+   "operationId": "deductServiceCredit",
+   "call": "client.SubscriptionInvoiceAccount.DeductServiceCredit",
+   "method": "DeductServiceCredit",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/service_credit_deductions.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/service_credit_deductions\\.json"
+  },
+  {
+   "operationId": "listServiceCredits",
+   "call": "client.SubscriptionInvoiceAccount.ListServiceCredits",
+   "method": "ListServiceCredits",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/service_credits/list.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/service_credits/list\\.json"
+  },
+  {
+   "operationId": "signupWithSubscriptionGroup",
+   "call": "client.SubscriptionGroups.SignupWithSubscriptionGroup",
+   "method": "SignupWithSubscriptionGroup",
+   "http": "POST",
+   "path": "/subscription_groups/signup.json",
+   "pathRegex": "/?subscription_groups/signup\\.json"
+  },
+  {
+   "operationId": "createSubscriptionGroup",
+   "call": "client.SubscriptionGroups.CreateSubscriptionGroup",
+   "method": "CreateSubscriptionGroup",
+   "http": "POST",
+   "path": "/subscription_groups.json",
+   "pathRegex": "/?subscription_groups\\.json"
+  },
+  {
+   "operationId": "listSubscriptionGroups",
+   "call": "client.SubscriptionGroups.ListSubscriptionGroups",
+   "method": "ListSubscriptionGroups",
+   "http": "GET",
+   "path": "/subscription_groups.json",
+   "pathRegex": "/?subscription_groups\\.json"
+  },
+  {
+   "operationId": "readSubscriptionGroup",
+   "call": "client.SubscriptionGroups.ReadSubscriptionGroup",
+   "method": "ReadSubscriptionGroup",
+   "http": "GET",
+   "path": "/subscription_groups/{uid}.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateSubscriptionGroupMembers",
+   "call": "client.SubscriptionGroups.UpdateSubscriptionGroupMembers",
+   "method": "UpdateSubscriptionGroupMembers",
+   "http": "PUT",
+   "path": "/subscription_groups/{uid}.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteSubscriptionGroup",
+   "call": "client.SubscriptionGroups.DeleteSubscriptionGroup",
+   "method": "DeleteSubscriptionGroup",
+   "http": "DELETE",
+   "path": "/subscription_groups/{uid}.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "findSubscriptionGroup",
+   "call": "client.SubscriptionGroups.FindSubscriptionGroup",
+   "method": "FindSubscriptionGroup",
+   "http": "GET",
+   "path": "/subscription_groups/lookup.json",
+   "pathRegex": "/?subscription_groups/lookup\\.json"
+  },
+  {
+   "operationId": "cancelSubscriptionsInGroup",
+   "call": "client.SubscriptionGroupStatus.CancelSubscriptionsInGroup",
+   "method": "CancelSubscriptionsInGroup",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/cancel.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/cancel\\.json"
+  },
+  {
+   "operationId": "initiateDelayedCancellationForGroup",
+   "call": "client.SubscriptionGroupStatus.InitiateDelayedCancellationForGroup",
+   "method": "InitiateDelayedCancellationForGroup",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/delayed_cancel.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/delayed_cancel\\.json"
+  },
+  {
+   "operationId": "cancelDelayedCancellationForGroup",
+   "call": "client.SubscriptionGroupStatus.CancelDelayedCancellationForGroup",
+   "method": "CancelDelayedCancellationForGroup",
+   "http": "DELETE",
+   "path": "/subscription_groups/{uid}/delayed_cancel.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/delayed_cancel\\.json"
+  },
+  {
+   "operationId": "reactivateSubscriptionGroup",
+   "call": "client.SubscriptionGroupStatus.ReactivateSubscriptionGroup",
+   "method": "ReactivateSubscriptionGroup",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/reactivate.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/reactivate\\.json"
+  },
+  {
+   "operationId": "deleteSubscriptionGroupPaymentProfile",
+   "call": "client.PaymentProfiles.DeleteSubscriptionGroupPaymentProfile",
+   "method": "DeleteSubscriptionGroupPaymentProfile",
+   "http": "DELETE",
+   "path": "/subscription_groups/{uid}/payment_profiles/{payment_profile_id}.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/payment_profiles/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "createSubscriptionGroupPrepayment",
+   "call": "client.SubscriptionGroupInvoiceAccount.CreateSubscriptionGroupPrepayment",
+   "method": "CreateSubscriptionGroupPrepayment",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/prepayments.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/prepayments\\.json"
+  },
+  {
+   "operationId": "listPrepaymentsForSubscriptionGroup",
+   "call": "client.SubscriptionGroupInvoiceAccount.ListPrepaymentsForSubscriptionGroup",
+   "method": "ListPrepaymentsForSubscriptionGroup",
+   "http": "GET",
+   "path": "/subscription_groups/{uid}/prepayments.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/prepayments\\.json"
+  },
+  {
+   "operationId": "issueSubscriptionGroupServiceCredit",
+   "call": "client.SubscriptionGroupInvoiceAccount.IssueSubscriptionGroupServiceCredit",
+   "method": "IssueSubscriptionGroupServiceCredit",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/service_credits.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/service_credits\\.json"
+  },
+  {
+   "operationId": "deductSubscriptionGroupServiceCredit",
+   "call": "client.SubscriptionGroupInvoiceAccount.DeductSubscriptionGroupServiceCredit",
+   "method": "DeductSubscriptionGroupServiceCredit",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/service_credit_deductions.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/service_credit_deductions\\.json"
+  },
+  {
+   "operationId": "findSubscription",
+   "call": "client.Subscriptions.FindSubscription",
+   "method": "FindSubscription",
+   "http": "GET",
+   "path": "/subscriptions/lookup.json",
+   "pathRegex": "/?subscriptions/lookup\\.json"
+  },
+  {
+   "operationId": "changeSubscriptionDefaultPaymentProfile",
+   "call": "client.PaymentProfiles.ChangeSubscriptionDefaultPaymentProfile",
+   "method": "ChangeSubscriptionDefaultPaymentProfile",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/payment_profiles/{payment_profile_id}/change_payment_profile.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/payment_profiles/[^\\s\\\"'`]*?/change_payment_profile\\.json"
+  },
+  {
+   "operationId": "changeSubscriptionGroupDefaultPaymentProfile",
+   "call": "client.PaymentProfiles.ChangeSubscriptionGroupDefaultPaymentProfile",
+   "method": "ChangeSubscriptionGroupDefaultPaymentProfile",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/payment_profiles/{payment_profile_id}/change_payment_profile.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/payment_profiles/[^\\s\\\"'`]*?/change_payment_profile\\.json"
+  },
+  {
+   "operationId": "purgeSubscription",
+   "call": "client.Subscriptions.PurgeSubscription",
+   "method": "PurgeSubscription",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/purge.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/purge\\.json"
+  },
+  {
+   "operationId": "updatePrepaidSubscriptionConfiguration",
+   "call": "client.Subscriptions.UpdatePrepaidSubscriptionConfiguration",
+   "method": "UpdatePrepaidSubscriptionConfiguration",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/prepaid_configurations.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/prepaid_configurations\\.json"
+  },
+  {
+   "operationId": "addSubscriptionToGroup",
+   "call": "client.SubscriptionGroups.AddSubscriptionToGroup",
+   "method": "AddSubscriptionToGroup",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/group.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/group\\.json"
+  },
+  {
+   "operationId": "removeSubscriptionFromGroup",
+   "call": "client.SubscriptionGroups.RemoveSubscriptionFromGroup",
+   "method": "RemoveSubscriptionFromGroup",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/group.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/group\\.json"
+  },
+  {
+   "operationId": "previewSubscription",
+   "call": "client.Subscriptions.PreviewSubscription",
+   "method": "PreviewSubscription",
+   "http": "POST",
+   "path": "/subscriptions/preview.json",
+   "pathRegex": "/?subscriptions/preview\\.json"
+  },
+  {
+   "operationId": "listChargifyJsPublicKeys",
+   "call": "client.Sites.ListChargifyJsPublicKeys",
+   "method": "ListChargifyJsPublicKeys",
+   "http": "GET",
+   "path": "/chargify_js_keys.json",
+   "pathRegex": "/?chargify_js_keys\\.json"
+  },
+  {
+   "operationId": "createConsolidatedProformaInvoice",
+   "call": "client.ProformaInvoices.CreateConsolidatedProformaInvoice",
+   "method": "CreateConsolidatedProformaInvoice",
+   "http": "POST",
+   "path": "/subscription_groups/{uid}/proforma_invoices.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "listSubscriptionGroupProformaInvoices",
+   "call": "client.ProformaInvoices.ListSubscriptionGroupProformaInvoices",
+   "method": "ListSubscriptionGroupProformaInvoices",
+   "http": "GET",
+   "path": "/subscription_groups/{uid}/proforma_invoices.json",
+   "pathRegex": "/?subscription_groups/[^\\s\\\"'`]*?/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "readProformaInvoice",
+   "call": "client.ProformaInvoices.ReadProformaInvoice",
+   "method": "ReadProformaInvoice",
+   "http": "GET",
+   "path": "/proforma_invoices/{proforma_invoice_uid}.json",
+   "pathRegex": "/?proforma_invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "applyCouponsToSubscription",
+   "call": "client.Subscriptions.ApplyCouponsToSubscription",
+   "method": "ApplyCouponsToSubscription",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/add_coupon.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/add_coupon\\.json"
+  },
+  {
+   "operationId": "removeCouponFromSubscription",
+   "call": "client.Subscriptions.RemoveCouponFromSubscription",
+   "method": "RemoveCouponFromSubscription",
+   "http": "DELETE",
+   "path": "/subscriptions/{subscription_id}/remove_coupon.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/remove_coupon\\.json"
+  },
+  {
+   "operationId": "createProformaInvoice",
+   "call": "client.ProformaInvoices.CreateProformaInvoice",
+   "method": "CreateProformaInvoice",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/proforma_invoices.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "listProformaInvoices",
+   "call": "client.ProformaInvoices.ListProformaInvoices",
+   "method": "ListProformaInvoices",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/proforma_invoices.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "deliverProformaInvoice",
+   "call": "client.ProformaInvoices.DeliverProformaInvoice",
+   "method": "DeliverProformaInvoice",
+   "http": "POST",
+   "path": "/proforma_invoices/{proforma_invoice_uid}/deliveries.json",
+   "pathRegex": "/?proforma_invoices/[^\\s\\\"'`]*?/deliveries\\.json"
+  },
+  {
+   "operationId": "voidProformaInvoice",
+   "call": "client.ProformaInvoices.VoidProformaInvoice",
+   "method": "VoidProformaInvoice",
+   "http": "POST",
+   "path": "/proforma_invoices/{proforma_invoice_uid}/void.json",
+   "pathRegex": "/?proforma_invoices/[^\\s\\\"'`]*?/void\\.json"
+  },
+  {
+   "operationId": "previewProformaInvoice",
+   "call": "client.ProformaInvoices.PreviewProformaInvoice",
+   "method": "PreviewProformaInvoice",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/proforma_invoices/preview.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/proforma_invoices/preview\\.json"
+  },
+  {
+   "operationId": "sendInvoice",
+   "call": "client.Invoices.SendInvoice",
+   "method": "SendInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/deliveries.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/deliveries\\.json"
+  },
+  {
+   "operationId": "previewCustomerInformationChanges",
+   "call": "client.Invoices.PreviewCustomerInformationChanges",
+   "method": "PreviewCustomerInformationChanges",
+   "http": "POST",
+   "path": "/invoices/{uid}/customer_information/preview.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/customer_information/preview\\.json"
+  },
+  {
+   "operationId": "updateCustomerInformation",
+   "call": "client.Invoices.UpdateCustomerInformation",
+   "method": "UpdateCustomerInformation",
+   "http": "PUT",
+   "path": "/invoices/{uid}/customer_information.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/customer_information\\.json"
+  },
+  {
+   "operationId": "readOneTimeToken",
+   "call": "client.PaymentProfiles.ReadOneTimeToken",
+   "method": "ReadOneTimeToken",
+   "http": "GET",
+   "path": "/one_time_tokens/{chargify_token}.json",
+   "pathRegex": "/?one_time_tokens/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listSubscriptionComponentsForSite",
+   "call": "client.SubscriptionComponents.ListSubscriptionComponentsForSite",
+   "method": "ListSubscriptionComponentsForSite",
+   "http": "GET",
+   "path": "/subscriptions_components.json",
+   "pathRegex": "/?subscriptions_components\\.json"
+  },
+  {
+   "operationId": "createSegment",
+   "call": "client.EventsBasedBillingSegments.CreateSegment",
+   "method": "CreateSegment",
+   "http": "POST",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments\\.json"
+  },
+  {
+   "operationId": "listSegmentsForPricePoint",
+   "call": "client.EventsBasedBillingSegments.ListSegmentsForPricePoint",
+   "method": "ListSegmentsForPricePoint",
+   "http": "GET",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments\\.json"
+  },
+  {
+   "operationId": "updateSegment",
+   "call": "client.EventsBasedBillingSegments.UpdateSegment",
+   "method": "UpdateSegment",
+   "http": "PUT",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments/{id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "deleteSegment",
+   "call": "client.EventsBasedBillingSegments.DeleteSegment",
+   "method": "DeleteSegment",
+   "http": "DELETE",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments/{id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "bulkCreateSegments",
+   "call": "client.EventsBasedBillingSegments.BulkCreateSegments",
+   "method": "BulkCreateSegments",
+   "http": "POST",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments/bulk.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments/bulk\\.json"
+  },
+  {
+   "operationId": "bulkUpdateSegments",
+   "call": "client.EventsBasedBillingSegments.BulkUpdateSegments",
+   "method": "BulkUpdateSegments",
+   "http": "PUT",
+   "path": "/components/{component_id}/price_points/{price_point_id}/segments/bulk.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/price_points/[^\\s\\\"'`]*?/segments/bulk\\.json"
+  },
+  {
+   "operationId": "issueAdvanceInvoice",
+   "call": "client.AdvanceInvoice.IssueAdvanceInvoice",
+   "method": "IssueAdvanceInvoice",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/advance_invoice/issue.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/advance_invoice/issue\\.json"
+  },
+  {
+   "operationId": "readAdvanceInvoice",
+   "call": "client.AdvanceInvoice.ReadAdvanceInvoice",
+   "method": "ReadAdvanceInvoice",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/advance_invoice.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/advance_invoice\\.json"
+  },
+  {
+   "operationId": "voidAdvanceInvoice",
+   "call": "client.AdvanceInvoice.VoidAdvanceInvoice",
+   "method": "VoidAdvanceInvoice",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/advance_invoice/void.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/advance_invoice/void\\.json"
+  },
+  {
+   "operationId": "listMrrPerSubscription",
+   "call": "client.Insights.ListMrrPerSubscription",
+   "method": "ListMrrPerSubscription",
+   "http": "GET",
+   "path": "/subscriptions_mrr.json",
+   "pathRegex": "/?subscriptions_mrr\\.json"
+  },
+  {
+   "operationId": "refundPrepayment",
+   "call": "client.SubscriptionInvoiceAccount.RefundPrepayment",
+   "method": "RefundPrepayment",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/prepayments/{prepayment_id}/refunds.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/prepayments/[^\\s\\\"'`]*?/refunds\\.json"
+  },
+  {
+   "operationId": "listProducts",
+   "call": "client.Products.ListProducts",
+   "method": "ListProducts",
+   "http": "GET",
+   "path": "/products.json",
+   "pathRegex": "/?products\\.json"
+  },
+  {
+   "operationId": "issueInvoice",
+   "call": "client.Invoices.IssueInvoice",
+   "method": "IssueInvoice",
+   "http": "POST",
+   "path": "/invoices/{uid}/issue.json",
+   "pathRegex": "/?invoices/[^\\s\\\"'`]*?/issue\\.json"
+  },
+  {
+   "operationId": "listAllComponentPricePoints",
+   "call": "client.ComponentPricePoints.ListAllComponentPricePoints",
+   "method": "ListAllComponentPricePoints",
+   "http": "GET",
+   "path": "/components_price_points.json",
+   "pathRegex": "/?components_price_points\\.json"
+  },
+  {
+   "operationId": "listAllProductPricePoints",
+   "call": "client.ProductPricePoints.ListAllProductPricePoints",
+   "method": "ListAllProductPricePoints",
+   "http": "GET",
+   "path": "/products_price_points.json",
+   "pathRegex": "/?products_price_points\\.json"
+  },
+  {
+   "operationId": "activateSubscription",
+   "call": "client.Subscriptions.ActivateSubscription",
+   "method": "ActivateSubscription",
+   "http": "PUT",
+   "path": "/subscriptions/{subscription_id}/activate.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/activate\\.json"
+  },
+  {
+   "operationId": "createSignupProformaInvoice",
+   "call": "client.ProformaInvoices.CreateSignupProformaInvoice",
+   "method": "CreateSignupProformaInvoice",
+   "http": "POST",
+   "path": "/subscriptions/proforma_invoices.json",
+   "pathRegex": "/?subscriptions/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "previewSignupProformaInvoice",
+   "call": "client.ProformaInvoices.PreviewSignupProformaInvoice",
+   "method": "PreviewSignupProformaInvoice",
+   "http": "POST",
+   "path": "/subscriptions/proforma_invoices/preview.json",
+   "pathRegex": "/?subscriptions/proforma_invoices/preview\\.json"
+  },
+  {
+   "operationId": "listExportedProformaInvoices",
+   "call": "client.ApiExports.ListExportedProformaInvoices",
+   "method": "ListExportedProformaInvoices",
+   "http": "GET",
+   "path": "/api_exports/proforma_invoices/{batch_id}/rows.json",
+   "pathRegex": "/?api_exports/proforma_invoices/[^\\s\\\"'`]*?/rows\\.json"
+  },
+  {
+   "operationId": "listExportedInvoices",
+   "call": "client.ApiExports.ListExportedInvoices",
+   "method": "ListExportedInvoices",
+   "http": "GET",
+   "path": "/api_exports/invoices/{batch_id}/rows.json",
+   "pathRegex": "/?api_exports/invoices/[^\\s\\\"'`]*?/rows\\.json"
+  },
+  {
+   "operationId": "listExportedSubscriptions",
+   "call": "client.ApiExports.ListExportedSubscriptions",
+   "method": "ListExportedSubscriptions",
+   "http": "GET",
+   "path": "/api_exports/subscriptions/{batch_id}/rows.json",
+   "pathRegex": "/?api_exports/subscriptions/[^\\s\\\"'`]*?/rows\\.json"
+  },
+  {
+   "operationId": "exportProformaInvoices",
+   "call": "client.ApiExports.ExportProformaInvoices",
+   "method": "ExportProformaInvoices",
+   "http": "POST",
+   "path": "/api_exports/proforma_invoices.json",
+   "pathRegex": "/?api_exports/proforma_invoices\\.json"
+  },
+  {
+   "operationId": "exportInvoices",
+   "call": "client.ApiExports.ExportInvoices",
+   "method": "ExportInvoices",
+   "http": "POST",
+   "path": "/api_exports/invoices.json",
+   "pathRegex": "/?api_exports/invoices\\.json"
+  },
+  {
+   "operationId": "exportSubscriptions",
+   "call": "client.ApiExports.ExportSubscriptions",
+   "method": "ExportSubscriptions",
+   "http": "POST",
+   "path": "/api_exports/subscriptions.json",
+   "pathRegex": "/?api_exports/subscriptions\\.json"
+  },
+  {
+   "operationId": "readProformaInvoicesExport",
+   "call": "client.ApiExports.ReadProformaInvoicesExport",
+   "method": "ReadProformaInvoicesExport",
+   "http": "GET",
+   "path": "/api_exports/proforma_invoices/{batch_id}.json",
+   "pathRegex": "/?api_exports/proforma_invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readInvoicesExport",
+   "call": "client.ApiExports.ReadInvoicesExport",
+   "method": "ReadInvoicesExport",
+   "http": "GET",
+   "path": "/api_exports/invoices/{batch_id}.json",
+   "pathRegex": "/?api_exports/invoices/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readSubscriptionsExport",
+   "call": "client.ApiExports.ReadSubscriptionsExport",
+   "method": "ReadSubscriptionsExport",
+   "http": "GET",
+   "path": "/api_exports/subscriptions/{batch_id}.json",
+   "pathRegex": "/?api_exports/subscriptions/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "sendRequestUpdatePaymentEmail",
+   "call": "client.PaymentProfiles.SendRequestUpdatePaymentEmail",
+   "method": "SendRequestUpdatePaymentEmail",
+   "http": "POST",
+   "path": "/subscriptions/{subscription_id}/request_payment_profiles_update.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/request_payment_profiles_update\\.json"
+  },
+  {
+   "operationId": "listFeatureTemplates",
+   "call": "client.FeatureTemplates.ListFeatureTemplates",
+   "method": "ListFeatureTemplates",
+   "http": "GET",
+   "path": "/features.json",
+   "pathRegex": "/?features\\.json"
+  },
+  {
+   "operationId": "createFeatureTemplate",
+   "call": "client.FeatureTemplates.CreateFeatureTemplate",
+   "method": "CreateFeatureTemplate",
+   "http": "POST",
+   "path": "/features.json",
+   "pathRegex": "/?features\\.json"
+  },
+  {
+   "operationId": "readFeatureTemplate",
+   "call": "client.FeatureTemplates.ReadFeatureTemplate",
+   "method": "ReadFeatureTemplate",
+   "http": "GET",
+   "path": "/features/{id}.json",
+   "pathRegex": "/?features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateFeatureTemplate",
+   "call": "client.FeatureTemplates.UpdateFeatureTemplate",
+   "method": "UpdateFeatureTemplate",
+   "http": "PUT",
+   "path": "/features/{id}.json",
+   "pathRegex": "/?features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveFeatureTemplate",
+   "call": "client.FeatureTemplates.ArchiveFeatureTemplate",
+   "method": "ArchiveFeatureTemplate",
+   "http": "DELETE",
+   "path": "/features/{id}.json",
+   "pathRegex": "/?features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "restoreFeatureTemplate",
+   "call": "client.FeatureTemplates.RestoreFeatureTemplate",
+   "method": "RestoreFeatureTemplate",
+   "http": "POST",
+   "path": "/features/{id}/restore.json",
+   "pathRegex": "/?features/[^\\s\\\"'`]*?/restore\\.json"
+  },
+  {
+   "operationId": "listProductFeatures",
+   "call": "client.ProductFeatures.ListProductFeatures",
+   "method": "ListProductFeatures",
+   "http": "GET",
+   "path": "/products/{product_id}/features.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features\\.json"
+  },
+  {
+   "operationId": "createProductFeature",
+   "call": "client.ProductFeatures.CreateProductFeature",
+   "method": "CreateProductFeature",
+   "http": "POST",
+   "path": "/products/{product_id}/features.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features\\.json"
+  },
+  {
+   "operationId": "readProductFeature",
+   "call": "client.ProductFeatures.ReadProductFeature",
+   "method": "ReadProductFeature",
+   "http": "GET",
+   "path": "/products/{product_id}/features/{id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateProductFeature",
+   "call": "client.ProductFeatures.UpdateProductFeature",
+   "method": "UpdateProductFeature",
+   "http": "PUT",
+   "path": "/products/{product_id}/features/{id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "removeProductFeature",
+   "call": "client.ProductFeatures.RemoveProductFeature",
+   "method": "RemoveProductFeature",
+   "http": "DELETE",
+   "path": "/products/{product_id}/features/{id}.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "restoreProductFeature",
+   "call": "client.ProductFeatures.RestoreProductFeature",
+   "method": "RestoreProductFeature",
+   "http": "POST",
+   "path": "/products/{product_id}/features/{id}/restore.json",
+   "pathRegex": "/?products/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?/restore\\.json"
+  },
+  {
+   "operationId": "listComponentFeatures",
+   "call": "client.ComponentFeatures.ListComponentFeatures",
+   "method": "ListComponentFeatures",
+   "http": "GET",
+   "path": "/components/{component_id}/features.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features\\.json"
+  },
+  {
+   "operationId": "createComponentFeature",
+   "call": "client.ComponentFeatures.CreateComponentFeature",
+   "method": "CreateComponentFeature",
+   "http": "POST",
+   "path": "/components/{component_id}/features.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features\\.json"
+  },
+  {
+   "operationId": "readComponentFeature",
+   "call": "client.ComponentFeatures.ReadComponentFeature",
+   "method": "ReadComponentFeature",
+   "http": "GET",
+   "path": "/components/{component_id}/features/{id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateComponentFeature",
+   "call": "client.ComponentFeatures.UpdateComponentFeature",
+   "method": "UpdateComponentFeature",
+   "http": "PUT",
+   "path": "/components/{component_id}/features/{id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "removeComponentFeature",
+   "call": "client.ComponentFeatures.RemoveComponentFeature",
+   "method": "RemoveComponentFeature",
+   "http": "DELETE",
+   "path": "/components/{component_id}/features/{id}.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "restoreComponentFeature",
+   "call": "client.ComponentFeatures.RestoreComponentFeature",
+   "method": "RestoreComponentFeature",
+   "http": "POST",
+   "path": "/components/{component_id}/features/{id}/restore.json",
+   "pathRegex": "/?components/[^\\s\\\"'`]*?/features/[^\\s\\\"'`]*?/restore\\.json"
+  },
+  {
+   "operationId": "readSubscriptionEntitlements",
+   "call": "client.Entitlements.ReadSubscriptionEntitlements",
+   "method": "ReadSubscriptionEntitlements",
+   "http": "GET",
+   "path": "/subscriptions/{subscription_id}/entitlements.json",
+   "pathRegex": "/?subscriptions/[^\\s\\\"'`]*?/entitlements\\.json"
+  },
+  {
+   "operationId": "listWallets",
+   "call": "client.Wallets.ListWallets",
+   "method": "ListWallets",
+   "http": "GET",
+   "path": "/wallets.json",
+   "pathRegex": "/?wallets\\.json"
+  },
+  {
+   "operationId": "createWallet",
+   "call": "client.Wallets.CreateWallet",
+   "method": "CreateWallet",
+   "http": "POST",
+   "path": "/wallets.json",
+   "pathRegex": "/?wallets\\.json"
+  },
+  {
+   "operationId": "readWallet",
+   "call": "client.Wallets.ReadWallet",
+   "method": "ReadWallet",
+   "http": "GET",
+   "path": "/wallets/{id}.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "archiveWallet",
+   "call": "client.Wallets.ArchiveWallet",
+   "method": "ArchiveWallet",
+   "http": "DELETE",
+   "path": "/wallets/{id}.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateWallet",
+   "call": "client.Wallets.UpdateWallet",
+   "method": "UpdateWallet",
+   "http": "PATCH",
+   "path": "/wallets/{id}.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "listWalletTransactions",
+   "call": "client.WalletTransactions.ListWalletTransactions",
+   "method": "ListWalletTransactions",
+   "http": "GET",
+   "path": "/wallets/{wallet_id}/transactions.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?/transactions\\.json"
+  },
+  {
+   "operationId": "createWalletTransaction",
+   "call": "client.WalletTransactions.CreateWalletTransaction",
+   "method": "CreateWalletTransaction",
+   "http": "POST",
+   "path": "/wallets/{wallet_id}/transactions.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?/transactions\\.json"
+  },
+  {
+   "operationId": "createWalletAdjustment",
+   "call": "client.WalletAdjustments.CreateWalletAdjustment",
+   "method": "CreateWalletAdjustment",
+   "http": "POST",
+   "path": "/wallets/{wallet_id}/adjustments.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?/adjustments\\.json"
+  },
+  {
+   "operationId": "createWalletPurchase",
+   "call": "client.WalletPurchases.CreateWalletPurchase",
+   "method": "CreateWalletPurchase",
+   "http": "POST",
+   "path": "/wallets/{wallet_id}/purchases.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?/purchases\\.json"
+  },
+  {
+   "operationId": "previewWalletPurchase",
+   "call": "client.WalletPurchases.PreviewWalletPurchase",
+   "method": "PreviewWalletPurchase",
+   "http": "POST",
+   "path": "/wallets/{wallet_id}/purchases/preview.json",
+   "pathRegex": "/?wallets/[^\\s\\\"'`]*?/purchases/preview\\.json"
+  },
+  {
+   "operationId": "listWalletProducts",
+   "call": "client.WalletProducts.ListWalletProducts",
+   "method": "ListWalletProducts",
+   "http": "GET",
+   "path": "/wallet_products.json",
+   "pathRegex": "/?wallet_products\\.json"
+  },
+  {
+   "operationId": "createWalletProduct",
+   "call": "client.WalletProducts.CreateWalletProduct",
+   "method": "CreateWalletProduct",
+   "http": "POST",
+   "path": "/wallet_products.json",
+   "pathRegex": "/?wallet_products\\.json"
+  },
+  {
+   "operationId": "readWalletProduct",
+   "call": "client.WalletProducts.ReadWalletProduct",
+   "method": "ReadWalletProduct",
+   "http": "GET",
+   "path": "/wallet_products/{id}.json",
+   "pathRegex": "/?wallet_products/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "updateWalletProduct",
+   "call": "client.WalletProducts.UpdateWalletProduct",
+   "method": "UpdateWalletProduct",
+   "http": "PUT",
+   "path": "/wallet_products/{id}.json",
+   "pathRegex": "/?wallet_products/[^\\s\\\"'`]*?\\.json"
+  },
+  {
+   "operationId": "readWalletProductUsage",
+   "call": "client.WalletProducts.ReadWalletProductUsage",
+   "method": "ReadWalletProductUsage",
+   "http": "GET",
+   "path": "/wallet_products/{id}/usage.json",
+   "pathRegex": "/?wallet_products/[^\\s\\\"'`]*?/usage\\.json"
+  },
+  {
+   "operationId": "archiveWalletProduct",
+   "call": "client.WalletProducts.ArchiveWalletProduct",
+   "method": "ArchiveWalletProduct",
+   "http": "POST",
+   "path": "/wallet_products/{id}/archive.json",
+   "pathRegex": "/?wallet_products/[^\\s\\\"'`]*?/archive\\.json"
+  },
+  {
+   "operationId": "unarchiveWalletProduct",
+   "call": "client.WalletProducts.UnarchiveWalletProduct",
+   "method": "UnarchiveWalletProduct",
+   "http": "POST",
+   "path": "/wallet_products/{id}/unarchive.json",
+   "pathRegex": "/?wallet_products/[^\\s\\\"'`]*?/unarchive\\.json"
+  }
+ ]
+}
