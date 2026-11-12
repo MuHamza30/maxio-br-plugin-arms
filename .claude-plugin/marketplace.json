@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "maxio-br-plugin-arms",
-  "description": "Control for the codegen-v2 PR #811 pilot: the Maxio plugin codegen-v2 main generates at eed5f7cc (the PR's base), C# only, SDK bundled, no rules/.",
+  "description": "Treatment for the codegen-v2 PR #811 pilot: the Maxio plugin PR #811 generates at 140ea4af from a build with Maxio's rules/ (C4's 1,237 rules): business-rules/ plus one How to ground step for the planner.",
   "owner": {
     "name": "APIMatic"
   },
