@@ -21,9 +21,20 @@ under `plugins/maxio/`. Every treatment branch starts from the control's commit,
 | `c5-observed-notes` | `5192eeb6` | C5 Observed notes | C4 plus 41 rules from scripted probes of the Maxio sandbox (7 disagree with the docs), and one pointer line |
 | `business-rules-planner` | `f36f394e` | Business rules for the planner | The control plus `business-rules/`: C4's 1,237 rules as Markdown only, and one *How to ground* step telling the planner to consult them while it writes the plan |
 
+The codegen-v2 [PR #811](https://github.com/apimatic/codegen-v2/pull/811) pilot (plugin-experiments
+`research/business-rules/baseline/plan.md`) has its own pair. Both are generated, unedited, at newer codegen-v2
+commits, so they bundle the C# SDK `main` makes at `eed5f7cc`, not the SDK pin; the treatment starts from its own
+control, so `git diff control-eed5f7cc pr811-rules-140ea4af` is exactly the treatment:
+
+| Branch | Commit | Arm | What it holds |
+|---|---|---|---|
+| `control-eed5f7cc` | `2282c7bd` | Pilot control | The plugin codegen-v2 `main` generates at `eed5f7cc` (PR #811's base), with no `rules/`: 9 skills, the planner agent, the bundled SDK |
+| `pr811-rules-140ea4af` | `ecd57ebc` | Pilot treatment | The plugin PR #811 generates at `140ea4af` from a build with Maxio's `rules/` (C4's 1,237 rules): `business-rules/`, a byte-for-byte copy, and one *How to ground* step for the planner |
+
 Every branch passes `check-branch.py` on a clone holding only its commit: `claude plugin validate --strict` on Claude
 Code 2.1.319, installs and is enabled in an empty `CLAUDE_CONFIG_DIR`, and (except C1) only adds and keeps the SDK
-pin. Each branch's README records how it was built (exact commands), its pins and who approved its diff.
+pin; the pilot pair's SDK is the same in both, but not the pin. Each branch's README records how it was built (exact
+commands), its pins and who approved its diff.
 
 **None is approved yet.** A second person approves each branch before it is pinned in an arm (RULES 4). Experiments
 pin a commit sha, never a branch name. The repo is private so a run with web search on cannot find another arm's
