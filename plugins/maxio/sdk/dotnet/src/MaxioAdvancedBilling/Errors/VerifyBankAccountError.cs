@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -7,31 +9,53 @@ namespace MaxioAdvancedBilling.Errors;
 
 public sealed class VerifyBankAccountError : ApiError
 {
-    private readonly Optional<RawError> _noContentValue;
-
     private readonly Optional<ErrorListResponse1> _errorListResponse1Value;
 
-    private VerifyBankAccountError(Optional<RawError> noContentValue,
-        Optional<ErrorListResponse1> errorListResponse1Value,
+    private readonly Optional<RawError> _noContentValue;
+
+    private VerifyBankAccountError(Optional<ErrorListResponse1> errorListResponse1Value,
+        Optional<RawError> noContentValue,
         Optional<RawError> fallback) : base(fallback)
     {
-        _noContentValue = noContentValue;
         _errorListResponse1Value = errorListResponse1Value;
+        _noContentValue = noContentValue;
     }
 
-    private static VerifyBankAccountError AsNoContent(RawError value) =>
-        new(Optional<RawError>.Some(value), default, default);
-
     private static VerifyBankAccountError AsErrorListResponse1(ErrorListResponse1 value) =>
-        new(default, Optional<ErrorListResponse1>.Some(value), default);
+        new(Optional<ErrorListResponse1>.Some(value), default, default);
+
+    private static VerifyBankAccountError AsNoContent(RawError value) =>
+        new(default, Optional<RawError>.Some(value), default);
 
     private static VerifyBankAccountError AsFallback(RawError value) =>
         new(default, default, Optional<RawError>.Some(value));
 
-    public bool TryGetNoContent(out RawError value) => _noContentValue.TryGetValue(out value);
-
-    public bool TryGetErrorListResponse1(out ErrorListResponse1 value) =>
+    public bool TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value) =>
         _errorListResponse1Value.TryGetValue(out value);
+
+    public bool TryGetNoContent([NotNullWhen(true)] out RawError? value) => _noContentValue.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<ErrorListResponse1, TResult> onErrorListResponse1,
+        Func<RawError, TResult> onNoContent,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetErrorListResponse1(out var errorListResponse1Value) => onErrorListResponse1(
+                errorListResponse1Value),
+            _ when TryGetNoContent(out var noContentValue) => onNoContent(noContentValue),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(VerifyBankAccountError)} holds no value.")
+        };
+
+    public void Match(Action<ErrorListResponse1> onErrorListResponse1,
+        Action<RawError> onNoContent,
+        Action<RawError> otherwise)
+    {
+        if (TryGetErrorListResponse1(out var errorListResponse1Value)) onErrorListResponse1(errorListResponse1Value);
+        else if (TryGetNoContent(out var noContentValue)) onNoContent(noContentValue);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(VerifyBankAccountError)} holds no value.");
+    }
 
     private static Task<VerifyBankAccountError> Create(FailedResponse response) =>
         response.StatusCode switch

@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -20,8 +22,25 @@ public sealed class CreateProductFamilyError : ApiError
 
     private static CreateProductFamilyError AsFallback(RawError value) => new(default, Optional<RawError>.Some(value));
 
-    public bool TryGetErrorListResponse1(out ErrorListResponse1 value) =>
+    public bool TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value) =>
         _errorListResponse1Value.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<ErrorListResponse1, TResult> onErrorListResponse1,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetErrorListResponse1(out var errorListResponse1Value) => onErrorListResponse1(
+                errorListResponse1Value),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(CreateProductFamilyError)} holds no value.")
+        };
+
+    public void Match(Action<ErrorListResponse1> onErrorListResponse1, Action<RawError> otherwise)
+    {
+        if (TryGetErrorListResponse1(out var errorListResponse1Value)) onErrorListResponse1(errorListResponse1Value);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(CreateProductFamilyError)} holds no value.");
+    }
 
     private static Task<CreateProductFamilyError> Create(FailedResponse response) =>
         response.StatusCode switch

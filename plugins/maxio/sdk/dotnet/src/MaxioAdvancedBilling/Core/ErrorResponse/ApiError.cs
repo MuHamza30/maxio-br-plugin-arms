@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.Models;
@@ -15,7 +16,7 @@ public abstract class ApiError
         _rawError = rawError;
     }
 
-    public bool TryGetRawError(out RawError error) => _rawError.TryGetValue(out error);
+    public bool TryGetRawError([NotNullWhen(true)] out RawError? error) => _rawError.TryGetValue(out error);
 }
 
 internal readonly struct FailedResponse

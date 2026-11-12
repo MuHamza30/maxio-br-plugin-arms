@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -21,8 +23,29 @@ public sealed class ListMrrPerSubscriptionError : ApiError
     private static ListMrrPerSubscriptionError AsFallback(RawError value) =>
         new(default, Optional<RawError>.Some(value));
 
-    public bool TryGetSubscriptionsMrrErrorResponse1(out SubscriptionsMrrErrorResponse1 value) =>
+    public bool TryGetSubscriptionsMrrErrorResponse1([NotNullWhen(true)] out SubscriptionsMrrErrorResponse1? value) =>
         _subscriptionsMrrErrorResponse1Value.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<SubscriptionsMrrErrorResponse1, TResult> onSubscriptionsMrrErrorResponse1,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetSubscriptionsMrrErrorResponse1(
+                out var subscriptionsMrrErrorResponse1Value) => onSubscriptionsMrrErrorResponse1(
+                subscriptionsMrrErrorResponse1Value),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(ListMrrPerSubscriptionError)} holds no value.")
+        };
+
+    public void Match(Action<SubscriptionsMrrErrorResponse1> onSubscriptionsMrrErrorResponse1,
+        Action<RawError> otherwise)
+    {
+        if (TryGetSubscriptionsMrrErrorResponse1(
+            out var subscriptionsMrrErrorResponse1Value)) onSubscriptionsMrrErrorResponse1(
+            subscriptionsMrrErrorResponse1Value);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(ListMrrPerSubscriptionError)} holds no value.");
+    }
 
     private static Task<ListMrrPerSubscriptionError> Create(FailedResponse response) =>
         response.StatusCode switch

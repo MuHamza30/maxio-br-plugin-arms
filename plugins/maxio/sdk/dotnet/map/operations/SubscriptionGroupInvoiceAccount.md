@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionGroupInvoiceAccount` · Source: `src/MaxioAdvanced
   - required: `Uid`
 - **Returns**: `SubscriptionGroupPrepaymentResponse`
 - **Error**: `ApiException<CreateSubscriptionGroupPrepaymentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -30,7 +30,7 @@ Accessor: `client.SubscriptionGroupInvoiceAccount` · Source: `src/MaxioAdvanced
   - required: `Uid`
 - **Returns**: `ServiceCredit`
 - **Error**: `ApiException<DeductSubscriptionGroupServiceCreditError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -47,7 +47,7 @@ Accessor: `client.SubscriptionGroupInvoiceAccount` · Source: `src/MaxioAdvanced
   - required: `Uid`
 - **Returns**: `ServiceCreditResponse`
 - **Error**: `ApiException<IssueSubscriptionGroupServiceCreditError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -65,7 +65,7 @@ Accessor: `client.SubscriptionGroupInvoiceAccount` · Source: `src/MaxioAdvanced
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `filter` ← `Filter`
 - **Returns**: `ListSubscriptionGroupPrepaymentResponse`
 - **Error**: `ApiException<ListPrepaymentsForSubscriptionGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

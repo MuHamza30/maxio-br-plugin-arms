@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `DelayedCancellationResponse`
 - **Error**: `ApiException<CancelDelayedCancellationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -28,7 +28,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<CancelDunningError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -44,7 +44,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<CancelSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetCancelSubscriptionErrorResponse(out CancelSubscriptionErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetCancelSubscriptionErrorResponse([NotNullWhen(true)] out CancelSubscriptionErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -61,7 +61,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `DelayedCancellationResponse`
 - **Error**: `ApiException<InitiateDelayedCancellationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -78,7 +78,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<PauseSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -95,7 +95,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `RenewalPreviewResponse`
 - **Error**: `ApiException<PreviewRenewalError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -112,7 +112,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<ReactivateSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -130,7 +130,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
 - **Query params (wire ← C#)**: `calendar_billing['resumption_charge']` ← `CalendarBillingResumptionCharge`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<ResumeSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -147,7 +147,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<RetrySubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -163,7 +163,7 @@ Accessor: `client.SubscriptionStatus` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<UpdateAutomaticSubscriptionResumptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

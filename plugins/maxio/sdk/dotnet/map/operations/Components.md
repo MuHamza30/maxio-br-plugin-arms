@@ -13,7 +13,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`, `ComponentId`
 - **Returns**: `Component`
 - **Error**: `ApiException<ArchiveComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -29,7 +29,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<CreateEventBasedComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -46,7 +46,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<CreateMeteredComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -63,7 +63,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<CreateOnOffComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -80,7 +80,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<CreatePrepaidUsageComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -97,7 +97,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<CreateQuantityBasedComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -173,7 +173,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ComponentId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<UpdateComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -190,7 +190,7 @@ Accessor: `client.Components` · Source: `src/MaxioAdvancedBilling/Api/Component
   - required: `ProductFamilyId`, `ComponentId`
 - **Returns**: `ComponentResponse`
 - **Error**: `ApiException<UpdateProductFamilyComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

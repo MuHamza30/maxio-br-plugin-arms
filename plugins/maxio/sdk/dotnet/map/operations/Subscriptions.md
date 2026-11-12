@@ -13,7 +13,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<ActivateSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [400] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [400] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -31,7 +31,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
 - **Query params (wire ← C#)**: `code` ← `Code`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<ApplyCouponsToSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionAddCouponError1(out SubscriptionAddCouponError1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionAddCouponError1([NotNullWhen(true)] out SubscriptionAddCouponError1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -47,7 +47,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
 - **Signature**: `CreateSubscription(CreateSubscriptionOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<CreateSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -64,7 +64,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
 - **Query params (wire ← C#)**: `reference` ← `Reference`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<FindSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -101,7 +101,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
   - required: `SubscriptionId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<OverrideSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -131,7 +131,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
 - **Query params (wire ← C#)**: `ack` ← `Ack`, `cascade` ← `Cascade`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<PurgeSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionResponse(out SubscriptionResponse)` [400] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionResponse([NotNullWhen(true)] out SubscriptionResponse? value)` [400] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -163,7 +163,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
 - **Query params (wire ← C#)**: `coupon_code` ← `CouponCode`
 - **Returns**: `string`
 - **Error**: `ApiException<RemoveCouponFromSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionRemoveCouponErrors1(out SubscriptionRemoveCouponErrors1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionRemoveCouponErrors1([NotNullWhen(true)] out SubscriptionRemoveCouponErrors1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -178,7 +178,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
   - required: `SubscriptionId`
 - **Returns**: `PrepaidConfigurationResponse`
 - **Error**: `ApiException<UpdatePrepaidSubscriptionConfigurationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetPrepaidConfigurationErrorResponse(out PrepaidConfigurationErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetPrepaidConfigurationErrorResponse([NotNullWhen(true)] out PrepaidConfigurationErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -195,7 +195,7 @@ Accessor: `client.Subscriptions` · Source: `src/MaxioAdvancedBilling/Api/Subscr
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<UpdateSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

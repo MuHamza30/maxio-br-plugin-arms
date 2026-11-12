@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -21,8 +23,27 @@ public sealed class CreateOrUpdateCouponCurrencyPricesError : ApiError
     private static CreateOrUpdateCouponCurrencyPricesError AsFallback(RawError value) =>
         new(default, Optional<RawError>.Some(value));
 
-    public bool TryGetErrorStringMapResponse1(out ErrorStringMapResponse1 value) =>
+    public bool TryGetErrorStringMapResponse1([NotNullWhen(true)] out ErrorStringMapResponse1? value) =>
         _errorStringMapResponse1Value.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<ErrorStringMapResponse1, TResult> onErrorStringMapResponse1,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetErrorStringMapResponse1(out var errorStringMapResponse1Value) => onErrorStringMapResponse1(
+                errorStringMapResponse1Value),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException(
+                $"{nameof(CreateOrUpdateCouponCurrencyPricesError)} holds no value.")
+        };
+
+    public void Match(Action<ErrorStringMapResponse1> onErrorStringMapResponse1, Action<RawError> otherwise)
+    {
+        if (TryGetErrorStringMapResponse1(out var errorStringMapResponse1Value)) onErrorStringMapResponse1(
+            errorStringMapResponse1Value);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(CreateOrUpdateCouponCurrencyPricesError)} holds no value.");
+    }
 
     private static Task<CreateOrUpdateCouponCurrencyPricesError> Create(FailedResponse response) =>
         response.StatusCode switch

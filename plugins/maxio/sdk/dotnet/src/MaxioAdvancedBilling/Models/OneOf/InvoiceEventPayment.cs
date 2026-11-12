@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -21,48 +22,57 @@ public record InvoiceEventPayment
 
     private readonly Optional<PaymentMethodPaypal> _paymentMethodPaypalValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private InvoiceEventPayment(Optional<PaymentMethodApplePay> paymentMethodApplePayValue,
         Optional<PaymentMethodBankAccount> paymentMethodBankAccountValue,
         Optional<PaymentMethodCreditCard> paymentMethodCreditCardValue,
         Optional<PaymentMethodExternal> paymentMethodExternalValue,
-        Optional<PaymentMethodPaypal> paymentMethodPaypalValue)
+        Optional<PaymentMethodPaypal> paymentMethodPaypalValue,
+        Optional<UnknownArm> unknownValue)
     {
         _paymentMethodApplePayValue = paymentMethodApplePayValue;
         _paymentMethodBankAccountValue = paymentMethodBankAccountValue;
         _paymentMethodCreditCardValue = paymentMethodCreditCardValue;
         _paymentMethodExternalValue = paymentMethodExternalValue;
         _paymentMethodPaypalValue = paymentMethodPaypalValue;
+        _unknownValue = unknownValue;
     }
 
     public static InvoiceEventPayment PaymentMethodApplePay(PaymentMethodApplePay value) =>
-        new(Optional<PaymentMethodApplePay>.Some(value), default, default, default, default);
+        new(Optional<PaymentMethodApplePay>.Some(value), default, default, default, default, default);
 
     public static InvoiceEventPayment PaymentMethodBankAccount(PaymentMethodBankAccount value) =>
-        new(default, Optional<PaymentMethodBankAccount>.Some(value), default, default, default);
+        new(default, Optional<PaymentMethodBankAccount>.Some(value), default, default, default, default);
 
     public static InvoiceEventPayment PaymentMethodCreditCard(PaymentMethodCreditCard value) =>
-        new(default, default, Optional<PaymentMethodCreditCard>.Some(value), default, default);
+        new(default, default, Optional<PaymentMethodCreditCard>.Some(value), default, default, default);
 
     public static InvoiceEventPayment PaymentMethodExternal(PaymentMethodExternal value) =>
-        new(default, default, default, Optional<PaymentMethodExternal>.Some(value), default);
+        new(default, default, default, Optional<PaymentMethodExternal>.Some(value), default, default);
 
     public static InvoiceEventPayment PaymentMethodPaypal(PaymentMethodPaypal value) =>
-        new(default, default, default, default, Optional<PaymentMethodPaypal>.Some(value));
+        new(default, default, default, default, Optional<PaymentMethodPaypal>.Some(value), default);
 
-    public bool TryGetPaymentMethodApplePay(out PaymentMethodApplePay value) =>
+    internal static InvoiceEventPayment Unknown(JsonElement value) =>
+        new(default, default, default, default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetPaymentMethodApplePay([NotNullWhen(true)] out PaymentMethodApplePay? value) =>
         _paymentMethodApplePayValue.TryGetValue(out value);
 
-    public bool TryGetPaymentMethodBankAccount(out PaymentMethodBankAccount value) =>
+    public bool TryGetPaymentMethodBankAccount([NotNullWhen(true)] out PaymentMethodBankAccount? value) =>
         _paymentMethodBankAccountValue.TryGetValue(out value);
 
-    public bool TryGetPaymentMethodCreditCard(out PaymentMethodCreditCard value) =>
+    public bool TryGetPaymentMethodCreditCard([NotNullWhen(true)] out PaymentMethodCreditCard? value) =>
         _paymentMethodCreditCardValue.TryGetValue(out value);
 
-    public bool TryGetPaymentMethodExternal(out PaymentMethodExternal value) =>
+    public bool TryGetPaymentMethodExternal([NotNullWhen(true)] out PaymentMethodExternal? value) =>
         _paymentMethodExternalValue.TryGetValue(out value);
 
-    public bool TryGetPaymentMethodPaypal(out PaymentMethodPaypal value) =>
+    public bool TryGetPaymentMethodPaypal([NotNullWhen(true)] out PaymentMethodPaypal? value) =>
         _paymentMethodPaypalValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator InvoiceEventPayment(PaymentMethodApplePay value) => PaymentMethodApplePay(value);
 
@@ -75,6 +85,49 @@ public record InvoiceEventPayment
     public static implicit operator InvoiceEventPayment(PaymentMethodExternal value) => PaymentMethodExternal(value);
 
     public static implicit operator InvoiceEventPayment(PaymentMethodPaypal value) => PaymentMethodPaypal(value);
+
+    public TResult Match<TResult>(Func<PaymentMethodApplePay, TResult> onPaymentMethodApplePay,
+        Func<PaymentMethodBankAccount, TResult> onPaymentMethodBankAccount,
+        Func<PaymentMethodCreditCard, TResult> onPaymentMethodCreditCard,
+        Func<PaymentMethodExternal, TResult> onPaymentMethodExternal,
+        Func<PaymentMethodPaypal, TResult> onPaymentMethodPaypal,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetPaymentMethodApplePay(out var paymentMethodApplePayValue) => onPaymentMethodApplePay(
+                paymentMethodApplePayValue),
+            _ when TryGetPaymentMethodBankAccount(out var paymentMethodBankAccountValue) => onPaymentMethodBankAccount(
+                paymentMethodBankAccountValue),
+            _ when TryGetPaymentMethodCreditCard(out var paymentMethodCreditCardValue) => onPaymentMethodCreditCard(
+                paymentMethodCreditCardValue),
+            _ when TryGetPaymentMethodExternal(out var paymentMethodExternalValue) => onPaymentMethodExternal(
+                paymentMethodExternalValue),
+            _ when TryGetPaymentMethodPaypal(out var paymentMethodPaypalValue) => onPaymentMethodPaypal(
+                paymentMethodPaypalValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(InvoiceEventPayment)} holds no value.")
+        };
+
+    public void Match(Action<PaymentMethodApplePay> onPaymentMethodApplePay,
+        Action<PaymentMethodBankAccount> onPaymentMethodBankAccount,
+        Action<PaymentMethodCreditCard> onPaymentMethodCreditCard,
+        Action<PaymentMethodExternal> onPaymentMethodExternal,
+        Action<PaymentMethodPaypal> onPaymentMethodPaypal,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetPaymentMethodApplePay(out var paymentMethodApplePayValue)) onPaymentMethodApplePay(
+            paymentMethodApplePayValue);
+        else if (TryGetPaymentMethodBankAccount(out var paymentMethodBankAccountValue)) onPaymentMethodBankAccount(
+            paymentMethodBankAccountValue);
+        else if (TryGetPaymentMethodCreditCard(out var paymentMethodCreditCardValue)) onPaymentMethodCreditCard(
+            paymentMethodCreditCardValue);
+        else if (TryGetPaymentMethodExternal(out var paymentMethodExternalValue)) onPaymentMethodExternal(
+            paymentMethodExternalValue);
+        else if (TryGetPaymentMethodPaypal(out var paymentMethodPaypalValue)) onPaymentMethodPaypal(
+            paymentMethodPaypalValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(InvoiceEventPayment)} holds no value.");
+    }
 }
 
 file sealed class InvoiceEventPaymentConverter : JsonConverter<InvoiceEventPayment>
@@ -85,12 +138,11 @@ file sealed class InvoiceEventPaymentConverter : JsonConverter<InvoiceEventPayme
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
-        if (!root.TryGetProperty("type", out var typeProperty))
+        if (!root.TryGetProperty("type", out var typeProperty) || typeProperty.ValueKind != JsonValueKind.String)
         {
-            throw new JsonException("Missing required 'type' discriminator field");
+            throw new JsonException("Missing or non-string 'type' discriminator field");
         }
-        var discriminator = typeProperty.GetString();
-        return discriminator switch
+        return typeProperty.GetString() switch
         {
             "apple_pay" => InvoiceEventPayment.PaymentMethodApplePay(root.Deserialize<PaymentMethodApplePay>(options)!),
             "bank_account" => InvoiceEventPayment.PaymentMethodBankAccount(root.Deserialize<PaymentMethodBankAccount>(
@@ -100,8 +152,7 @@ file sealed class InvoiceEventPaymentConverter : JsonConverter<InvoiceEventPayme
             "external" => InvoiceEventPayment.PaymentMethodExternal(root.Deserialize<PaymentMethodExternal>(options)!),
             "paypal_account" => InvoiceEventPayment.PaymentMethodPaypal(root.Deserialize<PaymentMethodPaypal>(
                 options)!),
-            _ => throw new JsonException(
-                $"JSON does not match PaymentMethodApplePay or PaymentMethodBankAccount or PaymentMethodCreditCard or PaymentMethodExternal or PaymentMethodPaypal schemas: {root.ToString()}")
+            _ => InvoiceEventPayment.Unknown(root)
         };
     }
 
@@ -126,6 +177,10 @@ file sealed class InvoiceEventPaymentConverter : JsonConverter<InvoiceEventPayme
         else if (value.TryGetPaymentMethodPaypal(out var paymentMethodPaypalValue))
         {
             JsonSerializer.Serialize(writer, paymentMethodPaypalValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

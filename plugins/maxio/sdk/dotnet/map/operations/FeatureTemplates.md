@@ -14,7 +14,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
 - **Query params (wire ← C#)**: `remove_from_catalog` ← `RemoveFromCatalog`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<ArchiveFeatureTemplateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403] · `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403] · `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -28,7 +28,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
 - **Signature**: `CreateFeatureTemplate(CreateFeatureTemplateOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `FeatureTemplateResponse`
 - **Error**: `ApiException<CreateFeatureTemplateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -45,7 +45,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `status` ← `Status`, `q` ← `Q`, `kind` ← `Kind`, `updated_from` ← `UpdatedFrom`, `updated_to` ← `UpdatedTo`, `sort_by` ← `SortBy`, `sort_direction` ← `SortDirection`
 - **Returns**: `FeatureTemplatesListResponse`
 - **Error**: `ApiException<ListFeatureTemplatesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -65,7 +65,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
   - required: `Id`
 - **Returns**: `FeatureTemplateResponse`
 - **Error**: `ApiException<ReadFeatureTemplateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403] · `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403] · `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -81,7 +81,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
   - required: `Id`
 - **Returns**: `FeatureTemplateResponse`
 - **Error**: `ApiException<RestoreFeatureTemplateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403, 422] · `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403, 422] · `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -97,7 +97,7 @@ Accessor: `client.FeatureTemplates` · Source: `src/MaxioAdvancedBilling/Api/Fea
   - required: `Id`
 - **Returns**: `FeatureTemplateResponse`
 - **Error**: `ApiException<UpdateFeatureTemplateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [403, 422] · `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [403, 422] · `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

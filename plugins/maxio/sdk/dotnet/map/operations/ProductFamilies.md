@@ -12,7 +12,7 @@ Accessor: `client.ProductFamilies` · Source: `src/MaxioAdvancedBilling/Api/Prod
 - **Signature**: `CreateProductFamily(CreateProductFamilyOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `ProductFamilyResponse`
 - **Error**: `ApiException<CreateProductFamilyError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -44,7 +44,7 @@ Accessor: `client.ProductFamilies` · Source: `src/MaxioAdvancedBilling/Api/Prod
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `date_field` ← `DateField`, `filter` ← `Filter`, `start_date` ← `StartDate`, `end_date` ← `EndDate`, `start_datetime` ← `StartDatetime`, `end_datetime` ← `EndDatetime`, `include_archived` ← `IncludeArchived`, `include` ← `Include`
 - **Returns**: `IReadOnlyList<ProductResponse>`
 - **Error**: `ApiException<ListProductsForProductFamilyError>` — **Case A (typed)**
-- **Error accessors**: `TryGetString(out string)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetString([NotNullWhen(true)] out string? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

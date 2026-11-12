@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -89,6 +90,8 @@ public record EventSpecificData
 
     private readonly Optional<ChjsTokenizationFailure> _chjsTokenizationFailureValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private EventSpecificData(Optional<SubscriptionProductChange> subscriptionProductChangeValue,
         Optional<SubscriptionStateChange> subscriptionStateChangeValue,
         Optional<PaymentRelatedEvents> paymentRelatedEventsValue,
@@ -108,7 +111,8 @@ public record EventSpecificData
         Optional<ItemPricePointChanged> itemPricePointChangedValue,
         Optional<CustomFieldValueChange> customFieldValueChangeValue,
         Optional<ChjsTokenizationSuccess> chjsTokenizationSuccessValue,
-        Optional<ChjsTokenizationFailure> chjsTokenizationFailureValue)
+        Optional<ChjsTokenizationFailure> chjsTokenizationFailureValue,
+        Optional<UnknownArm> unknownValue)
     {
         _subscriptionProductChangeValue = subscriptionProductChangeValue;
         _subscriptionStateChangeValue = subscriptionStateChangeValue;
@@ -130,11 +134,13 @@ public record EventSpecificData
         _customFieldValueChangeValue = customFieldValueChangeValue;
         _chjsTokenizationSuccessValue = chjsTokenizationSuccessValue;
         _chjsTokenizationFailureValue = chjsTokenizationFailureValue;
+        _unknownValue = unknownValue;
     }
 
     public static EventSpecificData SubscriptionProductChange(SubscriptionProductChange value) =>
         new(
             Optional<SubscriptionProductChange>.Some(value),
+            default,
             default,
             default,
             default,
@@ -176,6 +182,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData PaymentRelatedEvents(PaymentRelatedEvents value) =>
@@ -183,6 +190,7 @@ public record EventSpecificData
             default,
             default,
             Optional<PaymentRelatedEvents>.Some(value),
+            default,
             default,
             default,
             default,
@@ -222,6 +230,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData ComponentAllocationChange(ComponentAllocationChange value) =>
@@ -231,6 +240,7 @@ public record EventSpecificData
             default,
             default,
             Optional<ComponentAllocationChange>.Some(value),
+            default,
             default,
             default,
             default,
@@ -268,6 +278,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData PrepaidUsage(PrepaidUsage value) =>
@@ -279,6 +290,7 @@ public record EventSpecificData
             default,
             default,
             Optional<PrepaidUsage>.Some(value),
+            default,
             default,
             default,
             default,
@@ -314,6 +326,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData InvoiceIssued(InvoiceIssued value) =>
@@ -327,6 +340,7 @@ public record EventSpecificData
             default,
             default,
             Optional<InvoiceIssued>.Some(value),
+            default,
             default,
             default,
             default,
@@ -360,6 +374,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData PrepaidSubscriptionBalanceChanged(PrepaidSubscriptionBalanceChanged value) =>
@@ -375,6 +390,7 @@ public record EventSpecificData
             default,
             default,
             Optional<PrepaidSubscriptionBalanceChanged>.Some(value),
+            default,
             default,
             default,
             default,
@@ -406,6 +422,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData SubscriptionGroupSignupEventData(SubscriptionGroupSignupEventData value) =>
@@ -423,6 +440,7 @@ public record EventSpecificData
             default,
             default,
             Optional<SubscriptionGroupSignupEventData>.Some(value),
+            default,
             default,
             default,
             default,
@@ -452,6 +470,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData PrepaymentAccountBalanceChanged(PrepaymentAccountBalanceChanged value) =>
@@ -471,6 +490,7 @@ public record EventSpecificData
             default,
             default,
             Optional<PrepaymentAccountBalanceChanged>.Some(value),
+            default,
             default,
             default,
             default,
@@ -498,6 +518,7 @@ public record EventSpecificData
             default,
             default,
             default,
+            default,
             default);
 
     public static EventSpecificData ItemPricePointChanged(ItemPricePointChanged value) =>
@@ -519,6 +540,7 @@ public record EventSpecificData
             default,
             default,
             Optional<ItemPricePointChanged>.Some(value),
+            default,
             default,
             default,
             default);
@@ -544,6 +566,7 @@ public record EventSpecificData
             default,
             Optional<CustomFieldValueChange>.Some(value),
             default,
+            default,
             default);
 
     public static EventSpecificData ChjsTokenizationSuccess(ChjsTokenizationSuccess value) =>
@@ -567,6 +590,7 @@ public record EventSpecificData
             default,
             default,
             Optional<ChjsTokenizationSuccess>.Some(value),
+            default,
             default);
 
     public static EventSpecificData ChjsTokenizationFailure(ChjsTokenizationFailure value) =>
@@ -590,63 +614,94 @@ public record EventSpecificData
             default,
             default,
             default,
-            Optional<ChjsTokenizationFailure>.Some(value));
+            Optional<ChjsTokenizationFailure>.Some(value),
+            default);
 
-    public bool TryGetSubscriptionProductChange(out SubscriptionProductChange value) =>
+    internal static EventSpecificData Unknown(JsonElement value) =>
+        new(
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            default,
+            Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetSubscriptionProductChange([NotNullWhen(true)] out SubscriptionProductChange? value) =>
         _subscriptionProductChangeValue.TryGetValue(out value);
 
-    public bool TryGetSubscriptionStateChange(out SubscriptionStateChange value) =>
+    public bool TryGetSubscriptionStateChange([NotNullWhen(true)] out SubscriptionStateChange? value) =>
         _subscriptionStateChangeValue.TryGetValue(out value);
 
-    public bool TryGetPaymentRelatedEvents(out PaymentRelatedEvents value) =>
+    public bool TryGetPaymentRelatedEvents([NotNullWhen(true)] out PaymentRelatedEvents? value) =>
         _paymentRelatedEventsValue.TryGetValue(out value);
 
-    public bool TryGetRefundSuccess(out RefundSuccess value) => _refundSuccessValue.TryGetValue(out value);
+    public bool TryGetRefundSuccess([NotNullWhen(true)] out RefundSuccess? value) =>
+        _refundSuccessValue.TryGetValue(out value);
 
-    public bool TryGetComponentAllocationChange(out ComponentAllocationChange value) =>
+    public bool TryGetComponentAllocationChange([NotNullWhen(true)] out ComponentAllocationChange? value) =>
         _componentAllocationChangeValue.TryGetValue(out value);
 
-    public bool TryGetMeteredUsage(out MeteredUsage value) => _meteredUsageValue.TryGetValue(out value);
+    public bool TryGetMeteredUsage([NotNullWhen(true)] out MeteredUsage? value) =>
+        _meteredUsageValue.TryGetValue(out value);
 
-    public bool TryGetPrepaidUsage(out PrepaidUsage value) => _prepaidUsageValue.TryGetValue(out value);
+    public bool TryGetPrepaidUsage([NotNullWhen(true)] out PrepaidUsage? value) =>
+        _prepaidUsageValue.TryGetValue(out value);
 
-    public bool TryGetDunningStepReached(out DunningStepReached value) =>
+    public bool TryGetDunningStepReached([NotNullWhen(true)] out DunningStepReached? value) =>
         _dunningStepReachedValue.TryGetValue(out value);
 
-    public bool TryGetInvoiceIssued(out InvoiceIssued value) => _invoiceIssuedValue.TryGetValue(out value);
+    public bool TryGetInvoiceIssued([NotNullWhen(true)] out InvoiceIssued? value) =>
+        _invoiceIssuedValue.TryGetValue(out value);
 
-    public bool TryGetPendingCancellationChange(out PendingCancellationChange value) =>
+    public bool TryGetPendingCancellationChange([NotNullWhen(true)] out PendingCancellationChange? value) =>
         _pendingCancellationChangeValue.TryGetValue(out value);
 
-    public bool TryGetPrepaidSubscriptionBalanceChanged(out PrepaidSubscriptionBalanceChanged value) =>
+    public bool TryGetPrepaidSubscriptionBalanceChanged([NotNullWhen(true)] out PrepaidSubscriptionBalanceChanged? value) =>
         _prepaidSubscriptionBalanceChangedValue.TryGetValue(out value);
 
-    public bool TryGetProformaInvoiceIssued(out ProformaInvoiceIssued value) =>
+    public bool TryGetProformaInvoiceIssued([NotNullWhen(true)] out ProformaInvoiceIssued? value) =>
         _proformaInvoiceIssuedValue.TryGetValue(out value);
 
-    public bool TryGetSubscriptionGroupSignupEventData(out SubscriptionGroupSignupEventData value) =>
+    public bool TryGetSubscriptionGroupSignupEventData([NotNullWhen(true)] out SubscriptionGroupSignupEventData? value) =>
         _subscriptionGroupSignupEventDataValue.TryGetValue(out value);
 
-    public bool TryGetCreditAccountBalanceChanged(out CreditAccountBalanceChanged value) =>
+    public bool TryGetCreditAccountBalanceChanged([NotNullWhen(true)] out CreditAccountBalanceChanged? value) =>
         _creditAccountBalanceChangedValue.TryGetValue(out value);
 
-    public bool TryGetPrepaymentAccountBalanceChanged(out PrepaymentAccountBalanceChanged value) =>
+    public bool TryGetPrepaymentAccountBalanceChanged([NotNullWhen(true)] out PrepaymentAccountBalanceChanged? value) =>
         _prepaymentAccountBalanceChangedValue.TryGetValue(out value);
 
-    public bool TryGetPaymentCollectionMethodChanged(out PaymentCollectionMethodChanged value) =>
+    public bool TryGetPaymentCollectionMethodChanged([NotNullWhen(true)] out PaymentCollectionMethodChanged? value) =>
         _paymentCollectionMethodChangedValue.TryGetValue(out value);
 
-    public bool TryGetItemPricePointChanged(out ItemPricePointChanged value) =>
+    public bool TryGetItemPricePointChanged([NotNullWhen(true)] out ItemPricePointChanged? value) =>
         _itemPricePointChangedValue.TryGetValue(out value);
 
-    public bool TryGetCustomFieldValueChange(out CustomFieldValueChange value) =>
+    public bool TryGetCustomFieldValueChange([NotNullWhen(true)] out CustomFieldValueChange? value) =>
         _customFieldValueChangeValue.TryGetValue(out value);
 
-    public bool TryGetChjsTokenizationSuccess(out ChjsTokenizationSuccess value) =>
+    public bool TryGetChjsTokenizationSuccess([NotNullWhen(true)] out ChjsTokenizationSuccess? value) =>
         _chjsTokenizationSuccessValue.TryGetValue(out value);
 
-    public bool TryGetChjsTokenizationFailure(out ChjsTokenizationFailure value) =>
+    public bool TryGetChjsTokenizationFailure([NotNullWhen(true)] out ChjsTokenizationFailure? value) =>
         _chjsTokenizationFailureValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator EventSpecificData(SubscriptionProductChange value) =>
         SubscriptionProductChange(value);
@@ -695,6 +750,140 @@ public record EventSpecificData
     public static implicit operator EventSpecificData(ChjsTokenizationSuccess value) => ChjsTokenizationSuccess(value);
 
     public static implicit operator EventSpecificData(ChjsTokenizationFailure value) => ChjsTokenizationFailure(value);
+
+    public TResult Match<TResult>(Func<SubscriptionProductChange, TResult> onSubscriptionProductChange,
+        Func<SubscriptionStateChange, TResult> onSubscriptionStateChange,
+        Func<PaymentRelatedEvents, TResult> onPaymentRelatedEvents,
+        Func<RefundSuccess, TResult> onRefundSuccess,
+        Func<ComponentAllocationChange, TResult> onComponentAllocationChange,
+        Func<MeteredUsage, TResult> onMeteredUsage,
+        Func<PrepaidUsage, TResult> onPrepaidUsage,
+        Func<DunningStepReached, TResult> onDunningStepReached,
+        Func<InvoiceIssued, TResult> onInvoiceIssued,
+        Func<PendingCancellationChange, TResult> onPendingCancellationChange,
+        Func<PrepaidSubscriptionBalanceChanged, TResult> onPrepaidSubscriptionBalanceChanged,
+        Func<ProformaInvoiceIssued, TResult> onProformaInvoiceIssued,
+        Func<SubscriptionGroupSignupEventData, TResult> onSubscriptionGroupSignupEventData,
+        Func<CreditAccountBalanceChanged, TResult> onCreditAccountBalanceChanged,
+        Func<PrepaymentAccountBalanceChanged, TResult> onPrepaymentAccountBalanceChanged,
+        Func<PaymentCollectionMethodChanged, TResult> onPaymentCollectionMethodChanged,
+        Func<ItemPricePointChanged, TResult> onItemPricePointChanged,
+        Func<CustomFieldValueChange, TResult> onCustomFieldValueChange,
+        Func<ChjsTokenizationSuccess, TResult> onChjsTokenizationSuccess,
+        Func<ChjsTokenizationFailure, TResult> onChjsTokenizationFailure,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetSubscriptionProductChange(
+                out var subscriptionProductChangeValue) => onSubscriptionProductChange(subscriptionProductChangeValue),
+            _ when TryGetSubscriptionStateChange(out var subscriptionStateChangeValue) => onSubscriptionStateChange(
+                subscriptionStateChangeValue),
+            _ when TryGetPaymentRelatedEvents(out var paymentRelatedEventsValue) => onPaymentRelatedEvents(
+                paymentRelatedEventsValue),
+            _ when TryGetRefundSuccess(out var refundSuccessValue) => onRefundSuccess(refundSuccessValue),
+            _ when TryGetComponentAllocationChange(
+                out var componentAllocationChangeValue) => onComponentAllocationChange(componentAllocationChangeValue),
+            _ when TryGetMeteredUsage(out var meteredUsageValue) => onMeteredUsage(meteredUsageValue),
+            _ when TryGetPrepaidUsage(out var prepaidUsageValue) => onPrepaidUsage(prepaidUsageValue),
+            _ when TryGetDunningStepReached(out var dunningStepReachedValue) => onDunningStepReached(
+                dunningStepReachedValue),
+            _ when TryGetInvoiceIssued(out var invoiceIssuedValue) => onInvoiceIssued(invoiceIssuedValue),
+            _ when TryGetPendingCancellationChange(
+                out var pendingCancellationChangeValue) => onPendingCancellationChange(pendingCancellationChangeValue),
+            _ when TryGetPrepaidSubscriptionBalanceChanged(
+                out var prepaidSubscriptionBalanceChangedValue) => onPrepaidSubscriptionBalanceChanged(
+                prepaidSubscriptionBalanceChangedValue),
+            _ when TryGetProformaInvoiceIssued(out var proformaInvoiceIssuedValue) => onProformaInvoiceIssued(
+                proformaInvoiceIssuedValue),
+            _ when TryGetSubscriptionGroupSignupEventData(
+                out var subscriptionGroupSignupEventDataValue) => onSubscriptionGroupSignupEventData(
+                subscriptionGroupSignupEventDataValue),
+            _ when TryGetCreditAccountBalanceChanged(
+                out var creditAccountBalanceChangedValue) => onCreditAccountBalanceChanged(
+                creditAccountBalanceChangedValue),
+            _ when TryGetPrepaymentAccountBalanceChanged(
+                out var prepaymentAccountBalanceChangedValue) => onPrepaymentAccountBalanceChanged(
+                prepaymentAccountBalanceChangedValue),
+            _ when TryGetPaymentCollectionMethodChanged(
+                out var paymentCollectionMethodChangedValue) => onPaymentCollectionMethodChanged(
+                paymentCollectionMethodChangedValue),
+            _ when TryGetItemPricePointChanged(out var itemPricePointChangedValue) => onItemPricePointChanged(
+                itemPricePointChangedValue),
+            _ when TryGetCustomFieldValueChange(out var customFieldValueChangeValue) => onCustomFieldValueChange(
+                customFieldValueChangeValue),
+            _ when TryGetChjsTokenizationSuccess(out var chjsTokenizationSuccessValue) => onChjsTokenizationSuccess(
+                chjsTokenizationSuccessValue),
+            _ when TryGetChjsTokenizationFailure(out var chjsTokenizationFailureValue) => onChjsTokenizationFailure(
+                chjsTokenizationFailureValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(EventSpecificData)} holds no value.")
+        };
+
+    public void Match(Action<SubscriptionProductChange> onSubscriptionProductChange,
+        Action<SubscriptionStateChange> onSubscriptionStateChange,
+        Action<PaymentRelatedEvents> onPaymentRelatedEvents,
+        Action<RefundSuccess> onRefundSuccess,
+        Action<ComponentAllocationChange> onComponentAllocationChange,
+        Action<MeteredUsage> onMeteredUsage,
+        Action<PrepaidUsage> onPrepaidUsage,
+        Action<DunningStepReached> onDunningStepReached,
+        Action<InvoiceIssued> onInvoiceIssued,
+        Action<PendingCancellationChange> onPendingCancellationChange,
+        Action<PrepaidSubscriptionBalanceChanged> onPrepaidSubscriptionBalanceChanged,
+        Action<ProformaInvoiceIssued> onProformaInvoiceIssued,
+        Action<SubscriptionGroupSignupEventData> onSubscriptionGroupSignupEventData,
+        Action<CreditAccountBalanceChanged> onCreditAccountBalanceChanged,
+        Action<PrepaymentAccountBalanceChanged> onPrepaymentAccountBalanceChanged,
+        Action<PaymentCollectionMethodChanged> onPaymentCollectionMethodChanged,
+        Action<ItemPricePointChanged> onItemPricePointChanged,
+        Action<CustomFieldValueChange> onCustomFieldValueChange,
+        Action<ChjsTokenizationSuccess> onChjsTokenizationSuccess,
+        Action<ChjsTokenizationFailure> onChjsTokenizationFailure,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetSubscriptionProductChange(out var subscriptionProductChangeValue)) onSubscriptionProductChange(
+            subscriptionProductChangeValue);
+        else if (TryGetSubscriptionStateChange(out var subscriptionStateChangeValue)) onSubscriptionStateChange(
+            subscriptionStateChangeValue);
+        else if (TryGetPaymentRelatedEvents(out var paymentRelatedEventsValue)) onPaymentRelatedEvents(
+            paymentRelatedEventsValue);
+        else if (TryGetRefundSuccess(out var refundSuccessValue)) onRefundSuccess(refundSuccessValue);
+        else if (TryGetComponentAllocationChange(out var componentAllocationChangeValue)) onComponentAllocationChange(
+            componentAllocationChangeValue);
+        else if (TryGetMeteredUsage(out var meteredUsageValue)) onMeteredUsage(meteredUsageValue);
+        else if (TryGetPrepaidUsage(out var prepaidUsageValue)) onPrepaidUsage(prepaidUsageValue);
+        else if (TryGetDunningStepReached(out var dunningStepReachedValue)) onDunningStepReached(
+            dunningStepReachedValue);
+        else if (TryGetInvoiceIssued(out var invoiceIssuedValue)) onInvoiceIssued(invoiceIssuedValue);
+        else if (TryGetPendingCancellationChange(out var pendingCancellationChangeValue)) onPendingCancellationChange(
+            pendingCancellationChangeValue);
+        else if (TryGetPrepaidSubscriptionBalanceChanged(
+            out var prepaidSubscriptionBalanceChangedValue)) onPrepaidSubscriptionBalanceChanged(
+            prepaidSubscriptionBalanceChangedValue);
+        else if (TryGetProformaInvoiceIssued(out var proformaInvoiceIssuedValue)) onProformaInvoiceIssued(
+            proformaInvoiceIssuedValue);
+        else if (TryGetSubscriptionGroupSignupEventData(
+            out var subscriptionGroupSignupEventDataValue)) onSubscriptionGroupSignupEventData(
+            subscriptionGroupSignupEventDataValue);
+        else if (TryGetCreditAccountBalanceChanged(
+            out var creditAccountBalanceChangedValue)) onCreditAccountBalanceChanged(creditAccountBalanceChangedValue);
+        else if (TryGetPrepaymentAccountBalanceChanged(
+            out var prepaymentAccountBalanceChangedValue)) onPrepaymentAccountBalanceChanged(
+            prepaymentAccountBalanceChangedValue);
+        else if (TryGetPaymentCollectionMethodChanged(
+            out var paymentCollectionMethodChangedValue)) onPaymentCollectionMethodChanged(
+            paymentCollectionMethodChangedValue);
+        else if (TryGetItemPricePointChanged(out var itemPricePointChangedValue)) onItemPricePointChanged(
+            itemPricePointChangedValue);
+        else if (TryGetCustomFieldValueChange(out var customFieldValueChangeValue)) onCustomFieldValueChange(
+            customFieldValueChangeValue);
+        else if (TryGetChjsTokenizationSuccess(out var chjsTokenizationSuccessValue)) onChjsTokenizationSuccess(
+            chjsTokenizationSuccessValue);
+        else if (TryGetChjsTokenizationFailure(out var chjsTokenizationFailureValue)) onChjsTokenizationFailure(
+            chjsTokenizationFailureValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(EventSpecificData)} holds no value.");
+    }
 }
 
 file sealed class EventSpecificDataConverter : JsonConverter<EventSpecificData>
@@ -807,8 +996,7 @@ file sealed class EventSpecificDataConverter : JsonConverter<EventSpecificData>
         {
             return EventSpecificData.ChjsTokenizationFailure(chjsTokenizationFailureValue);
         }
-        throw new JsonException(
-            $"JSON does not match SubscriptionProductChange or SubscriptionStateChange or PaymentRelatedEvents or RefundSuccess or ComponentAllocationChange or MeteredUsage or PrepaidUsage or DunningStepReached or InvoiceIssued or PendingCancellationChange or PrepaidSubscriptionBalanceChanged or ProformaInvoiceIssued or SubscriptionGroupSignupEventData or CreditAccountBalanceChanged or PrepaymentAccountBalanceChanged or PaymentCollectionMethodChanged or ItemPricePointChanged or CustomFieldValueChange or ChjsTokenizationSuccess or ChjsTokenizationFailure schemas: {root.ToString()}");
+        return EventSpecificData.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, EventSpecificData value, JsonSerializerOptions options)
@@ -892,6 +1080,10 @@ file sealed class EventSpecificDataConverter : JsonConverter<EventSpecificData>
         else if (value.TryGetChjsTokenizationFailure(out var chjsTokenizationFailureValue))
         {
             JsonSerializer.Serialize(writer, chjsTokenizationFailureValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

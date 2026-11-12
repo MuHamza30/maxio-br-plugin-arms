@@ -70,8 +70,14 @@ A member with no declared name is `Value{n}` / `Negative{n}`, from the value its
 For a `OneOf`/`AnyOf` type, the contract sheet lists the exact members (grounded from the SDK map/source). Each variant `{V}`
 produces:
 
-- a factory `static {Union} {V}({V} value)` (the parameter type usually equals the variant type name), and
-- a reader `bool TryGet{V}(out {V} value)`.
+- a factory `static {Union} {V}({V} value)` (the parameter type usually equals the variant type name),
+- a reader `bool TryGet{V}([NotNullWhen(true)] out {V}? value)` for a reference type, `bool TryGet{V}(out {V} value)`
+  for a value type, and
+- a handler `on{V}` in both `Match` overloads (`Func<{V}, TResult>` / `Action<{V}>`), in declaration order,
+  before the closing `otherwise` (`Func<JsonElement, TResult>` / `Action<JsonElement>`).
+
+Every union also has `bool TryGetUnknown(out JsonElement value)` for a value the SDK could not place. Its
+factory is internal: application code can read such a value and send it back, but cannot create one.
 
 Which variants also get an `implicit operator {Union}({Variant})` is in the SKILL. Unions are immutable
 records — there are no object-initializers and no way to mutate one after construction.

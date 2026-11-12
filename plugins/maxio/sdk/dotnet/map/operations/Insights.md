@@ -27,7 +27,7 @@ Accessor: `client.Insights` · Source: `src/MaxioAdvancedBilling/Api/Insights.cs
 - **Query params (wire ← C#)**: `filter` ← `Filter`, `at_time` ← `AtTime`, `page` ← `Page`, `per_page` ← `PerPage`, `direction` ← `Direction`
 - **Returns**: `SubscriptionMrrResponse`
 - **Error**: `ApiException<ListMrrPerSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionsMrrErrorResponse1(out SubscriptionsMrrErrorResponse1)` [400] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionsMrrErrorResponse1([NotNullWhen(true)] out SubscriptionsMrrErrorResponse1? value)` [400] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

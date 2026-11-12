@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -12,23 +13,50 @@ public record ProductIdModel
 
     private readonly Optional<string> _stringValue;
 
-    private ProductIdModel(Optional<int> intValue, Optional<string> stringValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private ProductIdModel(Optional<int> intValue, Optional<string> stringValue, Optional<UnknownArm> unknownValue)
     {
         _intValue = intValue;
         _stringValue = stringValue;
+        _unknownValue = unknownValue;
     }
 
-    public static ProductIdModel Int(int value) => new(Optional<int>.Some(value), default);
+    public static ProductIdModel Int(int value) => new(Optional<int>.Some(value), default, default);
 
-    public static ProductIdModel String(string value) => new(default, Optional<string>.Some(value));
+    public static ProductIdModel String(string value) => new(default, Optional<string>.Some(value), default);
+
+    internal static ProductIdModel Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
 
     public bool TryGetInt(out int value) => _intValue.TryGetValue(out value);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator ProductIdModel(int value) => Int(value);
 
     public static implicit operator ProductIdModel(string value) => String(value);
+
+    public TResult Match<TResult>(Func<int, TResult> onInt,
+        Func<string, TResult> onString,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetInt(out var intValue) => onInt(intValue),
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(ProductIdModel)} holds no value.")
+        };
+
+    public void Match(Action<int> onInt, Action<string> onString, Action<JsonElement> otherwise)
+    {
+        if (TryGetInt(out var intValue)) onInt(intValue);
+        else if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(ProductIdModel)} holds no value.");
+    }
 }
 
 file sealed class ProductIdModelConverter : JsonConverter<ProductIdModel>
@@ -49,7 +77,7 @@ file sealed class ProductIdModelConverter : JsonConverter<ProductIdModel>
             var value = root.GetString()!;
             return ProductIdModel.String(value);
         }
-        throw new JsonException($"JSON does not match int or string schemas: {root.ToString()}");
+        return ProductIdModel.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, ProductIdModel value, JsonSerializerOptions options)
@@ -61,6 +89,10 @@ file sealed class ProductIdModelConverter : JsonConverter<ProductIdModel>
         else if (value.TryGetString(out var stringValue))
         {
             JsonSerializer.Serialize(writer, stringValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

@@ -26,7 +26,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`, `ComponentId`
 - **Returns**: `AllocationResponse`
 - **Error**: `ApiException<AllocateComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -43,7 +43,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`
 - **Returns**: `IReadOnlyList<AllocationResponse>`
 - **Error**: `ApiException<AllocateComponentsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -88,7 +88,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`
 - **Returns**: `BulkComponentsPricePointAssignment`
 - **Error**: `ApiException<BulkUpdateSubscriptionComponentsPricePointsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetComponentPricePointError1(out ComponentPricePointError1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetComponentPricePointError1([NotNullWhen(true)] out ComponentPricePointError1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -104,7 +104,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionIdOrReference`, `ComponentId`
 - **Returns**: `UsageResponse`
 - **Error**: `ApiException<CreateUsageError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -135,7 +135,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`, `ComponentId`, `AllocationId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeletePrepaidUsageAllocationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetSubscriptionComponentAllocationError1(out SubscriptionComponentAllocationError1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetSubscriptionComponentAllocationError1([NotNullWhen(true)] out SubscriptionComponentAllocationError1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -152,7 +152,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
 - **Query params (wire ← C#)**: `page` ← `Page`
 - **Returns**: `IReadOnlyList<AllocationResponse>`
 - **Error**: `ApiException<ListAllocationsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -166,7 +166,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListSubscriptionComponents(ListSubscriptionComponentsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
   - required: `SubscriptionId`
-- **Query params (wire ← C#)**: `date_field` ← `DateField`, `direction` ← `Direction`, `filter` ← `Filter`, `end_date` ← `EndDate`, `end_datetime` ← `EndDatetime`, `price_point_ids` ← `PricePointIds`, `product_family_ids` ← `ProductFamilyIds`, `sort` ← `Sort`, `start_date` ← `StartDate`, `start_datetime` ← `StartDatetime`, `include` ← `Include`, `in_use` ← `InUse`
+- **Query params (wire ← C#)**: `date_field` ← `DateField`, `direction` ← `Direction`, `filter` ← `Filter`, `end_date` ← `EndDate`, `end_datetime` ← `EndDatetime`, `price_point_ids` ← `PricePointIds`, `product_family_ids` ← `ProductFamilyIds` (comma-separated), `sort` ← `Sort`, `start_date` ← `StartDate`, `start_datetime` ← `StartDatetime`, `include` ← `Include` (comma-separated), `in_use` ← `InUse`
 - **Returns**: `IReadOnlyList<SubscriptionComponentResponse>`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -185,7 +185,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
 
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListSubscriptionComponentsForSite(ListSubscriptionComponentsForSiteRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
-- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `sort` ← `Sort`, `direction` ← `Direction`, `filter` ← `Filter`, `date_field` ← `DateField`, `start_date` ← `StartDate`, `start_datetime` ← `StartDatetime`, `end_date` ← `EndDate`, `end_datetime` ← `EndDatetime`, `subscription_ids` ← `SubscriptionIds`, `price_point_ids` ← `PricePointIds`, `product_family_ids` ← `ProductFamilyIds`, `include` ← `Include`
+- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `sort` ← `Sort`, `direction` ← `Direction`, `filter` ← `Filter`, `date_field` ← `DateField`, `start_date` ← `StartDate`, `start_datetime` ← `StartDatetime`, `end_date` ← `EndDate`, `end_datetime` ← `EndDatetime`, `subscription_ids` ← `SubscriptionIds` (comma-separated), `price_point_ids` ← `PricePointIds`, `product_family_ids` ← `ProductFamilyIds` (comma-separated), `include` ← `Include`
 - **Returns**: `ListSubscriptionComponentsResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -223,7 +223,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`
 - **Returns**: `AllocationPreviewResponse`
 - **Error**: `ApiException<PreviewAllocationsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetComponentAllocationError1(out ComponentAllocationError1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetComponentAllocationError1([NotNullWhen(true)] out ComponentAllocationError1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -240,7 +240,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`, `ComponentId`
 - **Returns**: `SubscriptionComponentResponse`
 - **Error**: `ApiException<ReadSubscriptionComponentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -270,7 +270,7 @@ Accessor: `client.SubscriptionComponents` · Source: `src/MaxioAdvancedBilling/A
   - required: `SubscriptionId`, `ComponentId`, `AllocationId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<UpdatePrepaidUsageAllocationExpirationDateError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetSubscriptionComponentAllocationError1(out SubscriptionComponentAllocationError1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetSubscriptionComponentAllocationError1([NotNullWhen(true)] out SubscriptionComponentAllocationError1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

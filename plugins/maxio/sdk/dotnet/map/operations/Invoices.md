@@ -13,7 +13,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `SubscriptionId`
 - **Returns**: `InvoiceResponse`
 - **Error**: `ApiException<CreateInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -30,7 +30,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `SubscriptionId`, `Uid`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -45,7 +45,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<IssueInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -89,7 +89,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
 
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListInvoiceEvents(ListInvoiceEventsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
-- **Query params (wire ← C#)**: `since_date` ← `SinceDate`, `since_id` ← `SinceId`, `page` ← `Page`, `per_page` ← `PerPage`, `invoice_uid` ← `InvoiceUid`, `with_change_invoice_status` ← `WithChangeInvoiceStatus`, `event_types` ← `EventTypes`
+- **Query params (wire ← C#)**: `since_date` ← `SinceDate`, `since_id` ← `SinceId`, `page` ← `Page`, `per_page` ← `PerPage`, `invoice_uid` ← `InvoiceUid`, `with_change_invoice_status` ← `WithChangeInvoiceStatus`, `event_types` ← `EventTypes` (comma-separated)
 - **Returns**: `ListInvoiceEventsResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -103,7 +103,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
 
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListInvoices(ListInvoicesRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
-- **Query params (wire ← C#)**: `start_date` ← `StartDate`, `end_date` ← `EndDate`, `status` ← `Status`, `subscription_id` ← `SubscriptionId`, `subscription_group_uid` ← `SubscriptionGroupUid`, `consolidation_level` ← `ConsolidationLevel`, `page` ← `Page`, `per_page` ← `PerPage`, `direction` ← `Direction`, `line_items` ← `LineItems`, `discounts` ← `Discounts`, `taxes` ← `Taxes`, `credits` ← `Credits`, `payments` ← `Payments`, `custom_fields` ← `CustomFields`, `refunds` ← `Refunds`, `date_field` ← `DateField`, `start_datetime` ← `StartDatetime`, `end_datetime` ← `EndDatetime`, `customer_ids` ← `CustomerIds`, `number` ← `Number`, `product_ids` ← `ProductIds`, `sort` ← `Sort`
+- **Query params (wire ← C#)**: `start_date` ← `StartDate`, `end_date` ← `EndDate`, `status` ← `Status`, `subscription_id` ← `SubscriptionId`, `subscription_group_uid` ← `SubscriptionGroupUid`, `consolidation_level` ← `ConsolidationLevel`, `page` ← `Page`, `per_page` ← `PerPage`, `direction` ← `Direction`, `line_items` ← `LineItems`, `discounts` ← `Discounts`, `taxes` ← `Taxes`, `credits` ← `Credits`, `payments` ← `Payments`, `custom_fields` ← `CustomFields`, `refunds` ← `Refunds`, `date_field` ← `DateField`, `start_datetime` ← `StartDatetime`, `end_datetime` ← `EndDatetime`, `customer_ids` ← `CustomerIds` (comma-separated), `number` ← `Number` (comma-separated), `product_ids` ← `ProductIds` (comma-separated), `sort` ← `Sort`
 - **Returns**: `ListInvoicesResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -123,7 +123,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `CustomerChangesPreviewResponse`
 - **Error**: `ApiException<PreviewCustomerInformationChangesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -165,7 +165,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<RecordPaymentForInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -181,7 +181,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
 - **Signature**: `RecordPaymentForMultipleInvoices(RecordPaymentForMultipleInvoicesRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `MultiInvoicePaymentResponse`
 - **Error**: `ApiException<RecordPaymentForMultipleInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -198,7 +198,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `SubscriptionId`
 - **Returns**: `RecordPaymentResponse`
 - **Error**: `ApiException<RecordPaymentForSubscriptionError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -215,7 +215,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<RefundInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -232,7 +232,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<ReopenInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetObject(out object?)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetObject(out object? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -248,7 +248,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<SendInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -264,7 +264,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<UpdateCustomerInformationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -280,7 +280,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `SubscriptionId`, `Uid`
 - **Returns**: `InvoiceResponse`
 - **Error**: `ApiException<UpdateInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [404] · `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [404] · `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -298,7 +298,7 @@ Accessor: `client.Invoices` · Source: `src/MaxioAdvancedBilling/Api/Invoices.cs
   - required: `Uid`
 - **Returns**: `Invoice`
 - **Error**: `ApiException<VoidInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetObject(out object?)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetObject(out object? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

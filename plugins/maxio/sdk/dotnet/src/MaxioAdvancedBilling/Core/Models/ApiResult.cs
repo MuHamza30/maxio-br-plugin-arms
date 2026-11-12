@@ -58,11 +58,11 @@ public readonly struct ApiResult<TResponse, TError>
         new(call, default, Optional<TError>.Some(error), statusCode, headers, contentType);
 
     /// <summary>Try to get a response (true when success).</summary>
-    public bool TryGetResponse([NotNullWhen(true)] out TResponse? response) =>
+    public bool TryGetResponse([MaybeNullWhen(false)] out TResponse response) =>
         _response.TryGetValue(out response);
 
     /// <summary>Try to get the API error (true when failure).</summary>
-    public bool TryGetError([NotNullWhen(true)] out TError? error) =>
+    public bool TryGetError([MaybeNullWhen(false)] out TError error) =>
         _error.TryGetValue(out error);
 
     /// <summary>Pattern-match style handler.</summary>

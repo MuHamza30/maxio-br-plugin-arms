@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -7,31 +9,54 @@ namespace MaxioAdvancedBilling.Errors;
 
 public sealed class BulkUpdateSegmentsError : ApiError
 {
-    private readonly Optional<RawError> _noContentValue;
-
     private readonly Optional<EventBasedBillingSegment1> _eventBasedBillingSegment1Value;
 
-    private BulkUpdateSegmentsError(Optional<RawError> noContentValue,
-        Optional<EventBasedBillingSegment1> eventBasedBillingSegment1Value,
+    private readonly Optional<RawError> _noContentValue;
+
+    private BulkUpdateSegmentsError(Optional<EventBasedBillingSegment1> eventBasedBillingSegment1Value,
+        Optional<RawError> noContentValue,
         Optional<RawError> fallback) : base(fallback)
     {
-        _noContentValue = noContentValue;
         _eventBasedBillingSegment1Value = eventBasedBillingSegment1Value;
+        _noContentValue = noContentValue;
     }
 
-    private static BulkUpdateSegmentsError AsNoContent(RawError value) =>
-        new(Optional<RawError>.Some(value), default, default);
-
     private static BulkUpdateSegmentsError AsEventBasedBillingSegment1(EventBasedBillingSegment1 value) =>
-        new(default, Optional<EventBasedBillingSegment1>.Some(value), default);
+        new(Optional<EventBasedBillingSegment1>.Some(value), default, default);
+
+    private static BulkUpdateSegmentsError AsNoContent(RawError value) =>
+        new(default, Optional<RawError>.Some(value), default);
 
     private static BulkUpdateSegmentsError AsFallback(RawError value) =>
         new(default, default, Optional<RawError>.Some(value));
 
-    public bool TryGetNoContent(out RawError value) => _noContentValue.TryGetValue(out value);
-
-    public bool TryGetEventBasedBillingSegment1(out EventBasedBillingSegment1 value) =>
+    public bool TryGetEventBasedBillingSegment1([NotNullWhen(true)] out EventBasedBillingSegment1? value) =>
         _eventBasedBillingSegment1Value.TryGetValue(out value);
+
+    public bool TryGetNoContent([NotNullWhen(true)] out RawError? value) => _noContentValue.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<EventBasedBillingSegment1, TResult> onEventBasedBillingSegment1,
+        Func<RawError, TResult> onNoContent,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetEventBasedBillingSegment1(
+                out var eventBasedBillingSegment1Value) => onEventBasedBillingSegment1(eventBasedBillingSegment1Value),
+            _ when TryGetNoContent(out var noContentValue) => onNoContent(noContentValue),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(BulkUpdateSegmentsError)} holds no value.")
+        };
+
+    public void Match(Action<EventBasedBillingSegment1> onEventBasedBillingSegment1,
+        Action<RawError> onNoContent,
+        Action<RawError> otherwise)
+    {
+        if (TryGetEventBasedBillingSegment1(out var eventBasedBillingSegment1Value)) onEventBasedBillingSegment1(
+            eventBasedBillingSegment1Value);
+        else if (TryGetNoContent(out var noContentValue)) onNoContent(noContentValue);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(BulkUpdateSegmentsError)} holds no value.");
+    }
 
     private static Task<BulkUpdateSegmentsError> Create(FailedResponse response) =>
         response.StatusCode switch

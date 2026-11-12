@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -13,29 +14,65 @@ public record PricePoint
 
     private readonly Optional<CreatePrepaidUsageComponentPricePoint> _createPrepaidUsageComponentPricePointValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private PricePoint(Optional<CreateComponentPricePoint> createComponentPricePointValue,
-        Optional<CreatePrepaidUsageComponentPricePoint> createPrepaidUsageComponentPricePointValue)
+        Optional<CreatePrepaidUsageComponentPricePoint> createPrepaidUsageComponentPricePointValue,
+        Optional<UnknownArm> unknownValue)
     {
         _createComponentPricePointValue = createComponentPricePointValue;
         _createPrepaidUsageComponentPricePointValue = createPrepaidUsageComponentPricePointValue;
+        _unknownValue = unknownValue;
     }
 
     public static PricePoint CreateComponentPricePoint(CreateComponentPricePoint value) =>
-        new(Optional<CreateComponentPricePoint>.Some(value), default);
+        new(Optional<CreateComponentPricePoint>.Some(value), default, default);
 
     public static PricePoint CreatePrepaidUsageComponentPricePoint(CreatePrepaidUsageComponentPricePoint value) =>
-        new(default, Optional<CreatePrepaidUsageComponentPricePoint>.Some(value));
+        new(default, Optional<CreatePrepaidUsageComponentPricePoint>.Some(value), default);
 
-    public bool TryGetCreateComponentPricePoint(out CreateComponentPricePoint value) =>
+    internal static PricePoint Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetCreateComponentPricePoint([NotNullWhen(true)] out CreateComponentPricePoint? value) =>
         _createComponentPricePointValue.TryGetValue(out value);
 
-    public bool TryGetCreatePrepaidUsageComponentPricePoint(out CreatePrepaidUsageComponentPricePoint value) =>
+    public bool TryGetCreatePrepaidUsageComponentPricePoint([NotNullWhen(true)] out CreatePrepaidUsageComponentPricePoint? value) =>
         _createPrepaidUsageComponentPricePointValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator PricePoint(CreateComponentPricePoint value) => CreateComponentPricePoint(value);
 
     public static implicit operator PricePoint(CreatePrepaidUsageComponentPricePoint value) =>
         CreatePrepaidUsageComponentPricePoint(value);
+
+    public TResult Match<TResult>(Func<CreateComponentPricePoint, TResult> onCreateComponentPricePoint,
+        Func<CreatePrepaidUsageComponentPricePoint, TResult> onCreatePrepaidUsageComponentPricePoint,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetCreateComponentPricePoint(
+                out var createComponentPricePointValue) => onCreateComponentPricePoint(createComponentPricePointValue),
+            _ when TryGetCreatePrepaidUsageComponentPricePoint(
+                out var createPrepaidUsageComponentPricePointValue) => onCreatePrepaidUsageComponentPricePoint(
+                createPrepaidUsageComponentPricePointValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(PricePoint)} holds no value.")
+        };
+
+    public void Match(Action<CreateComponentPricePoint> onCreateComponentPricePoint,
+        Action<CreatePrepaidUsageComponentPricePoint> onCreatePrepaidUsageComponentPricePoint,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetCreateComponentPricePoint(out var createComponentPricePointValue)) onCreateComponentPricePoint(
+            createComponentPricePointValue);
+        else if (TryGetCreatePrepaidUsageComponentPricePoint(
+            out var createPrepaidUsageComponentPricePointValue)) onCreatePrepaidUsageComponentPricePoint(
+            createPrepaidUsageComponentPricePointValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(PricePoint)} holds no value.");
+    }
 }
 
 file sealed class PricePointConverter : JsonConverter<PricePoint>
@@ -58,8 +95,7 @@ file sealed class PricePointConverter : JsonConverter<PricePoint>
         {
             return PricePoint.CreatePrepaidUsageComponentPricePoint(createPrepaidUsageComponentPricePointValue);
         }
-        throw new JsonException(
-            $"JSON does not match CreateComponentPricePoint or CreatePrepaidUsageComponentPricePoint schemas: {root.ToString()}");
+        return PricePoint.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, PricePoint value, JsonSerializerOptions options)
@@ -71,6 +107,10 @@ file sealed class PricePointConverter : JsonConverter<PricePoint>
         else if (value.TryGetCreatePrepaidUsageComponentPricePoint(out var createPrepaidUsageComponentPricePointValue))
         {
             JsonSerializer.Serialize(writer, createPrepaidUsageComponentPricePointValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

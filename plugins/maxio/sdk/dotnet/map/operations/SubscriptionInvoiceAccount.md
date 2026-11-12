@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
   - required: `SubscriptionId`
 - **Returns**: `CreatePrepaymentResponse`
 - **Error**: `ApiException<CreatePrepaymentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetCreatePrepaymentErrorResponse(out CreatePrepaymentErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetCreatePrepaymentErrorResponse([NotNullWhen(true)] out CreatePrepaymentErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -30,7 +30,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
   - required: `SubscriptionId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeductServiceCreditError>` — **Case A (typed)**
-- **Error accessors**: `TryGetDeductServiceCreditErrorResponse(out DeductServiceCreditErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetDeductServiceCreditErrorResponse([NotNullWhen(true)] out DeductServiceCreditErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -46,7 +46,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
   - required: `SubscriptionId`
 - **Returns**: `ServiceCredit`
 - **Error**: `ApiException<IssueServiceCreditError>` — **Case A (typed)**
-- **Error accessors**: `TryGetIssueServiceCreditErrorResponse(out IssueServiceCreditErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetIssueServiceCreditErrorResponse([NotNullWhen(true)] out IssueServiceCreditErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -64,7 +64,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `filter` ← `Filter`
 - **Returns**: `PrepaymentsResponse`
 - **Error**: `ApiException<ListPrepaymentsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -81,7 +81,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `direction` ← `Direction`
 - **Returns**: `ListServiceCreditsResponse`
 - **Error**: `ApiException<ListServiceCreditsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -111,7 +111,7 @@ Accessor: `client.SubscriptionInvoiceAccount` · Source: `src/MaxioAdvancedBilli
   - required: `SubscriptionId`, `PrepaymentId`
 - **Returns**: `PrepaymentResponse`
 - **Error**: `ApiException<RefundPrepaymentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetRefundPrepaymentBaseErrorsResponse1(out RefundPrepaymentBaseErrorsResponse1)` [400] · `TryGetString(out string)` [404] · `TryGetRefundPrepaymentErrorResponse(out RefundPrepaymentErrorResponse)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetRefundPrepaymentBaseErrorsResponse1([NotNullWhen(true)] out RefundPrepaymentBaseErrorsResponse1? value)` [400] · `TryGetString([NotNullWhen(true)] out string? value)` [404] · `TryGetRefundPrepaymentErrorResponse([NotNullWhen(true)] out RefundPrepaymentErrorResponse? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

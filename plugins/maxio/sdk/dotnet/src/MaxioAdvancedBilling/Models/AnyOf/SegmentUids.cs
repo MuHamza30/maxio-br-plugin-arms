@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -17,22 +18,54 @@ public record SegmentUids
 
     private readonly Optional<string> _stringValue;
 
-    private SegmentUids(Optional<IReadOnlyList<string>> listOfStringValue, Optional<string> stringValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private SegmentUids(Optional<IReadOnlyList<string>> listOfStringValue,
+        Optional<string> stringValue,
+        Optional<UnknownArm> unknownValue)
     {
         _listOfStringValue = listOfStringValue;
         _stringValue = stringValue;
+        _unknownValue = unknownValue;
     }
 
     public static SegmentUids ListOfString(IReadOnlyList<string> value) =>
-        new(Optional<IReadOnlyList<string>>.Some(value), default);
+        new(Optional<IReadOnlyList<string>>.Some(value), default, default);
 
-    public static SegmentUids String(string value) => new(default, Optional<string>.Some(value));
+    public static SegmentUids String(string value) => new(default, Optional<string>.Some(value), default);
 
-    public bool TryGetListOfString(out IReadOnlyList<string> value) => _listOfStringValue.TryGetValue(out value);
+    internal static SegmentUids Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    public bool TryGetListOfString([NotNullWhen(true)] out IReadOnlyList<string>? value) =>
+        _listOfStringValue.TryGetValue(out value);
+
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator SegmentUids(string value) => String(value);
+
+    public TResult Match<TResult>(Func<IReadOnlyList<string>, TResult> onListOfString,
+        Func<string, TResult> onString,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetListOfString(out var listOfStringValue) => onListOfString(listOfStringValue),
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(SegmentUids)} holds no value.")
+        };
+
+    public void Match(Action<IReadOnlyList<string>> onListOfString,
+        Action<string> onString,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetListOfString(out var listOfStringValue)) onListOfString(listOfStringValue);
+        else if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(SegmentUids)} holds no value.");
+    }
 }
 
 file sealed class SegmentUidsConverter : JsonConverter<SegmentUids>
@@ -50,7 +83,7 @@ file sealed class SegmentUidsConverter : JsonConverter<SegmentUids>
             var value = root.GetString()!;
             return SegmentUids.String(value);
         }
-        throw new JsonException($"JSON does not match IReadOnlyList<string> or string schemas: {root.ToString()}");
+        return SegmentUids.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, SegmentUids value, JsonSerializerOptions options)
@@ -62,6 +95,10 @@ file sealed class SegmentUidsConverter : JsonConverter<SegmentUids>
         else if (value.TryGetString(out var stringValue))
         {
             JsonSerializer.Serialize(writer, stringValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

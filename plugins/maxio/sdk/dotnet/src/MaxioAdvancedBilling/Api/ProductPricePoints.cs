@@ -204,7 +204,7 @@ public sealed class ProductPricePoints
                 new Param("page", request.Page),
                 new Param("per_page", request.PerPage),
                 new Param("currency_prices", request.CurrencyPrices),
-                new Param("filter[type]", request.FilterType),
+                new Param("filter[type]", request.FilterType, SerializationFormat.Csv),
                 new Param("archived", request.Archived),
             ],
             [],

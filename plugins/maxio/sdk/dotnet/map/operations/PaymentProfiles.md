@@ -13,7 +13,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `SubscriptionId`, `PaymentProfileId`
 - **Returns**: `PaymentProfileResponse`
 - **Error**: `ApiException<ChangeSubscriptionDefaultPaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -29,7 +29,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `Uid`, `PaymentProfileId`
 - **Returns**: `PaymentProfileResponse`
 - **Error**: `ApiException<ChangeSubscriptionGroupDefaultPaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -44,7 +44,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
 - **Signature**: `CreatePaymentProfile(CreatePaymentProfileOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `PaymentProfileResponse`
 - **Error**: `ApiException<CreatePaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -85,7 +85,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `PaymentProfileId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteUnusedPaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -113,7 +113,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `ChargifyToken`
 - **Returns**: `GetOneTimeTokenRequest`
 - **Error**: `ApiException<ReadOneTimeTokenError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -129,7 +129,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `PaymentProfileId`
 - **Returns**: `PaymentProfileResponse`
 - **Error**: `ApiException<ReadPaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -144,7 +144,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `SubscriptionId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<SendRequestUpdatePaymentEmailError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -159,7 +159,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `PaymentProfileId`
 - **Returns**: `PaymentProfileResponse`
 - **Error**: `ApiException<UpdatePaymentProfileError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorStringMapResponse1(out ErrorStringMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorStringMapResponse1([NotNullWhen(true)] out ErrorStringMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -176,7 +176,7 @@ Accessor: `client.PaymentProfiles` · Source: `src/MaxioAdvancedBilling/Api/Paym
   - required: `BankAccountId`
 - **Returns**: `BankAccountResponse`
 - **Error**: `ApiException<VerifyBankAccountError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

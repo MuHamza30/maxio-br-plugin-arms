@@ -76,8 +76,8 @@ file static class MultipartFormDataContentExtensions
 
         private void AddTextParts(Param param)
         {
-            foreach (var pair in ParameterFlattener.Flatten(param))
-                multipart.AddTextPart(pair.Key, pair.Value);
+            foreach (var field in ParameterFlattener.Flatten(param))
+                multipart.AddTextPart(field.Key, field.Text);
         }
 
         private void AddTextPart(string name, string text)

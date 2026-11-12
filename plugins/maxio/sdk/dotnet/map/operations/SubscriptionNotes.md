@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionNotes` · Source: `src/MaxioAdvancedBilling/Api/Su
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionNoteResponse`
 - **Error**: `ApiException<CreateSubscriptionNoteError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -43,7 +43,7 @@ Accessor: `client.SubscriptionNotes` · Source: `src/MaxioAdvancedBilling/Api/Su
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`
 - **Returns**: `IReadOnlyList<SubscriptionNoteResponse>`
 - **Error**: `ApiException<ListSubscriptionNotesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -72,7 +72,7 @@ Accessor: `client.SubscriptionNotes` · Source: `src/MaxioAdvancedBilling/Api/Su
   - required: `SubscriptionId`, `NoteId`
 - **Returns**: `SubscriptionNoteResponse`
 - **Error**: `ApiException<UpdateSubscriptionNoteError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

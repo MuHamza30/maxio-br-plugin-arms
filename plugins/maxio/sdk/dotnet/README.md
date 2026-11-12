@@ -212,6 +212,10 @@ catch (ApiException<ExportInvoicesError> ex)
 }
 ```
 
+`Match` on an error type is exhaustive: one `on{Arm}` arm per body the operation declares, each receiving the parsed body, and a last `otherwise` arm that receives the `RawError` (status code plus raw body) of a status the operation does not declare, such as a gateway's 502. An arm is a body, not a status: statuses that share a body share an arm, and the status itself is on `result.StatusCode` or `ex.StatusCode`. `TryGet{Arm}` reads one arm when that is all you need, as in the `catch` above; `TryGetRawError` is the accessor behind `otherwise`.
+
+Prefer named arguments, as with enums and unions: the arms are positional, in the order of their names, and a regenerated SDK whose operation gains or loses an error body changes the `Match` signature — a positional call site stops compiling or, if the assembly is not rebuilt, throws `MissingMethodException` at the first call. Treat an added or removed error body as a breaking change of that error type. A status added for a body the operation already declares changes nothing. Code that must survive regeneration untouched uses the `TryGet{Arm}` accessors instead.
+
 Everything the SDK raises for a call derives from `SdkException`, which carries the failed call's `Method` and `RequestUri`. Every message starts with that call, and the underlying cause is always `InnerException`.
 
 | Exception | When | Extra members |

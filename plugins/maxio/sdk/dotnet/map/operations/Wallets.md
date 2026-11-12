@@ -13,7 +13,7 @@ Accessor: `client.Wallets` · Source: `src/MaxioAdvancedBilling/Api/Wallets.cs` 
   - required: `Id`
 - **Returns**: `WalletResponse`
 - **Error**: `ApiException<ArchiveWalletError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetWalletErrorResponse1(out WalletErrorResponse1)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [403] · `TryGetWalletErrorResponse1([NotNullWhen(true)] out WalletErrorResponse1? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -28,7 +28,7 @@ Accessor: `client.Wallets` · Source: `src/MaxioAdvancedBilling/Api/Wallets.cs` 
 - **Signature**: `CreateWallet(CreateWalletOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `WalletResponse`
 - **Error**: `ApiException<CreateWalletError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetWalletErrorResponse1(out WalletErrorResponse1)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [403] · `TryGetWalletErrorResponse1([NotNullWhen(true)] out WalletErrorResponse1? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -45,7 +45,7 @@ Accessor: `client.Wallets` · Source: `src/MaxioAdvancedBilling/Api/Wallets.cs` 
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `subscription_id` ← `SubscriptionId`, `status` ← `Status`
 - **Returns**: `WalletsListResponse`
 - **Error**: `ApiException<ListWalletsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetWalletErrorResponse1(out WalletErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [403] · `TryGetWalletErrorResponse1([NotNullWhen(true)] out WalletErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -62,7 +62,7 @@ Accessor: `client.Wallets` · Source: `src/MaxioAdvancedBilling/Api/Wallets.cs` 
   - required: `Id`
 - **Returns**: `WalletResponse`
 - **Error**: `ApiException<ReadWalletError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetWalletErrorResponse1(out WalletErrorResponse1)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [403] · `TryGetWalletErrorResponse1([NotNullWhen(true)] out WalletErrorResponse1? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -78,7 +78,7 @@ Accessor: `client.Wallets` · Source: `src/MaxioAdvancedBilling/Api/Wallets.cs` 
   - required: `Id`
 - **Returns**: `WalletResponse`
 - **Error**: `ApiException<UpdateWalletError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [403] · `TryGetWalletErrorResponse1(out WalletErrorResponse1)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [403] · `TryGetWalletErrorResponse1([NotNullWhen(true)] out WalletErrorResponse1? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

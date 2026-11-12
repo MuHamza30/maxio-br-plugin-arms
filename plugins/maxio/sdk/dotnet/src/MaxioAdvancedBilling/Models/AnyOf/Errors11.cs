@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -15,30 +16,39 @@ public record Errors11
 
     private readonly Optional<string> _stringValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private Errors11(Optional<SubscriptionGroupMembersArrayError> subscriptionGroupMembersArrayErrorValue,
         Optional<SubscriptionGroupSingleError> subscriptionGroupSingleErrorValue,
-        Optional<string> stringValue)
+        Optional<string> stringValue,
+        Optional<UnknownArm> unknownValue)
     {
         _subscriptionGroupMembersArrayErrorValue = subscriptionGroupMembersArrayErrorValue;
         _subscriptionGroupSingleErrorValue = subscriptionGroupSingleErrorValue;
         _stringValue = stringValue;
+        _unknownValue = unknownValue;
     }
 
     public static Errors11 SubscriptionGroupMembersArrayError(SubscriptionGroupMembersArrayError value) =>
-        new(Optional<SubscriptionGroupMembersArrayError>.Some(value), default, default);
+        new(Optional<SubscriptionGroupMembersArrayError>.Some(value), default, default, default);
 
     public static Errors11 SubscriptionGroupSingleError(SubscriptionGroupSingleError value) =>
-        new(default, Optional<SubscriptionGroupSingleError>.Some(value), default);
+        new(default, Optional<SubscriptionGroupSingleError>.Some(value), default, default);
 
-    public static Errors11 String(string value) => new(default, default, Optional<string>.Some(value));
+    public static Errors11 String(string value) => new(default, default, Optional<string>.Some(value), default);
 
-    public bool TryGetSubscriptionGroupMembersArrayError(out SubscriptionGroupMembersArrayError value) =>
+    internal static Errors11 Unknown(JsonElement value) =>
+        new(default, default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetSubscriptionGroupMembersArrayError([NotNullWhen(true)] out SubscriptionGroupMembersArrayError? value) =>
         _subscriptionGroupMembersArrayErrorValue.TryGetValue(out value);
 
-    public bool TryGetSubscriptionGroupSingleError(out SubscriptionGroupSingleError value) =>
+    public bool TryGetSubscriptionGroupSingleError([NotNullWhen(true)] out SubscriptionGroupSingleError? value) =>
         _subscriptionGroupSingleErrorValue.TryGetValue(out value);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator Errors11(SubscriptionGroupMembersArrayError value) =>
         SubscriptionGroupMembersArrayError(value);
@@ -46,6 +56,39 @@ public record Errors11
     public static implicit operator Errors11(SubscriptionGroupSingleError value) => SubscriptionGroupSingleError(value);
 
     public static implicit operator Errors11(string value) => String(value);
+
+    public TResult Match<TResult>(Func<SubscriptionGroupMembersArrayError, TResult> onSubscriptionGroupMembersArrayError,
+        Func<SubscriptionGroupSingleError, TResult> onSubscriptionGroupSingleError,
+        Func<string, TResult> onString,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetSubscriptionGroupMembersArrayError(
+                out var subscriptionGroupMembersArrayErrorValue) => onSubscriptionGroupMembersArrayError(
+                subscriptionGroupMembersArrayErrorValue),
+            _ when TryGetSubscriptionGroupSingleError(
+                out var subscriptionGroupSingleErrorValue) => onSubscriptionGroupSingleError(
+                subscriptionGroupSingleErrorValue),
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(Errors11)} holds no value.")
+        };
+
+    public void Match(Action<SubscriptionGroupMembersArrayError> onSubscriptionGroupMembersArrayError,
+        Action<SubscriptionGroupSingleError> onSubscriptionGroupSingleError,
+        Action<string> onString,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetSubscriptionGroupMembersArrayError(
+            out var subscriptionGroupMembersArrayErrorValue)) onSubscriptionGroupMembersArrayError(
+            subscriptionGroupMembersArrayErrorValue);
+        else if (TryGetSubscriptionGroupSingleError(
+            out var subscriptionGroupSingleErrorValue)) onSubscriptionGroupSingleError(
+            subscriptionGroupSingleErrorValue);
+        else if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(Errors11)} holds no value.");
+    }
 }
 
 file sealed class Errors11Converter : JsonConverter<Errors11>
@@ -73,8 +116,7 @@ file sealed class Errors11Converter : JsonConverter<Errors11>
             var value = root.GetString()!;
             return Errors11.String(value);
         }
-        throw new JsonException(
-            $"JSON does not match SubscriptionGroupMembersArrayError or SubscriptionGroupSingleError or string schemas: {root.ToString()}");
+        return Errors11.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, Errors11 value, JsonSerializerOptions options)
@@ -90,6 +132,10 @@ file sealed class Errors11Converter : JsonConverter<Errors11>
         else if (value.TryGetString(out var stringValue))
         {
             JsonSerializer.Serialize(writer, stringValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

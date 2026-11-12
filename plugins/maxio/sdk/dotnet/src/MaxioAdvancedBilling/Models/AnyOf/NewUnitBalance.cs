@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -12,23 +13,50 @@ public record NewUnitBalance
 
     private readonly Optional<string> _stringValue;
 
-    private NewUnitBalance(Optional<int> intValue, Optional<string> stringValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private NewUnitBalance(Optional<int> intValue, Optional<string> stringValue, Optional<UnknownArm> unknownValue)
     {
         _intValue = intValue;
         _stringValue = stringValue;
+        _unknownValue = unknownValue;
     }
 
-    public static NewUnitBalance Int(int value) => new(Optional<int>.Some(value), default);
+    public static NewUnitBalance Int(int value) => new(Optional<int>.Some(value), default, default);
 
-    public static NewUnitBalance String(string value) => new(default, Optional<string>.Some(value));
+    public static NewUnitBalance String(string value) => new(default, Optional<string>.Some(value), default);
+
+    internal static NewUnitBalance Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
 
     public bool TryGetInt(out int value) => _intValue.TryGetValue(out value);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator NewUnitBalance(int value) => Int(value);
 
     public static implicit operator NewUnitBalance(string value) => String(value);
+
+    public TResult Match<TResult>(Func<int, TResult> onInt,
+        Func<string, TResult> onString,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetInt(out var intValue) => onInt(intValue),
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(NewUnitBalance)} holds no value.")
+        };
+
+    public void Match(Action<int> onInt, Action<string> onString, Action<JsonElement> otherwise)
+    {
+        if (TryGetInt(out var intValue)) onInt(intValue);
+        else if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(NewUnitBalance)} holds no value.");
+    }
 }
 
 file sealed class NewUnitBalanceConverter : JsonConverter<NewUnitBalance>
@@ -49,7 +77,7 @@ file sealed class NewUnitBalanceConverter : JsonConverter<NewUnitBalance>
             var value = root.GetString()!;
             return NewUnitBalance.String(value);
         }
-        throw new JsonException($"JSON does not match int or string schemas: {root.ToString()}");
+        return NewUnitBalance.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, NewUnitBalance value, JsonSerializerOptions options)
@@ -61,6 +89,10 @@ file sealed class NewUnitBalanceConverter : JsonConverter<NewUnitBalance>
         else if (value.TryGetString(out var stringValue))
         {
             JsonSerializer.Serialize(writer, stringValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

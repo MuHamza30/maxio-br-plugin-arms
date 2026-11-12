@@ -17,19 +17,24 @@ installed package.
 
 When a field can be one of several types, APIMatic generates a union `record` (under
 `{RootNamespace}.Models.OneOf` or `.Models.AnyOf`). Build these with the generated **static factory
-methods** (one per variant) and read them back with **`TryGet…` methods** — a union has no
-object-initializer, and the `Optional<T>` backing each variant is internal, so the factories and
-`TryGet…` are the whole surface. JSON (de)serialization is automatic.
+methods** (one per variant) and read them back with **`TryGet…` methods** or branch over every variant
+with **`Match`** — a union has no object-initializer, and the `Optional<T>` backing each variant is
+internal, so the factories, `TryGet…` and `Match` are the whole surface. JSON (de)serialization is
+automatic.
 
 - `OneOf` — the value is exactly one variant, selected on the wire by a **discriminator property** (e.g.
   `type`). The generated converter reads that property and switches on it.
 - `AnyOf` — no discriminator; the converter **tries each variant's schema in declaration order** and takes
   the first that deserializes.
 
-⚠ **A payload matching no variant throws** — you do not get a null union or an unset variant. In a response
-it reaches your catch as `ResponseDeserializationException` (see `dotnet-error-handling`), so a variant the
-provider adds that your SDK predates breaks a call that was previously fine — a union field is a place to
-expect regeneration pressure.
+⚠ **A payload matching no variant does not throw** — it lands in the union's **Unknown** slot as the raw
+`JsonElement`: `TryGetUnknown(out var raw)` returns `true`, every `TryGet{Variant}` returns `false`, and
+the value serializes back verbatim. A variant the provider adds after your SDK was generated therefore does
+not break the call; your code decides what to do with it. A `OneOf` whose discriminator property is missing
+or not a string still throws, and so does a known discriminator value whose body does not fit that variant
+(a missing required member or a wrong-typed value); both reach your catch as
+`ResponseDeserializationException` (see `dotnet-error-handling`). You cannot build an Unknown value
+yourself: its factory is not public.
 
 ### Construct
 
@@ -51,33 +56,54 @@ exists — reach for the implicit conversion only where you can see one.
 ### Read / unwrap
 
 ```csharp
-// Each variant has a bool TryGet{Variant}(out var value). The member name comes from the
-// variant's SCHEMA type, not its CLR type — a `decimal` variant reads TryGetBigDecimal:
+// Each variant has a bool TryGet{Variant}([NotNullWhen(true)] out T? value), a bare out T for a
+// value type. The member name comes from the variant's SCHEMA type, not its CLR type — a `decimal`
+// variant reads TryGetBigDecimal:
 if (u1.TryGetString(out var s))            { /* use s (string)  */ }
 else if (u1.TryGetBigDecimal(out var d))   { /* use d (decimal) */ }
 
 // OneOf: branch over the variants you expect
 if (resp.{Field}.TryGet{Variant}(out var v))           { /* ... */ }
 else if (resp.{Field}.TryGet{OtherVariant}(out var w)) { /* ... */ }
+
+// Match: one on{Variant} handler per variant, in the order the union declares them, then otherwise,
+// which receives the raw JsonElement of a value the SDK could not place.
+// The Func overload returns a value; the Action overload (same handler names) runs a side effect.
+var result = resp.{Field}.Match(
+    on{Variant}: v => Handle(v),
+    on{OtherVariant}: w => HandleOther(w),
+    otherwise: raw => HandleUnrecognised(raw));
 ```
+
+Every `Match` handler is required, `otherwise` included, so a variant you leave out is a compile error —
+unlike a `TryGet` chain, whose last `else` the compiler never checks and which silently drops an Unknown
+value. Pass the handlers **by name**: a regenerated SDK whose spec adds or reorders a variant changes the
+`Match` signature, and two variants of one CLR type (`onString` / `onEmailString`) would swap silently at
+a positional call site. When you read with `TryGet…` instead, end the chain with
+`TryGetUnknown(out var raw)` or an `else`, so an unrecognised value is handled on purpose.
 
 The factory and `TryGet` names are built from the **variant's schema type name, which is often not its
 CLR type name** — this is the single easiest thing to get wrong when writing a union branch from memory:
 
 | Variant | Factory method | Reader |
 | --- | --- | --- |
-| a model `{Variant}` | `.{Variant}({Variant})` | `TryGet{Variant}(out {Variant})` |
-| a big-decimal (CLR `decimal`) | `.BigDecimal(decimal)` | `TryGetBigDecimal(out decimal)` |
-| a UUID (CLR `Guid`) | `.Guid(Guid)` | `TryGetGuid(out Guid)` |
-| a date-time (CLR `DateTimeOffset`) | `.DateTime(DateTimeOffset)` | `TryGetDateTime(out DateTimeOffset)` |
-| a date (**also** CLR `DateTimeOffset`) | `.Date(DateTimeOffset)` | `TryGetDate(out DateTimeOffset)` |
-| an email / uri / ip (all CLR `string`) | `.EmailString(...)` / `.UriString(...)` / `.IpString(...)` | `TryGetEmailString(...)`, … |
-| a list of `{Variant}` | `.ListOf{Variant}(IReadOnlyList<{Variant}>)` | `TryGetListOf{Variant}(out IReadOnlyList<{Variant}>)` |
-| a map of `{Variant}` | `.MapOf{Variant}(...)` | `TryGetMapOf{Variant}(out …)` |
+| a model `{Variant}` | `.{Variant}({Variant})` | `TryGet{Variant}([NotNullWhen(true)] out {Variant}? value)` |
+| a big-decimal (CLR `decimal`) | `.BigDecimal(decimal)` | `TryGetBigDecimal(out decimal value)` |
+| a UUID (CLR `Guid`) | `.Guid(Guid)` | `TryGetGuid(out Guid value)` |
+| a date-time (CLR `DateTimeOffset`) | `.DateTime(DateTimeOffset)` | `TryGetDateTime(out DateTimeOffset value)` |
+| a date (**also** CLR `DateTimeOffset`) | `.Date(DateTimeOffset)` | `TryGetDate(out DateTimeOffset value)` |
+| an email / uri / ip (all CLR `string`) | `.EmailString(...)` / `.UriString(...)` / `.IpString(...)` | `TryGetEmailString([NotNullWhen(true)] out string? value)`, … |
+| a list of `{Variant}` | `.ListOf{Variant}(IReadOnlyList<{Variant}>)` | `TryGetListOf{Variant}([NotNullWhen(true)] out IReadOnlyList<{Variant}>? value)` |
+| a map of `{Variant}` | `.MapOf{Variant}(...)` | `TryGetMapOf{Variant}([NotNullWhen(true)] out IReadOnlyDictionary<string, {Variant}>? value)` |
+
+A reference-type reader is `[NotNullWhen(true)] out T?`: `out var` infers `T?`, and the compiler narrows it to
+`T` inside the `if`; outside the check the value may be null. A value-type reader stays a bare `out T`.
 
 The primitive rows apply to `AnyOf` only. Two variants that would collide outright are suffixed (`String`,
-`String2`). **Take the exact member name from the contract sheet** (grounded from the SDK map/source) rather
-than deriving it from the C# type you see.
+`String2`); a variant named `Unknown`, or named like its own union, takes a `Variant` suffix
+(`UnknownVariant`). Each row's `Match` handler is `on` + its factory name (`onBigDecimal`, `onEmailString`,
+`onListOf{Variant}`). **Take the exact member name from the contract sheet** (grounded from the SDK
+map/source) rather than deriving it from the C# type you see.
 
 ## Collections
 

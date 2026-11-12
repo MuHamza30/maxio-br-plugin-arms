@@ -13,7 +13,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `ListSegmentsResponse`
 - **Error**: `ApiException<BulkCreateSegmentsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetEventBasedBillingSegment1(out EventBasedBillingSegment1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetEventBasedBillingSegment1([NotNullWhen(true)] out EventBasedBillingSegment1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -30,7 +30,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `ListSegmentsResponse`
 - **Error**: `ApiException<BulkUpdateSegmentsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetEventBasedBillingSegment1(out EventBasedBillingSegment1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetEventBasedBillingSegment1([NotNullWhen(true)] out EventBasedBillingSegment1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -47,7 +47,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `SegmentResponse`
 - **Error**: `ApiException<CreateSegmentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetEventBasedBillingSegmentErrors1(out EventBasedBillingSegmentErrors1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetEventBasedBillingSegmentErrors1([NotNullWhen(true)] out EventBasedBillingSegmentErrors1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -64,7 +64,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
   - required: `ComponentId`, `PricePointId`, `Id`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteSegmentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404, 422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404, 422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -79,7 +79,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `filter` ← `Filter`
 - **Returns**: `ListSegmentsResponse`
 - **Error**: `ApiException<ListSegmentsForPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetEventBasedBillingListSegmentsErrors1(out EventBasedBillingListSegmentsErrors1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetEventBasedBillingListSegmentsErrors1([NotNullWhen(true)] out EventBasedBillingListSegmentsErrors1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -96,7 +96,7 @@ Accessor: `client.EventsBasedBillingSegments` · Source: `src/MaxioAdvancedBilli
   - required: `ComponentId`, `PricePointId`, `Id`
 - **Returns**: `SegmentResponse`
 - **Error**: `ApiException<UpdateSegmentError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetEventBasedBillingSegmentErrors1(out EventBasedBillingSegmentErrors1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetEventBasedBillingSegmentErrors1([NotNullWhen(true)] out EventBasedBillingSegmentErrors1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

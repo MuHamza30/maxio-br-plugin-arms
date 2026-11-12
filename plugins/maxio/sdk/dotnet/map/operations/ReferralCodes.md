@@ -14,7 +14,7 @@ Accessor: `client.ReferralCodes` · Source: `src/MaxioAdvancedBilling/Api/Referr
 - **Query params (wire ← C#)**: `code` ← `Code`
 - **Returns**: `ReferralValidationResponse`
 - **Error**: `ApiException<ValidateReferralCodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleStringErrorResponse1(out SingleStringErrorResponse1)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleStringErrorResponse1([NotNullWhen(true)] out SingleStringErrorResponse1? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

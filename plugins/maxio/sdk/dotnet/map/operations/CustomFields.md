@@ -13,7 +13,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
   - required: `ResourceType`, `ResourceId`
 - **Returns**: `IReadOnlyList<Metadata>`
 - **Error**: `ApiException<CreateMetadataError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -31,7 +31,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
   - required: `ResourceType`
 - **Returns**: `IReadOnlyList<Metafield>`
 - **Error**: `ApiException<CreateMetafieldsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -50,7 +50,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
 - **Query params (wire ← C#)**: `name` ← `Name`, `names` ← `Names`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteMetadataError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -66,7 +66,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
 - **Query params (wire ← C#)**: `name` ← `Name`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteMetafieldError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -129,7 +129,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
   - required: `ResourceType`, `ResourceId`
 - **Returns**: `IReadOnlyList<Metadata>`
 - **Error**: `ApiException<UpdateMetadataError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -147,7 +147,7 @@ Accessor: `client.CustomFields` · Source: `src/MaxioAdvancedBilling/Api/CustomF
   - required: `ResourceType`
 - **Returns**: `IReadOnlyList<Metafield>`
 - **Error**: `ApiException<UpdateMetafieldError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

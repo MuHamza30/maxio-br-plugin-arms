@@ -81,7 +81,7 @@ All `MaxioAdvancedBillingClientOptions` properties (source: `src/MaxioAdvancedBi
 
 Operations are **throw-based**. On an error status the SDK throws `ApiException<TError>` (`src/MaxioAdvancedBilling/Core/Exceptions/ApiException.cs`, namespace `MaxioAdvancedBilling.Core.Exceptions`) exposing `.Error` of type `TError` beside the `StatusCode`, `Headers` and `ContentType` of the response. There are two cases:
 
-- **Case A — typed error.** `TError` is a generated `…Error : ApiError` class (namespace `MaxioAdvancedBilling.Errors`) with status-specific `TryGet…(out …)` accessors (each returns `true` when that shape is present) plus the inherited `TryGetRawError(out RawError)` fallback. The operation blocks name the exact `TryGet…` methods and the HTTP status each maps to.
+- **Case A — typed error.** `TError` is a generated `…Error : ApiError` class (namespace `MaxioAdvancedBilling.Errors`) with status-specific `TryGet…(out …)` accessors (each returns `true` when that shape is present) plus the inherited `TryGetRawError([NotNullWhen(true)] out RawError? error)` fallback, and an exhaustive `Match` pair — `Match<TResult>(Func<T, TResult> on{Arm}…, Func<RawError, TResult> otherwise)` and its `Action` twin — with one `on…` arm per accessor, in the ordinal order of their names, and a required `otherwise` that receives the `RawError` of a status the operation does not declare. The operation blocks name the exact `TryGet…` methods and the HTTP status each maps to.
 - **Case B — raw error.** `TError` is `RawError` (`src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs`, namespace `MaxioAdvancedBilling.Core.ErrorResponse`): `StatusCode: HttpStatusCode` · `ReadAsBytes(): ReadOnlyMemory<byte>` · `ReadAsString(): string` · `ReadAsJson<T>(): T?`.
 
 ⚠ Each of the three lives in its own namespace. `src/MaxioAdvancedBilling/Core/` holds several namespaces, so a catch block naming `ApiException<T>`, a typed `{Operation}Error` and `RawError` together needs a `using` for each.
@@ -92,8 +92,10 @@ Core error types (`src/MaxioAdvancedBilling/Core/ErrorResponse/`) — public mem
 
 | Type | Public members | Source |
 | --- | --- | --- |
-| `ApiError` — abstract base of the 201 typed error classes in `src/MaxioAdvancedBilling/Errors/` | `TryGetRawError(out RawError error): bool` | `src/MaxioAdvancedBilling/Core/ErrorResponse/ApiError.cs` |
+| `ApiError` — abstract base of the 201 typed error classes in `src/MaxioAdvancedBilling/Errors/` | `TryGetRawError([NotNullWhen(true)] out RawError? error): bool` | `src/MaxioAdvancedBilling/Core/ErrorResponse/ApiError.cs` |
 | `RawError` | `StatusCode: HttpStatusCode` · `ReadAsBytes(): ReadOnlyMemory<byte>` · `ReadAsString(): string` · `ReadAsJson<T>(): T?` | `src/MaxioAdvancedBilling/Core/ErrorResponse/RawError.cs` |
+
+Every accessor over a reference-type payload, on a typed error and on a `OneOf`/`AnyOf` union alike, is `[NotNullWhen(true)] out T?`: read the value inside the `if`, where the compiler has narrowed it; a value-type payload (`long`, `JsonElement`) stays a bare `out`.
 
 Typed-error payload shapes (the `out` types in each operation page's error-accessor cells) are ordinary records/unions — no special handling. The operation's **Type sources** table gives the file that declares each one; read field names, declared types, and JSON wire names there, as for any other model.
 
@@ -127,7 +129,7 @@ catch (ApiException<RawError> ex)
 
 ## Operations — by controller (42 groups, 285 operations)
 
-Each links to a sub-page with one row per operation: signature, the request record's required members, query-param wire names, return type, error Case A/B, and Case A's typed accessors with their statuses. Each operation also carries a **Type sources** table — every type it names, with the file that declares it — so resolving a body, return, or error payload to its source is a lookup, never a search. `RawError` is excluded there (its members and path are above); an operation with no table names nothing but primitives and `RawError`.
+Each links to a sub-page with one row per operation: signature, the request record's required members, query-param wire names (with the serialization style where the spec declares one), return type, error Case A/B, and Case A's typed accessors with their statuses. Each operation also carries a **Type sources** table — every type it names, with the file that declares it — so resolving a body, return, or error payload to its source is a lookup, never a search. `RawError` is excluded there (its members and path are above); an operation with no table names nothing but primitives and `RawError`.
 
 **Each row states what is specific to its operation. Everything below holds for EVERY operation unless that operation's row says otherwise, so a row silent on one of these points is telling you the default here applies — take it and move on rather than opening the source to confirm it.**
 
@@ -197,13 +199,13 @@ Each links to a sub-page with one row per operation: signature, the request reco
 | Group | Count | Directory (file = `<TypeName>.cs`) |
 | --- | --- | --- |
 | Records (plain `record` data models) | 617 | `src/MaxioAdvancedBilling/Models/` |
-| Unions (`OneOf`) — variant factories + `TryGet…` | 8 | `src/MaxioAdvancedBilling/Models/OneOf/` |
-| Unions (`AnyOf`) — variant factories + `TryGet…` | 95 | `src/MaxioAdvancedBilling/Models/AnyOf/` |
+| Unions (`OneOf`) — variant factories + `TryGet…` + `Match` | 5 | `src/MaxioAdvancedBilling/Models/OneOf/` |
+| Unions (`AnyOf`) — variant factories + `TryGet…` + `Match` | 95 | `src/MaxioAdvancedBilling/Models/AnyOf/` |
 | Enums (`OpenStringEnum<T>` / `OpenIntEnum<T>`) — C# member names + wire values | 121 | `src/MaxioAdvancedBilling/Models/Enums/` |
 | Typed error classes (`: ApiError`, one per Case A operation) | 201 | `src/MaxioAdvancedBilling/Errors/` |
 | Request records (one per operation that takes input; never serialized) | 279 | `src/MaxioAdvancedBilling/Requests/` — a controller's records sit in a folder named after it (an operation with several tags is filed under the first tag it declares) |
 
-Conventions: records are immutable, `init`-only; `required` properties must be set in the object initializer; `T?` is optional. A field's wire name is its `[JsonPropertyName]` and often differs from the C# name (`AmountInCents` ↔ `amount_in_cents`) — read it off the property, don't derive it. `OneOf`/`AnyOf` unions wrap `Optional<T>` variants — build via static factory or implicit conversion, read via `TryGet…(out …)`; `AllOf` compositions are not unions — every constituent is a `required` property, so set them all, and those constituent properties carry no `[JsonPropertyName]` and have no wire name of their own, because the generated converter flattens each constituent's own fields directly into the one parent JSON object. Enums are **not** C# enums — use the static members, whose names are PascalCase even when the wire value isn't (`CollectionMethod.Invoice`, not `.invoice`); there is no public factory, so resolve a raw value with `TryGetKnownValue` and branch with the generated `Match`, whose `otherwise` arm receives any value the SDK does not declare.
+Conventions: records are immutable, `init`-only; `required` properties must be set in the object initializer; `T?` is optional. A field's wire name is its `[JsonPropertyName]` and often differs from the C# name (`AmountInCents` ↔ `amount_in_cents`) — read it off the property, don't derive it. `OneOf`/`AnyOf` unions wrap `Optional<T>` variants — build via static factory or implicit conversion, read one variant via `TryGet…(out …)` or branch over all of them with the generated `Match`, which takes one `on{Variant}` handler per variant in declaration order and then `otherwise`, which receives the raw `JsonElement` of a value the SDK could not place: unions are open on read, so an unrecognised discriminator value or a body no variant accepts lands in `TryGetUnknown(out JsonElement)` and re-serializes verbatim; pass handlers by name, and treat an added or moved variant as a breaking change; `AllOf` compositions are not unions — every constituent is a `required` property, so set them all, and those constituent properties carry no `[JsonPropertyName]` and have no wire name of their own, because the generated converter flattens each constituent's own fields directly into the one parent JSON object. Enums are **not** C# enums — use the static members, whose names are PascalCase even when the wire value isn't (`CollectionMethod.Invoice`, not `.invoice`); there is no public factory, so resolve a raw value with `TryGetKnownValue` and branch with the generated `Match`, whose `otherwise` arm receives any value the SDK does not declare.
 
 Namespaces by content type (add `using` accordingly):
 

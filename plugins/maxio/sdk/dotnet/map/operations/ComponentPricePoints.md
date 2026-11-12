@@ -13,7 +13,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `ComponentPricePointResponse`
 - **Error**: `ApiException<ArchiveComponentPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -31,7 +31,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `ComponentId`
 - **Returns**: `ComponentPricePointsResponse`
 - **Error**: `ApiException<BulkCreateComponentPricePointsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -48,7 +48,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `ComponentPricePointCurrencyOverageResponse`
 - **Error**: `ApiException<CloneComponentPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -67,7 +67,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `ComponentId`
 - **Returns**: `ComponentPricePointResponse`
 - **Error**: `ApiException<CreateComponentPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -84,7 +84,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `PricePointId`
 - **Returns**: `ComponentCurrencyPricesResponse`
 - **Error**: `ApiException<CreateCurrencyPricesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -101,7 +101,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
 - **Query params (wire ← C#)**: `include` ← `Include`, `page` ← `Page`, `per_page` ← `PerPage`, `direction` ← `Direction`, `filter` ← `Filter`
 - **Returns**: `ListComponentsPricePointsResponse`
 - **Error**: `ApiException<ListAllComponentPricePointsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -118,7 +118,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListComponentPricePoints(ListComponentPricePointsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
   - required: `ComponentId`
-- **Query params (wire ← C#)**: `currency_prices` ← `CurrencyPrices`, `page` ← `Page`, `per_page` ← `PerPage`, `filter[type]` ← `FilterType`
+- **Query params (wire ← C#)**: `currency_prices` ← `CurrencyPrices`, `page` ← `Page`, `per_page` ← `PerPage`, `filter[type]` ← `FilterType` (comma-separated)
 - **Returns**: `ComponentPricePointsResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -177,7 +177,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `ComponentId`, `PricePointId`
 - **Returns**: `ComponentPricePointResponse`
 - **Error**: `ApiException<UpdateComponentPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -196,7 +196,7 @@ Accessor: `client.ComponentPricePoints` · Source: `src/MaxioAdvancedBilling/Api
   - required: `PricePointId`
 - **Returns**: `ComponentCurrencyPricesResponse`
 - **Error**: `ApiException<UpdateCurrencyPricesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<CancelScheduledRenewalConfigurationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -29,7 +29,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<CreateScheduledRenewalConfigurationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -46,7 +46,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `ScheduledRenewalsConfigurationId`
 - **Returns**: `ScheduledRenewalConfigurationItemResponse`
 - **Error**: `ApiException<CreateScheduledRenewalConfigurationItemError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -63,7 +63,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `ScheduledRenewalsConfigurationId`, `Id`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteScheduledRenewalConfigurationItemError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -93,7 +93,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<LockInScheduledRenewalImmediatelyError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -122,7 +122,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<ScheduleScheduledRenewalLockInError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -139,7 +139,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<UnpublishScheduledRenewalConfigurationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -155,7 +155,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationResponse`
 - **Error**: `ApiException<UpdateScheduledRenewalConfigurationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -172,7 +172,7 @@ Accessor: `client.SubscriptionRenewals` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`, `ScheduledRenewalsConfigurationId`, `Id`
 - **Returns**: `ScheduledRenewalConfigurationItemResponse`
 - **Error**: `ApiException<UpdateScheduledRenewalConfigurationItemError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

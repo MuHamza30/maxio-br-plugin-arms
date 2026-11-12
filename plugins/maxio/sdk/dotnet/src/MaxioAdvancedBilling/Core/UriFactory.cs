@@ -21,9 +21,10 @@ internal sealed class UriFactory
         var hostPath = _templateParamsFactory.Create(urlTemplate, templateParams);
 
         var queryString = _factory.Serialize(queryParameters);
+        var separator = hostPath.IndexOf('?') < 0 ? '?' : '&';
 
         return queryString.Length == 0
             ? new Uri(hostPath)
-            : new Uri($"{hostPath}?{queryString}");
+            : new Uri($"{hostPath}{separator}{queryString}");
     }
 }

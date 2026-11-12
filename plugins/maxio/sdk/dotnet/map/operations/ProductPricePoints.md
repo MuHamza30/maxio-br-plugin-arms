@@ -13,7 +13,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
   - required: `ProductId`, `PricePointId`
 - **Returns**: `ProductPricePointResponse`
 - **Error**: `ApiException<ArchiveProductPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -31,7 +31,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
   - required: `ProductId`
 - **Returns**: `BulkCreateProductPricePointsResponse`
 - **Error**: `ApiException<BulkCreateProductPricePointsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetMapOfJsonElement(out IReadOnlyDictionary<string, JsonElement>)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetMapOfJsonElement([NotNullWhen(true)] out IReadOnlyDictionary<string, JsonElement>? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -47,7 +47,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
   - required: `ProductPricePointId`
 - **Returns**: `CurrencyPricesResponse`
 - **Error**: `ApiException<CreateProductCurrencyPricesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -64,7 +64,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
   - required: `ProductId`
 - **Returns**: `ProductPricePointResponse`
 - **Error**: `ApiException<CreateProductPricePointError>` — **Case A (typed)**
-- **Error accessors**: `TryGetProductPricePointErrorResponse1(out ProductPricePointErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetProductPricePointErrorResponse1([NotNullWhen(true)] out ProductPricePointErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -82,7 +82,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
 - **Query params (wire ← C#)**: `direction` ← `Direction`, `filter` ← `Filter`, `include` ← `Include`, `page` ← `Page`, `per_page` ← `PerPage`
 - **Returns**: `ListProductPricePointsResponse`
 - **Error**: `ApiException<ListAllProductPricePointsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -99,7 +99,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListProductPricePoints(ListProductPricePointsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
   - required: `ProductId`
-- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `currency_prices` ← `CurrencyPrices`, `filter[type]` ← `FilterType`, `archived` ← `Archived`
+- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `currency_prices` ← `CurrencyPrices`, `filter[type]` ← `FilterType` (comma-separated), `archived` ← `Archived`
 - **Returns**: `ListProductPricePointsResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -159,7 +159,7 @@ Accessor: `client.ProductPricePoints` · Source: `src/MaxioAdvancedBilling/Api/P
   - required: `ProductPricePointId`
 - **Returns**: `CurrencyPricesResponse`
 - **Error**: `ApiException<UpdateProductCurrencyPricesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

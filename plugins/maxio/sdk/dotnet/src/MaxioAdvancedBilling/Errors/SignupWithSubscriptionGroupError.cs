@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -21,8 +23,29 @@ public sealed class SignupWithSubscriptionGroupError : ApiError
     private static SignupWithSubscriptionGroupError AsFallback(RawError value) =>
         new(default, Optional<RawError>.Some(value));
 
-    public bool TryGetSubscriptionGroupSignupErrorResponse1(out SubscriptionGroupSignupErrorResponse1 value) =>
+    public bool TryGetSubscriptionGroupSignupErrorResponse1([NotNullWhen(true)] out SubscriptionGroupSignupErrorResponse1? value) =>
         _subscriptionGroupSignupErrorResponse1Value.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<SubscriptionGroupSignupErrorResponse1, TResult> onSubscriptionGroupSignupErrorResponse1,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetSubscriptionGroupSignupErrorResponse1(
+                out var subscriptionGroupSignupErrorResponse1Value) => onSubscriptionGroupSignupErrorResponse1(
+                subscriptionGroupSignupErrorResponse1Value),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(SignupWithSubscriptionGroupError)} holds no value.")
+        };
+
+    public void Match(Action<SubscriptionGroupSignupErrorResponse1> onSubscriptionGroupSignupErrorResponse1,
+        Action<RawError> otherwise)
+    {
+        if (TryGetSubscriptionGroupSignupErrorResponse1(
+            out var subscriptionGroupSignupErrorResponse1Value)) onSubscriptionGroupSignupErrorResponse1(
+            subscriptionGroupSignupErrorResponse1Value);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(SignupWithSubscriptionGroupError)} holds no value.");
+    }
 
     private static Task<SignupWithSubscriptionGroupError> Create(FailedResponse response) =>
         response.StatusCode switch

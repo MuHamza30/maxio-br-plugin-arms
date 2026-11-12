@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -15,23 +16,50 @@ public record TrialInterval
 
     private readonly Optional<int> _intValue;
 
-    private TrialInterval(Optional<string> stringValue, Optional<int> intValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private TrialInterval(Optional<string> stringValue, Optional<int> intValue, Optional<UnknownArm> unknownValue)
     {
         _stringValue = stringValue;
         _intValue = intValue;
+        _unknownValue = unknownValue;
     }
 
-    public static TrialInterval String(string value) => new(Optional<string>.Some(value), default);
+    public static TrialInterval String(string value) => new(Optional<string>.Some(value), default, default);
 
-    public static TrialInterval Int(int value) => new(default, Optional<int>.Some(value));
+    public static TrialInterval Int(int value) => new(default, Optional<int>.Some(value), default);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    internal static TrialInterval Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
 
     public bool TryGetInt(out int value) => _intValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator TrialInterval(string value) => String(value);
 
     public static implicit operator TrialInterval(int value) => Int(value);
+
+    public TResult Match<TResult>(Func<string, TResult> onString,
+        Func<int, TResult> onInt,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetInt(out var intValue) => onInt(intValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(TrialInterval)} holds no value.")
+        };
+
+    public void Match(Action<string> onString, Action<int> onInt, Action<JsonElement> otherwise)
+    {
+        if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetInt(out var intValue)) onInt(intValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(TrialInterval)} holds no value.");
+    }
 }
 
 file sealed class TrialIntervalConverter : JsonConverter<TrialInterval>
@@ -52,7 +80,7 @@ file sealed class TrialIntervalConverter : JsonConverter<TrialInterval>
                 return TrialInterval.Int(intValue);
             }
         }
-        throw new JsonException($"JSON does not match string or int schemas: {root.ToString()}");
+        return TrialInterval.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, TrialInterval value, JsonSerializerOptions options)
@@ -64,6 +92,10 @@ file sealed class TrialIntervalConverter : JsonConverter<TrialInterval>
         else if (value.TryGetInt(out var intValue))
         {
             JsonSerializer.Serialize(writer, intValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

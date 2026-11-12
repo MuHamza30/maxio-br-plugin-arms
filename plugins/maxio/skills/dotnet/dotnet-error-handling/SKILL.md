@@ -18,7 +18,8 @@ Endpoint methods **throw on non-success responses** by default (for a non-throwi
 comes in **two shapes**, depending on the operation:
 
 - **Typed model (Case A)** — a per-operation `{Operation}Error` (subclass of `ApiError`) exists under
-  `Errors/` for the operation; `TError` is that type and you read it with typed `TryGet*` accessors.
+  `Errors/` for the operation; `TError` is that type. Dispatch on it with its exhaustive `Match` (one
+  `on{Arm}` per declared body plus a required `otherwise`), or read one body with a `TryGet*` accessor.
 - **`RawError` (Case B)** — when the operation has no `{Operation}Error` type, `TError` is `RawError`
   *directly*. `RawError` is **not** an `ApiError` and has **no** `TryGet*` / `TryGetRawError` accessors; you
   read the status and body straight off `ex.Error`.
@@ -125,19 +126,23 @@ memory:
 
 1. **List *every* `TryGet...` accessor the operation's `{Operation}Error` declares.** The operation's map
    row already lists them (with the HTTP status each maps to); take them from the contract sheet.
-   They are the `public bool TryGet...(out ...)` methods on the `{Operation}Error` type (grounded
+   They are the `public bool TryGet...([NotNullWhen(true)] out ...? value)` methods, a bare `out` for a
+   value-type body such as `long`, on the `{Operation}Error` type (grounded
    from the SDK map/source). These accessors are generated per operation — one per distinct error body the operation maps —
    and their names embed the body type. Expect a mix of:
    - **typed-body accessors** named after a model or scalar — `TryGetValidationErrors`, `TryGetProblemDetails`,
      `TryGetString`, `TryGetLong`, …;
-   - **status-specific `RawError` accessors** — e.g. `TryGetNoContent(out RawError)` — the names on your operation come from its map row;
-   - the inherited **`TryGetRawError(out RawError)`**, which every `{Operation}Error` exposes.
-2. **Write one `if` / `else if` branch per `TryGet*` method — cover them all, and put `TryGetRawError`
-   *last*.** Each public `TryGet*` corresponds to a status/body the operation can return; skip one and you
-   silently drop that response. `TryGetRawError` must be the final branch because it is **not** a catch-all:
-   it only fires for a status with no more-specific accessor — a status with a typed or status-specific
-   `RawError` accessor (a `422` validation payload, `TryGetNoContent`) leaves it **false** — so checking it
-   first drops those bodies.
+   - **status-specific `RawError` accessors** — e.g. `TryGetNoContent([NotNullWhen(true)] out RawError? value)` — the names on your operation come from its map row;
+   - the inherited **`TryGetRawError([NotNullWhen(true)] out RawError? error)`**, which every `{Operation}Error` exposes.
+2. **Dispatch through `ex.Error.Match(...)`, passing every arm by name.** `Match` has one `on{Arm}`
+   parameter per `TryGet{Arm}` accessor (same stem, same value) plus a required `otherwise` that receives
+   the `RawError` of a status the operation does not declare — the compiler refuses a call that leaves an
+   arm out, so no response is silently dropped. Pass the arms by name: they are positional, in the
+   ordinal order of their names, and a regenerated SDK whose operation gains or loses an error body
+   changes the signature (a source and binary break for a positional call site). Reach for a single
+   `TryGet{Arm}` only when one body is all you need, and for `TryGetRawError` only as the accessor
+   behind `otherwise`: it is **not** a catch-all — a status with a typed or status-specific accessor
+   (a `422` validation payload, `TryGetNoContent`) leaves it **false**.
 
 ```csharp
 using {RootNamespace}.Core.Exceptions;     // ApiException<TError>
@@ -151,27 +156,16 @@ try
 }
 catch (ApiException<{Operation}Error> ex)
 {
-    // ex.StatusCode / ex.Headers are always here; the body is behind the accessors below.
-    // ONE branch per public TryGet* declared on {Operation}Error — copy the exact names from the class
-    // under Errors/. The TryGet{...} names below are PLACEHOLDERS; yours are named after this operation's
-    // responses (a typed body may be a model OR a scalar such as TryGetString/TryGetLong).
-    if (ex.Error.TryGet{TypedBody1}(out var body1))            // e.g. TryGetValidationErrors — a typed body
-    {
-        // inspect body1
-    }
-    else if (ex.Error.TryGet{TypedBody2}(out var body2))       // e.g. TryGetProblemDetails — another typed body
-    {
-        // inspect body2
-    }
-    else if (ex.Error.TryGet{Status}(out RawError statusRaw))  // e.g. TryGetNoContent(out RawError) — status-specific
-    {
-        Console.Error.WriteLine($"HTTP {(int)statusRaw.StatusCode}");
-    }
-    // ... KEEP GOING: one else-if for EVERY remaining TryGet* the class declares — do not stop early ...
-    else if (ex.Error.TryGetRawError(out RawError raw))        // ALWAYS LAST: fallback for untyped statuses only
-    {
-        Console.Error.WriteLine($"HTTP {(int)raw.StatusCode}: {raw.ReadAsString()}");
-    }
+    // ex.StatusCode / ex.Headers are always here; the body is behind the arms below.
+    // ONE named arm per public TryGet* declared on {Operation}Error — copy the exact names from the class
+    // under Errors/ (on{Body} pairs with TryGet{Body}). The on{...} names below are PLACEHOLDERS; yours are
+    // named after this operation's responses (a typed body may be a model OR a scalar such as onString/onLong).
+    ex.Error.Match(
+        on{TypedBody1}: body1 => { /* inspect body1 — e.g. onValidationErrors */ },
+        on{TypedBody2}: body2 => { /* inspect body2 — e.g. onProblemDetails */ },
+        on{Status}: statusRaw => Console.Error.WriteLine($"HTTP {(int)statusRaw.StatusCode}"),   // e.g. onNoContent
+        // ... one named arm for EVERY remaining TryGet* the class declares — the compiler enforces it ...
+        otherwise: raw => Console.Error.WriteLine($"HTTP {(int)raw.StatusCode}: {raw.ReadAsString()}"));   // undeclared status
 }
 ```
 
@@ -242,7 +236,7 @@ if (result.TryGetResponse(out var response))        // success
 else if (result.TryGetError(out var error))         // failure
 {
     // 'error' is the same TError as the throwing path:
-    //   Case A → typed {Operation}Error (use its TryGet* accessors, then TryGetRawError)
+    //   Case A → typed {Operation}Error (dispatch with error.Match(on{Arm}: …, otherwise: …), or read one arm with TryGet*)
     //   Case B → RawError (read error.StatusCode / error.ReadAsString())
     Console.Error.WriteLine($"HTTP {(int)result.StatusCode}");
 }
@@ -284,14 +278,11 @@ catch (ApiException<{Operation}Error> ex)        // a Case A operation — typed
 {
     // Carry the body's identity fields (the provider's own error code or name, any correlation
     // id) — the typed body is the only thing that carries them, and it does not outlive this
-    // catch. Check the accessors in the SAME order as the Case A ladder above: every typed
-    // accessor this operation declares (names from its map row), then the RawError-yielding
-    // arms LAST. Carry ex.StatusCode alongside whichever branch fires.
-    if (ex.Error.TryGet{Body}(out {Body} e))
-        throw new {ProviderException}(e.{MessageField} /* + identity fields — names from the model's map row */, ex.StatusCode, ex);
-    if (ex.Error.TryGetRawError(out RawError raw))
-        throw new {ProviderException}($"HTTP {(int)ex.StatusCode}", ex.StatusCode, ex);
-    throw new {ProviderException}("unrecognised error shape", ex.StatusCode, ex);
+    // catch. Dispatch through Match so every declared body is handled and an undeclared status lands
+    // in otherwise; carry ex.StatusCode alongside whichever arm fires.
+    throw ex.Error.Match(
+        on{Body}: e => new {ProviderException}(e.{MessageField} /* + identity fields — names from the model's map row */, ex.StatusCode, ex),
+        otherwise: raw => new {ProviderException}($"HTTP {(int)ex.StatusCode}", ex.StatusCode, ex));
 }
 catch (ApiException<RawError> ex)                // a Case B operation — no typed body, just the status
 {
@@ -404,7 +395,9 @@ throws **`ResponseDeserializationException`** — an `ApiException` (so `StatusC
 `ContentType` are on it) that names the `TargetType` it was building, with the `JsonException` as
 `InnerException`. It is **not** an `ApiException<TError>`, so a ladder with only typed catches lets it
 through, and a generic handler that writes `exception.Message` leaks the SDK type name and the call URL.
-It fires on a success body, and on an error body that doesn't fit the operation's `{Operation}Error` —
+It fires on a success body (a `OneOf` or `AnyOf` response type is the exception: its Unknown slot takes a
+body no variant accepts, see `dotnet-models`), and on an error body that doesn't fit the operation's
+`{Operation}Error` —
 then your typed `catch` never fires, and there is no fallback to `RawError`. Catch it at the same boundary
 with a caller-safe message, and **read `ex.StatusCode` to tell the two cases apart**: an unreadable
 **success** body is genuinely unknown (5xx); an unreadable **error** body means the provider rejected the

@@ -24,4 +24,8 @@ public abstract class WebhookEventParser<TEvent>
         WebhookTypeSource source) =>
         source.Resolve(root, name => request.TryGetHeader(name, out var value) ? value : null)
         ?? throw new JsonException("Event body is missing the required discriminator.");
+
+    private protected static TPayload ReadPayload<TPayload>(JsonElement root, JsonSerializerOptions options) =>
+        root.Deserialize<TPayload>(options)
+        ?? throw new JsonException("Event body must be a JSON object.");
 }

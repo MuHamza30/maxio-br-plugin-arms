@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -12,30 +13,68 @@ public record PaymentProfileModel
 
     private readonly Optional<GetOneTimeTokenBankAccountPaymentProfile> _getOneTimeTokenBankAccountPaymentProfileValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private PaymentProfileModel(Optional<GetOneTimeTokenPaymentProfile> getOneTimeTokenPaymentProfileValue,
-        Optional<GetOneTimeTokenBankAccountPaymentProfile> getOneTimeTokenBankAccountPaymentProfileValue)
+        Optional<GetOneTimeTokenBankAccountPaymentProfile> getOneTimeTokenBankAccountPaymentProfileValue,
+        Optional<UnknownArm> unknownValue)
     {
         _getOneTimeTokenPaymentProfileValue = getOneTimeTokenPaymentProfileValue;
         _getOneTimeTokenBankAccountPaymentProfileValue = getOneTimeTokenBankAccountPaymentProfileValue;
+        _unknownValue = unknownValue;
     }
 
     public static PaymentProfileModel GetOneTimeTokenPaymentProfile(GetOneTimeTokenPaymentProfile value) =>
-        new(Optional<GetOneTimeTokenPaymentProfile>.Some(value), default);
+        new(Optional<GetOneTimeTokenPaymentProfile>.Some(value), default, default);
 
     public static PaymentProfileModel GetOneTimeTokenBankAccountPaymentProfile(GetOneTimeTokenBankAccountPaymentProfile value) =>
-        new(default, Optional<GetOneTimeTokenBankAccountPaymentProfile>.Some(value));
+        new(default, Optional<GetOneTimeTokenBankAccountPaymentProfile>.Some(value), default);
 
-    public bool TryGetGetOneTimeTokenPaymentProfile(out GetOneTimeTokenPaymentProfile value) =>
+    internal static PaymentProfileModel Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetGetOneTimeTokenPaymentProfile([NotNullWhen(true)] out GetOneTimeTokenPaymentProfile? value) =>
         _getOneTimeTokenPaymentProfileValue.TryGetValue(out value);
 
-    public bool TryGetGetOneTimeTokenBankAccountPaymentProfile(out GetOneTimeTokenBankAccountPaymentProfile value) =>
+    public bool TryGetGetOneTimeTokenBankAccountPaymentProfile([NotNullWhen(true)] out GetOneTimeTokenBankAccountPaymentProfile? value) =>
         _getOneTimeTokenBankAccountPaymentProfileValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator PaymentProfileModel(GetOneTimeTokenPaymentProfile value) =>
         GetOneTimeTokenPaymentProfile(value);
 
     public static implicit operator PaymentProfileModel(GetOneTimeTokenBankAccountPaymentProfile value) =>
         GetOneTimeTokenBankAccountPaymentProfile(value);
+
+    public TResult Match<TResult>(Func<GetOneTimeTokenPaymentProfile, TResult> onGetOneTimeTokenPaymentProfile,
+        Func<GetOneTimeTokenBankAccountPaymentProfile, TResult> onGetOneTimeTokenBankAccountPaymentProfile,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetGetOneTimeTokenPaymentProfile(
+                out var getOneTimeTokenPaymentProfileValue) => onGetOneTimeTokenPaymentProfile(
+                getOneTimeTokenPaymentProfileValue),
+            _ when TryGetGetOneTimeTokenBankAccountPaymentProfile(
+                out var getOneTimeTokenBankAccountPaymentProfileValue) => onGetOneTimeTokenBankAccountPaymentProfile(
+                getOneTimeTokenBankAccountPaymentProfileValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(PaymentProfileModel)} holds no value.")
+        };
+
+    public void Match(Action<GetOneTimeTokenPaymentProfile> onGetOneTimeTokenPaymentProfile,
+        Action<GetOneTimeTokenBankAccountPaymentProfile> onGetOneTimeTokenBankAccountPaymentProfile,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetGetOneTimeTokenPaymentProfile(
+            out var getOneTimeTokenPaymentProfileValue)) onGetOneTimeTokenPaymentProfile(
+            getOneTimeTokenPaymentProfileValue);
+        else if (TryGetGetOneTimeTokenBankAccountPaymentProfile(
+            out var getOneTimeTokenBankAccountPaymentProfileValue)) onGetOneTimeTokenBankAccountPaymentProfile(
+            getOneTimeTokenBankAccountPaymentProfileValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(PaymentProfileModel)} holds no value.");
+    }
 }
 
 file sealed class PaymentProfileModelConverter : JsonConverter<PaymentProfileModel>
@@ -46,19 +85,18 @@ file sealed class PaymentProfileModelConverter : JsonConverter<PaymentProfileMod
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
-        if (!root.TryGetProperty("payment_type", out var typeProperty))
+        if (!root.TryGetProperty("payment_type", out var typeProperty) ||
+            typeProperty.ValueKind != JsonValueKind.String)
         {
-            throw new JsonException("Missing required 'payment_type' discriminator field");
+            throw new JsonException("Missing or non-string 'payment_type' discriminator field");
         }
-        var discriminator = typeProperty.GetString();
-        return discriminator switch
+        return typeProperty.GetString() switch
         {
             "credit_card" => PaymentProfileModel.GetOneTimeTokenPaymentProfile(
                 root.Deserialize<GetOneTimeTokenPaymentProfile>(options)!),
             "bank_account" => PaymentProfileModel.GetOneTimeTokenBankAccountPaymentProfile(
                 root.Deserialize<GetOneTimeTokenBankAccountPaymentProfile>(options)!),
-            _ => throw new JsonException(
-                $"JSON does not match GetOneTimeTokenPaymentProfile or GetOneTimeTokenBankAccountPaymentProfile schemas: {root.ToString()}")
+            _ => PaymentProfileModel.Unknown(root)
         };
     }
 
@@ -72,6 +110,10 @@ file sealed class PaymentProfileModelConverter : JsonConverter<PaymentProfileMod
             out var getOneTimeTokenBankAccountPaymentProfileValue))
         {
             JsonSerializer.Serialize(writer, getOneTimeTokenBankAccountPaymentProfileValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

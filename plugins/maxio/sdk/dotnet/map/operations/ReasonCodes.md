@@ -12,7 +12,7 @@ Accessor: `client.ReasonCodes` · Source: `src/MaxioAdvancedBilling/Api/ReasonCo
 - **Signature**: `CreateReasonCode(CreateReasonCodeOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `ReasonCodeResponse`
 - **Error**: `ApiException<CreateReasonCodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -29,7 +29,7 @@ Accessor: `client.ReasonCodes` · Source: `src/MaxioAdvancedBilling/Api/ReasonCo
   - required: `ReasonCodeId`
 - **Returns**: `OkResponse`
 - **Error**: `ApiException<DeleteReasonCodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -44,7 +44,7 @@ Accessor: `client.ReasonCodes` · Source: `src/MaxioAdvancedBilling/Api/ReasonCo
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`
 - **Returns**: `IReadOnlyList<ReasonCodeResponse>`
 - **Error**: `ApiException<ListReasonCodesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -60,7 +60,7 @@ Accessor: `client.ReasonCodes` · Source: `src/MaxioAdvancedBilling/Api/ReasonCo
   - required: `ReasonCodeId`
 - **Returns**: `ReasonCodeResponse`
 - **Error**: `ApiException<ReadReasonCodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -75,7 +75,7 @@ Accessor: `client.ReasonCodes` · Source: `src/MaxioAdvancedBilling/Api/ReasonCo
   - required: `ReasonCodeId`
 - **Returns**: `ReasonCodeResponse`
 - **Error**: `ApiException<UpdateReasonCodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

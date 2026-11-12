@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -14,22 +15,54 @@ public record EnumModel
 
     private readonly Optional<IReadOnlyList<string>> _listOfStringValue;
 
-    private EnumModel(Optional<string> stringValue, Optional<IReadOnlyList<string>> listOfStringValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private EnumModel(Optional<string> stringValue,
+        Optional<IReadOnlyList<string>> listOfStringValue,
+        Optional<UnknownArm> unknownValue)
     {
         _stringValue = stringValue;
         _listOfStringValue = listOfStringValue;
+        _unknownValue = unknownValue;
     }
 
-    public static EnumModel String(string value) => new(Optional<string>.Some(value), default);
+    public static EnumModel String(string value) => new(Optional<string>.Some(value), default, default);
 
     public static EnumModel ListOfString(IReadOnlyList<string> value) =>
-        new(default, Optional<IReadOnlyList<string>>.Some(value));
+        new(default, Optional<IReadOnlyList<string>>.Some(value), default);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    internal static EnumModel Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
 
-    public bool TryGetListOfString(out IReadOnlyList<string> value) => _listOfStringValue.TryGetValue(out value);
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
+
+    public bool TryGetListOfString([NotNullWhen(true)] out IReadOnlyList<string>? value) =>
+        _listOfStringValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator EnumModel(string value) => String(value);
+
+    public TResult Match<TResult>(Func<string, TResult> onString,
+        Func<IReadOnlyList<string>, TResult> onListOfString,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetListOfString(out var listOfStringValue) => onListOfString(listOfStringValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(EnumModel)} holds no value.")
+        };
+
+    public void Match(Action<string> onString,
+        Action<IReadOnlyList<string>> onListOfString,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetListOfString(out var listOfStringValue)) onListOfString(listOfStringValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(EnumModel)} holds no value.");
+    }
 }
 
 file sealed class EnumModelConverter : JsonConverter<EnumModel>
@@ -47,7 +80,7 @@ file sealed class EnumModelConverter : JsonConverter<EnumModel>
         {
             return EnumModel.ListOfString(listOfStringValue);
         }
-        throw new JsonException($"JSON does not match string or IReadOnlyList<string> schemas: {root.ToString()}");
+        return EnumModel.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, EnumModel value, JsonSerializerOptions options)
@@ -59,6 +92,10 @@ file sealed class EnumModelConverter : JsonConverter<EnumModel>
         else if (value.TryGetListOfString(out var listOfStringValue))
         {
             JsonSerializer.Serialize(writer, listOfStringValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

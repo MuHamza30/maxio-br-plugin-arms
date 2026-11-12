@@ -127,7 +127,7 @@ Enums are `OpenStringEnum<T>` / `OpenIntEnum<T>` records, not C# enums: use the 
 ## Union types, collections, and dates
 
 Some properties are not plain scalars: polymorphic `OneOf`/`AnyOf` unions (built with **factory methods**,
-not object-initializers, and read via `TryGet…`), `IReadOnlyList`/`IReadOnlyDictionary` collections, and
+not object-initializers, and read via `TryGet…` or `Match`), `IReadOnlyList`/`IReadOnlyDictionary` collections, and
 `DateTimeOffset` dates. If a request property or response field is one of these, see **dotnet-models** for
 how to construct and read it.
 

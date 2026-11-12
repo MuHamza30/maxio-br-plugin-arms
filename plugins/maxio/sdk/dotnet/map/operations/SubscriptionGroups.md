@@ -26,7 +26,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
 - **Signature**: `CreateSubscriptionGroup(CreateSubscriptionGroupOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `SubscriptionGroupResponse`
 - **Error**: `ApiException<CreateSubscriptionGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionGroupCreateErrorResponse1(out SubscriptionGroupCreateErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionGroupCreateErrorResponse1([NotNullWhen(true)] out SubscriptionGroupCreateErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -43,7 +43,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `Uid`
 - **Returns**: `DeleteSubscriptionGroupResponse`
 - **Error**: `ApiException<DeleteSubscriptionGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -59,7 +59,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
 - **Query params (wire ← C#)**: `subscription_id` ← `SubscriptionId`
 - **Returns**: `FullSubscriptionGroupResponse`
 - **Error**: `ApiException<FindSubscriptionGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -103,7 +103,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `SubscriptionId`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<RemoveSubscriptionFromGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -117,7 +117,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
 - **Signature**: `SignupWithSubscriptionGroup(SignupWithSubscriptionGroupRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `SubscriptionGroupSignupResponse`
 - **Error**: `ApiException<SignupWithSubscriptionGroupError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionGroupSignupErrorResponse1(out SubscriptionGroupSignupErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionGroupSignupErrorResponse1([NotNullWhen(true)] out SubscriptionGroupSignupErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -134,7 +134,7 @@ Accessor: `client.SubscriptionGroups` · Source: `src/MaxioAdvancedBilling/Api/S
   - required: `Uid`
 - **Returns**: `SubscriptionGroupResponse`
 - **Error**: `ApiException<UpdateSubscriptionGroupMembersError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSubscriptionGroupUpdateErrorResponse1(out SubscriptionGroupUpdateErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSubscriptionGroupUpdateErrorResponse1([NotNullWhen(true)] out SubscriptionGroupUpdateErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

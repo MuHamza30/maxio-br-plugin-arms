@@ -13,7 +13,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `Uid`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<CreateConsolidatedProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -28,7 +28,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `SubscriptionId`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<CreateProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -43,7 +43,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
 - **Signature**: `CreateSignupProformaInvoice(CreateSignupProformaInvoiceRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<CreateSignupProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetProformaBadRequestErrorResponse1(out ProformaBadRequestErrorResponse1)` [400] · `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetProformaBadRequestErrorResponse1([NotNullWhen(true)] out ProformaBadRequestErrorResponse1? value)` [400] · `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -61,7 +61,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `ProformaInvoiceUid`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<DeliverProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -95,7 +95,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
 - **Query params (wire ← C#)**: `line_items` ← `LineItems`, `discounts` ← `Discounts`, `taxes` ← `Taxes`, `credits` ← `Credits`, `payments` ← `Payments`, `custom_fields` ← `CustomFields`
 - **Returns**: `ListProformaInvoicesResponse`
 - **Error**: `ApiException<ListSubscriptionGroupProformaInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -110,7 +110,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `SubscriptionId`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<PreviewProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -126,7 +126,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
 - **Query params (wire ← C#)**: `include` ← `Include`
 - **Returns**: `SignupProformaPreviewResponse`
 - **Error**: `ApiException<PreviewSignupProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetProformaBadRequestErrorResponse1(out ProformaBadRequestErrorResponse1)` [400] · `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetProformaBadRequestErrorResponse1([NotNullWhen(true)] out ProformaBadRequestErrorResponse1? value)` [400] · `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -145,7 +145,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `ProformaInvoiceUid`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<ReadProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -160,7 +160,7 @@ Accessor: `client.ProformaInvoices` · Source: `src/MaxioAdvancedBilling/Api/Pro
   - required: `ProformaInvoiceUid`
 - **Returns**: `ProformaInvoice`
 - **Error**: `ApiException<VoidProformaInvoiceError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -21,8 +23,27 @@ public sealed class ApplyCouponsToSubscriptionError : ApiError
     private static ApplyCouponsToSubscriptionError AsFallback(RawError value) =>
         new(default, Optional<RawError>.Some(value));
 
-    public bool TryGetSubscriptionAddCouponError1(out SubscriptionAddCouponError1 value) =>
+    public bool TryGetSubscriptionAddCouponError1([NotNullWhen(true)] out SubscriptionAddCouponError1? value) =>
         _subscriptionAddCouponError1Value.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<SubscriptionAddCouponError1, TResult> onSubscriptionAddCouponError1,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetSubscriptionAddCouponError1(
+                out var subscriptionAddCouponError1Value) => onSubscriptionAddCouponError1(
+                subscriptionAddCouponError1Value),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(ApplyCouponsToSubscriptionError)} holds no value.")
+        };
+
+    public void Match(Action<SubscriptionAddCouponError1> onSubscriptionAddCouponError1, Action<RawError> otherwise)
+    {
+        if (TryGetSubscriptionAddCouponError1(out var subscriptionAddCouponError1Value)) onSubscriptionAddCouponError1(
+            subscriptionAddCouponError1Value);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(ApplyCouponsToSubscriptionError)} holds no value.");
+    }
 
     private static Task<ApplyCouponsToSubscriptionError> Create(FailedResponse response) =>
         response.StatusCode switch

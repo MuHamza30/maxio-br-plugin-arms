@@ -10,7 +10,7 @@ Accessor: `client.Events` · Source: `src/MaxioAdvancedBilling/Api/Events.cs` ·
 
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListEvents(ListEventsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
-- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter`, `date_field` ← `DateField`, `start_date` ← `StartDate`, `end_date` ← `EndDate`, `start_datetime` ← `StartDatetime`, `end_datetime` ← `EndDatetime`
+- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter` (comma-separated), `date_field` ← `DateField`, `start_date` ← `StartDate`, `end_date` ← `EndDate`, `start_datetime` ← `StartDatetime`, `end_datetime` ← `EndDatetime`
 - **Returns**: `IReadOnlyList<EventResponse>`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -27,7 +27,7 @@ Accessor: `client.Events` · Source: `src/MaxioAdvancedBilling/Api/Events.cs` ·
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ListSubscriptionEvents(ListSubscriptionEventsRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
   - required: `SubscriptionId`
-- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter`
+- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter` (comma-separated)
 - **Returns**: `IReadOnlyList<EventResponse>`
 - **Error**: `ApiException<RawError>` — **Case B**
 
@@ -42,7 +42,7 @@ Accessor: `client.Events` · Source: `src/MaxioAdvancedBilling/Api/Events.cs` ·
 
 - **Auth**: `options.BasicAuth`
 - **Signature**: `ReadEventsCount(ReadEventsCountRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
-- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter`
+- **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `since_id` ← `SinceId`, `max_id` ← `MaxId`, `direction` ← `Direction`, `filter` ← `Filter` (comma-separated)
 - **Returns**: `CountResponse`
 - **Error**: `ApiException<RawError>` — **Case B**
 

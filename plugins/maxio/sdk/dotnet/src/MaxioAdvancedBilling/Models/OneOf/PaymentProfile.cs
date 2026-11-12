@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -16,40 +17,49 @@ public record PaymentProfile
 
     private readonly Optional<PaypalPaymentProfile> _paypalPaymentProfileValue;
 
+    private readonly Optional<UnknownArm> _unknownValue;
+
     private PaymentProfile(Optional<ApplePayPaymentProfile> applePayPaymentProfileValue,
         Optional<BankAccountPaymentProfile> bankAccountPaymentProfileValue,
         Optional<CreditCardPaymentProfile> creditCardPaymentProfileValue,
-        Optional<PaypalPaymentProfile> paypalPaymentProfileValue)
+        Optional<PaypalPaymentProfile> paypalPaymentProfileValue,
+        Optional<UnknownArm> unknownValue)
     {
         _applePayPaymentProfileValue = applePayPaymentProfileValue;
         _bankAccountPaymentProfileValue = bankAccountPaymentProfileValue;
         _creditCardPaymentProfileValue = creditCardPaymentProfileValue;
         _paypalPaymentProfileValue = paypalPaymentProfileValue;
+        _unknownValue = unknownValue;
     }
 
     public static PaymentProfile ApplePayPaymentProfile(ApplePayPaymentProfile value) =>
-        new(Optional<ApplePayPaymentProfile>.Some(value), default, default, default);
+        new(Optional<ApplePayPaymentProfile>.Some(value), default, default, default, default);
 
     public static PaymentProfile BankAccountPaymentProfile(BankAccountPaymentProfile value) =>
-        new(default, Optional<BankAccountPaymentProfile>.Some(value), default, default);
+        new(default, Optional<BankAccountPaymentProfile>.Some(value), default, default, default);
 
     public static PaymentProfile CreditCardPaymentProfile(CreditCardPaymentProfile value) =>
-        new(default, default, Optional<CreditCardPaymentProfile>.Some(value), default);
+        new(default, default, Optional<CreditCardPaymentProfile>.Some(value), default, default);
 
     public static PaymentProfile PaypalPaymentProfile(PaypalPaymentProfile value) =>
-        new(default, default, default, Optional<PaypalPaymentProfile>.Some(value));
+        new(default, default, default, Optional<PaypalPaymentProfile>.Some(value), default);
 
-    public bool TryGetApplePayPaymentProfile(out ApplePayPaymentProfile value) =>
+    internal static PaymentProfile Unknown(JsonElement value) =>
+        new(default, default, default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetApplePayPaymentProfile([NotNullWhen(true)] out ApplePayPaymentProfile? value) =>
         _applePayPaymentProfileValue.TryGetValue(out value);
 
-    public bool TryGetBankAccountPaymentProfile(out BankAccountPaymentProfile value) =>
+    public bool TryGetBankAccountPaymentProfile([NotNullWhen(true)] out BankAccountPaymentProfile? value) =>
         _bankAccountPaymentProfileValue.TryGetValue(out value);
 
-    public bool TryGetCreditCardPaymentProfile(out CreditCardPaymentProfile value) =>
+    public bool TryGetCreditCardPaymentProfile([NotNullWhen(true)] out CreditCardPaymentProfile? value) =>
         _creditCardPaymentProfileValue.TryGetValue(out value);
 
-    public bool TryGetPaypalPaymentProfile(out PaypalPaymentProfile value) =>
+    public bool TryGetPaypalPaymentProfile([NotNullWhen(true)] out PaypalPaymentProfile? value) =>
         _paypalPaymentProfileValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator PaymentProfile(ApplePayPaymentProfile value) => ApplePayPaymentProfile(value);
 
@@ -58,6 +68,43 @@ public record PaymentProfile
     public static implicit operator PaymentProfile(CreditCardPaymentProfile value) => CreditCardPaymentProfile(value);
 
     public static implicit operator PaymentProfile(PaypalPaymentProfile value) => PaypalPaymentProfile(value);
+
+    public TResult Match<TResult>(Func<ApplePayPaymentProfile, TResult> onApplePayPaymentProfile,
+        Func<BankAccountPaymentProfile, TResult> onBankAccountPaymentProfile,
+        Func<CreditCardPaymentProfile, TResult> onCreditCardPaymentProfile,
+        Func<PaypalPaymentProfile, TResult> onPaypalPaymentProfile,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetApplePayPaymentProfile(out var applePayPaymentProfileValue) => onApplePayPaymentProfile(
+                applePayPaymentProfileValue),
+            _ when TryGetBankAccountPaymentProfile(
+                out var bankAccountPaymentProfileValue) => onBankAccountPaymentProfile(bankAccountPaymentProfileValue),
+            _ when TryGetCreditCardPaymentProfile(out var creditCardPaymentProfileValue) => onCreditCardPaymentProfile(
+                creditCardPaymentProfileValue),
+            _ when TryGetPaypalPaymentProfile(out var paypalPaymentProfileValue) => onPaypalPaymentProfile(
+                paypalPaymentProfileValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(PaymentProfile)} holds no value.")
+        };
+
+    public void Match(Action<ApplePayPaymentProfile> onApplePayPaymentProfile,
+        Action<BankAccountPaymentProfile> onBankAccountPaymentProfile,
+        Action<CreditCardPaymentProfile> onCreditCardPaymentProfile,
+        Action<PaypalPaymentProfile> onPaypalPaymentProfile,
+        Action<JsonElement> otherwise)
+    {
+        if (TryGetApplePayPaymentProfile(out var applePayPaymentProfileValue)) onApplePayPaymentProfile(
+            applePayPaymentProfileValue);
+        else if (TryGetBankAccountPaymentProfile(out var bankAccountPaymentProfileValue)) onBankAccountPaymentProfile(
+            bankAccountPaymentProfileValue);
+        else if (TryGetCreditCardPaymentProfile(out var creditCardPaymentProfileValue)) onCreditCardPaymentProfile(
+            creditCardPaymentProfileValue);
+        else if (TryGetPaypalPaymentProfile(out var paypalPaymentProfileValue)) onPaypalPaymentProfile(
+            paypalPaymentProfileValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(PaymentProfile)} holds no value.");
+    }
 }
 
 file sealed class PaymentProfileConverter : JsonConverter<PaymentProfile>
@@ -66,12 +113,12 @@ file sealed class PaymentProfileConverter : JsonConverter<PaymentProfile>
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
-        if (!root.TryGetProperty("payment_type", out var typeProperty))
+        if (!root.TryGetProperty("payment_type", out var typeProperty) ||
+            typeProperty.ValueKind != JsonValueKind.String)
         {
-            throw new JsonException("Missing required 'payment_type' discriminator field");
+            throw new JsonException("Missing or non-string 'payment_type' discriminator field");
         }
-        var discriminator = typeProperty.GetString();
-        return discriminator switch
+        return typeProperty.GetString() switch
         {
             "apple_pay" => PaymentProfile.ApplePayPaymentProfile(root.Deserialize<ApplePayPaymentProfile>(options)!),
             "bank_account" => PaymentProfile.BankAccountPaymentProfile(root.Deserialize<BankAccountPaymentProfile>(
@@ -79,8 +126,7 @@ file sealed class PaymentProfileConverter : JsonConverter<PaymentProfile>
             "credit_card" => PaymentProfile.CreditCardPaymentProfile(root.Deserialize<CreditCardPaymentProfile>(
                 options)!),
             "paypal_account" => PaymentProfile.PaypalPaymentProfile(root.Deserialize<PaypalPaymentProfile>(options)!),
-            _ => throw new JsonException(
-                $"JSON does not match ApplePayPaymentProfile or BankAccountPaymentProfile or CreditCardPaymentProfile or PaypalPaymentProfile schemas: {root.ToString()}")
+            _ => PaymentProfile.Unknown(root)
         };
     }
 
@@ -101,6 +147,10 @@ file sealed class PaymentProfileConverter : JsonConverter<PaymentProfile>
         else if (value.TryGetPaypalPaymentProfile(out var paypalPaymentProfileValue))
         {
             JsonSerializer.Serialize(writer, paypalPaymentProfileValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

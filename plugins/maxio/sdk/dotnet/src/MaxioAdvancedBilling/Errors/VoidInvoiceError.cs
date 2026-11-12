@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -7,29 +9,51 @@ namespace MaxioAdvancedBilling.Errors;
 
 public sealed class VoidInvoiceError : ApiError
 {
-    private readonly Optional<object?> _objectValue;
-
     private readonly Optional<ErrorListResponse1> _errorListResponse1Value;
 
-    private VoidInvoiceError(Optional<object?> objectValue,
-        Optional<ErrorListResponse1> errorListResponse1Value,
+    private readonly Optional<object?> _objectValue;
+
+    private VoidInvoiceError(Optional<ErrorListResponse1> errorListResponse1Value,
+        Optional<object?> objectValue,
         Optional<RawError> fallback) : base(fallback)
     {
-        _objectValue = objectValue;
         _errorListResponse1Value = errorListResponse1Value;
+        _objectValue = objectValue;
     }
 
-    private static VoidInvoiceError AsObject(object? value) => new(Optional<object?>.Some(value), default, default);
-
     private static VoidInvoiceError AsErrorListResponse1(ErrorListResponse1 value) =>
-        new(default, Optional<ErrorListResponse1>.Some(value), default);
+        new(Optional<ErrorListResponse1>.Some(value), default, default);
+
+    private static VoidInvoiceError AsObject(object? value) => new(default, Optional<object?>.Some(value), default);
 
     private static VoidInvoiceError AsFallback(RawError value) => new(default, default, Optional<RawError>.Some(value));
 
+    public bool TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value) =>
+        _errorListResponse1Value.TryGetValue(out value);
+
     public bool TryGetObject(out object? value) => _objectValue.TryGetValue(out value);
 
-    public bool TryGetErrorListResponse1(out ErrorListResponse1 value) =>
-        _errorListResponse1Value.TryGetValue(out value);
+    public TResult Match<TResult>(Func<ErrorListResponse1, TResult> onErrorListResponse1,
+        Func<object?, TResult> onObject,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetErrorListResponse1(out var errorListResponse1Value) => onErrorListResponse1(
+                errorListResponse1Value),
+            _ when TryGetObject(out var objectValue) => onObject(objectValue),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(VoidInvoiceError)} holds no value.")
+        };
+
+    public void Match(Action<ErrorListResponse1> onErrorListResponse1,
+        Action<object?> onObject,
+        Action<RawError> otherwise)
+    {
+        if (TryGetErrorListResponse1(out var errorListResponse1Value)) onErrorListResponse1(errorListResponse1Value);
+        else if (TryGetObject(out var objectValue)) onObject(objectValue);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(VoidInvoiceError)} holds no value.");
+    }
 
     private static Task<VoidInvoiceError> Create(FailedResponse response) =>
         response.StatusCode switch

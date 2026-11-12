@@ -26,7 +26,7 @@ Accessor: `client.Coupons` · Source: `src/MaxioAdvancedBilling/Api/Coupons.cs` 
   - required: `ProductFamilyId`
 - **Returns**: `CouponResponse`
 - **Error**: `ApiException<CreateCouponError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -57,7 +57,7 @@ Accessor: `client.Coupons` · Source: `src/MaxioAdvancedBilling/Api/Coupons.cs` 
   - required: `CouponId`
 - **Returns**: `CouponCurrencyResponse`
 - **Error**: `ApiException<CreateOrUpdateCouponCurrencyPricesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorStringMapResponse1(out ErrorStringMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorStringMapResponse1([NotNullWhen(true)] out ErrorStringMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -74,7 +74,7 @@ Accessor: `client.Coupons` · Source: `src/MaxioAdvancedBilling/Api/Coupons.cs` 
   - required: `CouponId`, `Subcode`
 - **Returns**: `void` (Task)
 - **Error**: `ApiException<DeleteCouponSubcodeError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -171,7 +171,7 @@ Accessor: `client.Coupons` · Source: `src/MaxioAdvancedBilling/Api/Coupons.cs` 
   - required: `ProductFamilyId`, `CouponId`
 - **Returns**: `CouponResponse`
 - **Error**: `ApiException<UpdateCouponError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -203,7 +203,7 @@ Accessor: `client.Coupons` · Source: `src/MaxioAdvancedBilling/Api/Coupons.cs` 
 - **Query params (wire ← C#)**: `code` ← `Code`, `product_family_id` ← `ProductFamilyId`
 - **Returns**: `CouponResponse`
 - **Error**: `ApiException<ValidateCouponError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleStringErrorResponse1(out SingleStringErrorResponse1)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleStringErrorResponse1([NotNullWhen(true)] out SingleStringErrorResponse1? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

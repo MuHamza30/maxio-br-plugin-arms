@@ -127,8 +127,9 @@ Assert.Equal(HttpStatusCode.UnprocessableEntity, ex.StatusCode);   // same value
 
 **A body that does not match the model is a third outcome.** A 2xx whose JSON does not fit the response type,
 or an error body that does not fit `{Operation}Error`, throws `ResponseDeserializationException` (see
-`dotnet-error-handling`); its `StatusCode` says which. Lock it down for any operation whose provider is known
-to drift:
+`dotnet-error-handling`); its `StatusCode` says which. A `OneOf` or `AnyOf` response type is the exception: a
+body no variant accepts lands in its Unknown slot (see `dotnet-models`), so assert `TryGetUnknown` there
+instead of a throw. Lock it down for any operation whose provider is known to drift:
 
 ```csharp
 var client = ClientReturning(HttpStatusCode.OK, """{ "{resource}": "not-an-object" }""");

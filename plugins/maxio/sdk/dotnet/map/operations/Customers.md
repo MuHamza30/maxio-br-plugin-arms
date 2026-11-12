@@ -12,7 +12,7 @@ Accessor: `client.Customers` · Source: `src/MaxioAdvancedBilling/Api/Customers.
 - **Signature**: `CreateCustomer(CreateCustomerOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `CustomerResponse`
 - **Error**: `ApiException<CreateCustomerError>` — **Case A (typed)**
-- **Error accessors**: `TryGetCustomerErrorResponse1(out CustomerErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetCustomerErrorResponse1([NotNullWhen(true)] out CustomerErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -96,7 +96,7 @@ Accessor: `client.Customers` · Source: `src/MaxioAdvancedBilling/Api/Customers.
   - required: `Id`
 - **Returns**: `CustomerResponse`
 - **Error**: `ApiException<UpdateCustomerError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetCustomerErrorResponse1(out CustomerErrorResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetCustomerErrorResponse1([NotNullWhen(true)] out CustomerErrorResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

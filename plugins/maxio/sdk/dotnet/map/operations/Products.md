@@ -13,7 +13,7 @@ Accessor: `client.Products` · Source: `src/MaxioAdvancedBilling/Api/Products.cs
   - required: `ProductId`
 - **Returns**: `ProductResponse`
 - **Error**: `ApiException<ArchiveProductError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -29,7 +29,7 @@ Accessor: `client.Products` · Source: `src/MaxioAdvancedBilling/Api/Products.cs
   - required: `ProductFamilyId`
 - **Returns**: `ProductResponse`
 - **Error**: `ApiException<CreateProductError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -89,7 +89,7 @@ Accessor: `client.Products` · Source: `src/MaxioAdvancedBilling/Api/Products.cs
   - required: `ProductId`
 - **Returns**: `ProductResponse`
 - **Error**: `ApiException<UpdateProductError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

@@ -12,20 +12,15 @@ internal sealed class QueryParameterFactory
     public QueryParameterFactory(IReadOnlyCollection<Param> defaultQueryParams) =>
         _defaultQueryParams = defaultQueryParams;
 
-    public string Serialize(IReadOnlyCollection<Param> queryParams)
-    {
-        var totalParams = _defaultQueryParams.Concat(queryParams);
-        var parts = GenerateParts(totalParams);
-        return string.Join("&", parts);
-    }
+    public string Serialize(IReadOnlyCollection<Param> queryParams) =>
+        string.Join("&", _defaultQueryParams.Concat(queryParams)
+            .SelectMany(ParameterFlattener.Flatten)
+            .Select(Render));
 
-    private static IEnumerable<string> GenerateParts(IEnumerable<Param> queryParams)
+    private static string Render(ParameterFlattener.Field field)
     {
-        foreach (var queryParam in queryParams)
-        {
-            var flattened = ParameterFlattener.Flatten(queryParam);
-
-            foreach (var f in flattened) yield return $"{Uri.EscapeDataString(f.Key)}={Uri.EscapeDataString(f.Value)}";
-        }
+        var delimiter = field.Delimiter is "," ? "," : Uri.EscapeDataString(field.Delimiter);
+        var value = string.Join(delimiter, field.Items.Select(Uri.EscapeDataString));
+        return $"{Uri.EscapeDataString(field.Key)}={value}";
     }
 }

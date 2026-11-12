@@ -12,7 +12,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Signature**: `ExportInvoices(RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ExportInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [409] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [409] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -26,7 +26,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Signature**: `ExportProformaInvoices(RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ExportProformaInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [409] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [409] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -40,7 +40,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Signature**: `ExportSubscriptions(RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ExportSubscriptionsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetSingleErrorResponse1(out SingleErrorResponse1)` [409] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetSingleErrorResponse1([NotNullWhen(true)] out SingleErrorResponse1? value)` [409] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -56,7 +56,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Query params (wire ← C#)**: `per_page` ← `PerPage`, `page` ← `Page`
 - **Returns**: `IReadOnlyList<Invoice>`
 - **Error**: `ApiException<ListExportedInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -72,7 +72,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Query params (wire ← C#)**: `per_page` ← `PerPage`, `page` ← `Page`
 - **Returns**: `IReadOnlyList<ProformaInvoice>`
 - **Error**: `ApiException<ListExportedProformaInvoicesError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -88,7 +88,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
 - **Query params (wire ← C#)**: `per_page` ← `PerPage`, `page` ← `Page`
 - **Returns**: `IReadOnlyList<Subscription>`
 - **Error**: `ApiException<ListExportedSubscriptionsError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -103,7 +103,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
   - required: `BatchId`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ReadInvoicesExportError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -118,7 +118,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
   - required: `BatchId`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ReadProformaInvoicesExportError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -133,7 +133,7 @@ Accessor: `client.ApiExports` · Source: `src/MaxioAdvancedBilling/Api/ApiExport
   - required: `BatchId`
 - **Returns**: `BatchJobResponse`
 - **Error**: `ApiException<ReadSubscriptionsExportError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

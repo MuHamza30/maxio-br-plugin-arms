@@ -24,7 +24,7 @@ Accessor: `client.Offers` · Source: `src/MaxioAdvancedBilling/Api/Offers.cs` ·
 - **Signature**: `CreateOffer(CreateOfferOperationRequest request, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default)`
 - **Returns**: `OfferResponse`
 - **Error**: `ApiException<CreateOfferError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorArrayMapResponse1(out ErrorArrayMapResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorArrayMapResponse1([NotNullWhen(true)] out ErrorArrayMapResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -41,7 +41,7 @@ Accessor: `client.Offers` · Source: `src/MaxioAdvancedBilling/Api/Offers.cs` ·
 - **Query params (wire ← C#)**: `page` ← `Page`, `per_page` ← `PerPage`, `include_archived` ← `IncludeArchived`
 - **Returns**: `ListOffersResponse`
 - **Error**: `ApiException<ListOffersError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

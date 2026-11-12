@@ -1,34 +1,44 @@
+using System;
+
 namespace MaxioAdvancedBilling.Core.Models;
 
-internal enum SerializationFormat
+internal abstract record SerializationFormat
 {
     /// <summary>
     ///     Example: variableName[0] = value1
     /// </summary>
-    Indexed = 0,
+    public static readonly SerializationFormat Indexed = new Repeated((key, index) => $"{key}[{index}]");
 
     /// <summary>
     ///     Example: variableName[] = value1
     /// </summary>
-    UnIndexed = 1,
+    public static readonly SerializationFormat UnIndexed = new Repeated((key, _) => $"{key}[]");
 
     /// <summary>
     ///     Example: variableName = value1, variableName = value 2
     /// </summary>
-    Plain = 2,
+    public static readonly SerializationFormat Plain = new Repeated((key, _) => key);
 
     /// <summary>
     ///     Example: variableName = value1,value2
     /// </summary>
-    Csv = 3,
+    public static readonly SerializationFormat Csv = new Delimited(",");
 
     /// <summary>
     ///     Example: variableName = value1 \t value2
     /// </summary>
-    Tsv = 4,
+    public static readonly SerializationFormat Tsv = new Delimited("\t");
 
     /// <summary>
     ///     Example: variableName = value1|value2
     /// </summary>
-    Psv = 5
+    public static readonly SerializationFormat Psv = new Delimited("|");
+
+    public static readonly SerializationFormat Ssv = new Delimited(" ");
+
+    private SerializationFormat() { }
+
+    public sealed record Delimited(string Delimiter) : SerializationFormat;
+
+    public sealed record Repeated(Func<string, int, string> ItemKey) : SerializationFormat;
 }

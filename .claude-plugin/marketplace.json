@@ -1,9 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "maxio-br-plugin-arms",
-  "description": "Control arm: the Maxio plugin codegen-v2 eecee918 generates from the pinned Maxio spec, C# only, SDK bundled.",
-  "owner": { "name": "APIMatic" },
+  "description": "Control for the codegen-v2 PR #811 pilot: the Maxio plugin codegen-v2 main generates at eed5f7cc (the PR's base), C# only, SDK bundled, no rules/.",
+  "owner": {
+    "name": "APIMatic"
+  },
   "plugins": [
-    { "name": "maxio", "description": "The generated Maxio context plugin at codegen-v2 eecee918: the C# skills, the Claude Code planner agent and the bundled C# SDK.", "source": "./plugins/maxio", "category": "development" }
+    {
+      "name": "maxio",
+      "description": "The generated Maxio context plugin at codegen-v2 eecee918: the C# skills, the Claude Code planner agent and the bundled C# SDK.",
+      "source": "./plugins/maxio",
+      "category": "development"
+    }
   ]
 }

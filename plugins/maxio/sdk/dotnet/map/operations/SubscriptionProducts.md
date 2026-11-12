@@ -13,7 +13,7 @@ Accessor: `client.SubscriptionProducts` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionResponse`
 - **Error**: `ApiException<MigrateSubscriptionProductError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -30,7 +30,7 @@ Accessor: `client.SubscriptionProducts` · Source: `src/MaxioAdvancedBilling/Api
   - required: `SubscriptionId`
 - **Returns**: `SubscriptionMigrationPreviewResponse`
 - **Error**: `ApiException<PreviewSubscriptionProductMigrationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

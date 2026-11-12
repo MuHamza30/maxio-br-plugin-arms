@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Extensions;
@@ -16,23 +17,50 @@ public record Amount1
 
     private readonly Optional<double> _doubleValue;
 
-    private Amount1(Optional<string> stringValue, Optional<double> doubleValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private Amount1(Optional<string> stringValue, Optional<double> doubleValue, Optional<UnknownArm> unknownValue)
     {
         _stringValue = stringValue;
         _doubleValue = doubleValue;
+        _unknownValue = unknownValue;
     }
 
-    public static Amount1 String(string value) => new(Optional<string>.Some(value), default);
+    public static Amount1 String(string value) => new(Optional<string>.Some(value), default, default);
 
-    public static Amount1 Double(double value) => new(default, Optional<double>.Some(value));
+    public static Amount1 Double(double value) => new(default, Optional<double>.Some(value), default);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    internal static Amount1 Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
 
     public bool TryGetDouble(out double value) => _doubleValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator Amount1(string value) => String(value);
 
     public static implicit operator Amount1(double value) => Double(value);
+
+    public TResult Match<TResult>(Func<string, TResult> onString,
+        Func<double, TResult> onDouble,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetDouble(out var doubleValue) => onDouble(doubleValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(Amount1)} holds no value.")
+        };
+
+    public void Match(Action<string> onString, Action<double> onDouble, Action<JsonElement> otherwise)
+    {
+        if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetDouble(out var doubleValue)) onDouble(doubleValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(Amount1)} holds no value.");
+    }
 }
 
 file sealed class Amount1Converter : JsonConverter<Amount1>
@@ -50,7 +78,7 @@ file sealed class Amount1Converter : JsonConverter<Amount1>
         {
             return Amount1.Double(doubleValue);
         }
-        throw new JsonException($"JSON does not match string or double schemas: {root.ToString()}");
+        return Amount1.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, Amount1 value, JsonSerializerOptions options)
@@ -62,6 +90,10 @@ file sealed class Amount1Converter : JsonConverter<Amount1>
         else if (value.TryGetDouble(out var doubleValue))
         {
             JsonSerializer.Serialize(writer, doubleValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaxioAdvancedBilling.Core.Models;
@@ -15,23 +16,50 @@ public record PriceInCents
 
     private readonly Optional<long> _longValue;
 
-    private PriceInCents(Optional<string> stringValue, Optional<long> longValue)
+    private readonly Optional<UnknownArm> _unknownValue;
+
+    private PriceInCents(Optional<string> stringValue, Optional<long> longValue, Optional<UnknownArm> unknownValue)
     {
         _stringValue = stringValue;
         _longValue = longValue;
+        _unknownValue = unknownValue;
     }
 
-    public static PriceInCents String(string value) => new(Optional<string>.Some(value), default);
+    public static PriceInCents String(string value) => new(Optional<string>.Some(value), default, default);
 
-    public static PriceInCents Long(long value) => new(default, Optional<long>.Some(value));
+    public static PriceInCents Long(long value) => new(default, Optional<long>.Some(value), default);
 
-    public bool TryGetString(out string value) => _stringValue.TryGetValue(out value);
+    internal static PriceInCents Unknown(JsonElement value) =>
+        new(default, default, Optional<UnknownArm>.Some(new UnknownArm(value)));
+
+    public bool TryGetString([NotNullWhen(true)] out string? value) => _stringValue.TryGetValue(out value);
 
     public bool TryGetLong(out long value) => _longValue.TryGetValue(out value);
+
+    public bool TryGetUnknown(out JsonElement value) => _unknownValue.TryGetValue(out value);
 
     public static implicit operator PriceInCents(string value) => String(value);
 
     public static implicit operator PriceInCents(long value) => Long(value);
+
+    public TResult Match<TResult>(Func<string, TResult> onString,
+        Func<long, TResult> onLong,
+        Func<JsonElement, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetString(out var stringValue) => onString(stringValue),
+            _ when TryGetLong(out var longValue) => onLong(longValue),
+            _ when TryGetUnknown(out var unknownValue) => otherwise(unknownValue),
+            _ => throw new InvalidOperationException($"{nameof(PriceInCents)} holds no value.")
+        };
+
+    public void Match(Action<string> onString, Action<long> onLong, Action<JsonElement> otherwise)
+    {
+        if (TryGetString(out var stringValue)) onString(stringValue);
+        else if (TryGetLong(out var longValue)) onLong(longValue);
+        else if (TryGetUnknown(out var unknownValue)) otherwise(unknownValue);
+        else throw new InvalidOperationException($"{nameof(PriceInCents)} holds no value.");
+    }
 }
 
 file sealed class PriceInCentsConverter : JsonConverter<PriceInCents>
@@ -52,7 +80,7 @@ file sealed class PriceInCentsConverter : JsonConverter<PriceInCents>
                 return PriceInCents.Long(longValue);
             }
         }
-        throw new JsonException($"JSON does not match string or long schemas: {root.ToString()}");
+        return PriceInCents.Unknown(root);
     }
 
     public override void Write(Utf8JsonWriter writer, PriceInCents value, JsonSerializerOptions options)
@@ -64,6 +92,10 @@ file sealed class PriceInCentsConverter : JsonConverter<PriceInCents>
         else if (value.TryGetLong(out var longValue))
         {
             JsonSerializer.Serialize(writer, longValue, options);
+        }
+        else if (value.TryGetUnknown(out var unknownValue))
+        {
+            unknownValue.WriteTo(writer);
         }
         else
         {

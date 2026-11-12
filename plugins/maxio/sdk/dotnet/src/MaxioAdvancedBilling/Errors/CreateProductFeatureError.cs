@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MaxioAdvancedBilling.Core.ErrorResponse;
 using MaxioAdvancedBilling.Core.Models;
@@ -28,10 +30,32 @@ public sealed class CreateProductFeatureError : ApiError
     private static CreateProductFeatureError AsFallback(RawError value) =>
         new(default, default, Optional<RawError>.Some(value));
 
-    public bool TryGetErrorListResponse1(out ErrorListResponse1 value) =>
+    public bool TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value) =>
         _errorListResponse1Value.TryGetValue(out value);
 
-    public bool TryGetNoContent(out RawError value) => _noContentValue.TryGetValue(out value);
+    public bool TryGetNoContent([NotNullWhen(true)] out RawError? value) => _noContentValue.TryGetValue(out value);
+
+    public TResult Match<TResult>(Func<ErrorListResponse1, TResult> onErrorListResponse1,
+        Func<RawError, TResult> onNoContent,
+        Func<RawError, TResult> otherwise) =>
+        this switch
+        {
+            _ when TryGetErrorListResponse1(out var errorListResponse1Value) => onErrorListResponse1(
+                errorListResponse1Value),
+            _ when TryGetNoContent(out var noContentValue) => onNoContent(noContentValue),
+            _ when TryGetRawError(out var fallback) => otherwise(fallback),
+            _ => throw new InvalidOperationException($"{nameof(CreateProductFeatureError)} holds no value.")
+        };
+
+    public void Match(Action<ErrorListResponse1> onErrorListResponse1,
+        Action<RawError> onNoContent,
+        Action<RawError> otherwise)
+    {
+        if (TryGetErrorListResponse1(out var errorListResponse1Value)) onErrorListResponse1(errorListResponse1Value);
+        else if (TryGetNoContent(out var noContentValue)) onNoContent(noContentValue);
+        else if (TryGetRawError(out var fallback)) otherwise(fallback);
+        else throw new InvalidOperationException($"{nameof(CreateProductFeatureError)} holds no value.");
+    }
 
     private static Task<CreateProductFeatureError> Create(FailedResponse response) =>
         response.StatusCode switch

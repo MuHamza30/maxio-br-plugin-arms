@@ -247,7 +247,7 @@ public sealed class ComponentPricePoints
                 new Param("currency_prices", request.CurrencyPrices),
                 new Param("page", request.Page),
                 new Param("per_page", request.PerPage),
-                new Param("filter[type]", request.FilterType),
+                new Param("filter[type]", request.FilterType, SerializationFormat.Csv),
             ],
             [],
             HttpMethod.Get,

@@ -14,7 +14,7 @@ Accessor: `client.BillingPortal` · Source: `src/MaxioAdvancedBilling/Api/Billin
 - **Query params (wire ← C#)**: `auto_invite` ← `AutoInvite`
 - **Returns**: `CustomerResponse`
 - **Error**: `ApiException<EnableBillingPortalForCustomerError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -31,7 +31,7 @@ Accessor: `client.BillingPortal` · Source: `src/MaxioAdvancedBilling/Api/Billin
   - required: `CustomerId`
 - **Returns**: `PortalManagementLink`
 - **Error**: `ApiException<ReadBillingPortalLinkError>` — **Case A (typed)**
-- **Error accessors**: `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetTooManyManagementLinkRequestsError1(out TooManyManagementLinkRequestsError1)` [429] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetTooManyManagementLinkRequestsError1([NotNullWhen(true)] out TooManyManagementLinkRequestsError1? value)` [429] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |
@@ -48,7 +48,7 @@ Accessor: `client.BillingPortal` · Source: `src/MaxioAdvancedBilling/Api/Billin
   - required: `CustomerId`
 - **Returns**: `ResentInvitation`
 - **Error**: `ApiException<ResendBillingPortalInvitationError>` — **Case A (typed)**
-- **Error accessors**: `TryGetNoContent(out RawError)` [404] · `TryGetErrorListResponse1(out ErrorListResponse1)` [422] · `TryGetRawError(out RawError)` [fallback]
+- **Error accessors**: `TryGetNoContent([NotNullWhen(true)] out RawError? value)` [404] · `TryGetErrorListResponse1([NotNullWhen(true)] out ErrorListResponse1? value)` [422] · `TryGetRawError([NotNullWhen(true)] out RawError? error)` [fallback]
 
 | Type | Source |
 | --- | --- |

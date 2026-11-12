@@ -12,7 +12,8 @@ internal sealed class FormUrlEncodedRequest : IRequest
     private FormUrlEncodedRequest(IReadOnlyCollection<Param> fields) => _fields = fields;
 
     public HttpContent Get() =>
-        new FormUrlEncodedContent([.. _fields.SelectMany(ParameterFlattener.Flatten)]);
+        new FormUrlEncodedContent([.. _fields.SelectMany(ParameterFlattener.Flatten)
+            .Select(field => new KeyValuePair<string, string>(field.Key, field.Text))]);
 
     public bool CanRetry => true;
 
